@@ -1,0 +1,51 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: go template
+  description: go template
+  contact:
+    name: ezekiel
+    url: https://github.com/ezekielchow
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - BearerAuth: []
+paths:
+  /dashboard:
+    get:
+      operationId: dashboard
+      responses:
+        "204":
+          description: dashboard success
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /logout:
+    get:
+      operationId: logout
+      responses:
+        "204":
+          description: logout success
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+  responses:
+    ErrorResponseSchema:
+      description: Error res
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

@@ -1,0 +1,127 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: go template
+  description: go template
+  contact:
+    name: ezekiel
+    url: https://github.com/ezekielchow
+servers:
+  - url: https://{hostname}
+    variables:
+      hostname:
+        default: localhost
+paths:
+  /login:
+    post:
+      operationId: login
+      requestBody:
+        description: login user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestSchema"
+      responses:
+        "200":
+          description: login response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+  /signup:
+    post:
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequestSchema"
+      responses:
+        "201":
+          description: signup success
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /refresh-token:
+    post:
+      operationId: refresh-token
+      responses:
+        "200":
+          description: refresh token success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+components:
+  schemas:
+    LoginRequestSchema:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginResponseSchema:
+      type: object
+      required:
+        - session_token
+        - refresh_token
+      properties:
+        session_token:
+          type: string
+        refresh_token:
+          type: string
+
+    SignupRequestSchema:
+      type: object
+      required:
+        - email
+        - password
+        - password_repeat
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        password_repeat:
+          type: string
+          minLength: 8
+
+    RefreshTokenResponseSchema:
+      type: object
+      required:
+        - session_token
+      properties:
+        session_token:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+  responses:
+    ErrorResponseSchema:
+      description: Error res
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

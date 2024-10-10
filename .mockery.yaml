@@ -1,0 +1,37 @@
+# .mockery.yml
+# Config for mockery, used to generate mocks for interfaces in your project
+
+# Output directory where mock files will be generated.
+output: ./internal/mocks
+
+# Disable test-only builds
+disable-test-exporter: false
+
+# Default package name for generated mocks
+package: mocks
+
+# Generate mocks only for exported interfaces
+exported: true
+
+# File name for the mock files, can include Go template variables
+filename: "{{.Interface}}_mock.go"
+
+# Specifies whether to generate code for Go modules
+with-expecter: false
+
+# Specifies the case format for the mock structs
+case: underscore
+
+# Specifies the tags for the generated code (e.g., for integration with tools like sqlc)
+tags:
+  - json
+
+# Directories to search for interfaces
+dirs:
+  - ./internal
+
+# Generate mocks recursively in subdirectories
+recursive: true
+
+# Should mockery print verbose output
+log-level: info
