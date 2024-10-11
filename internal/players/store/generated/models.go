@@ -8,10 +8,26 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Club struct {
+	ID        pgtype.UUID
+	OwnerID   pgtype.UUID
+	Name      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
 type Player struct {
 	ID        pgtype.UUID
 	UserID    pgtype.UUID
 	Name      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+type PlayerClub struct {
+	ID        pgtype.UUID
+	PlayerID  pgtype.UUID
+	ClubID    pgtype.UUID
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }

@@ -1,6 +1,7 @@
 package userservice
 
 import (
+	"common/models"
 	"common/oapipublic"
 	"context"
 	"database/sql"
@@ -54,7 +55,16 @@ func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequest
 		return nil, err
 	}
 
-	_, err = us.UserStore.Signup(ctx, string(input.Body.Email), string(hash))
+	user, err := us.UserStore.Signup(ctx, string(input.Body.Email), string(hash))
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = us.ClubStore.CreateClub(ctx, models.Club{
+		OwnerID: user.ID,
+		Name:    user.Email,
+	})
 
 	if err != nil {
 		return nil, err

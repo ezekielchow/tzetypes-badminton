@@ -62,3 +62,7 @@ func (c Controller) GetLoggedInUser(ctx context.Context, input oapiprivate.GetLo
 
 	return c.Services.UserService.GetLoggedInUser(ctx, input, user)
 }
+
+func (c Controller) ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error) {
+	return c.Services.PlayerService.ListPlayers(ctx, input)
+}

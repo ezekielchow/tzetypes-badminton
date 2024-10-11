@@ -36,3 +36,70 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 	)
 	return i, err
 }
+
+const listPlayers = `-- name: ListPlayers :many
+SELECT
+  p.id, p.user_id, p.name, p.created_at, p.updated_at,
+  COUNT(*) OVER() AS total_count
+FROM
+  players AS p
+JOIN
+  player_clubs AS pc ON p.id = pc.player_id
+JOIN 
+  clubs AS c ON pc.club_id = c.id 
+WHERE
+  ($1::uuid IS NULL OR c.id = $1::uuid) -- Optional filtering by owner_id
+ORDER BY
+  CASE WHEN $2::text = 'name_asc' THEN p.name END ASC,
+  CASE WHEN $2::text = 'name_desc' THEN p.name END DESC
+LIMIT $4
+OFFSET $3
+`
+
+type ListPlayersParams struct {
+	OwnerID         pgtype.UUID
+	SortArrangement string
+	OffsetCount     int32
+	LimitCount      int32
+}
+
+type ListPlayersRow struct {
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	Name       string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	TotalCount int64
+}
+
+func (q *Queries) ListPlayers(ctx context.Context, arg ListPlayersParams) ([]ListPlayersRow, error) {
+	rows, err := q.db.Query(ctx, listPlayers,
+		arg.OwnerID,
+		arg.SortArrangement,
+		arg.OffsetCount,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPlayersRow
+	for rows.Next() {
+		var i ListPlayersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 )
 
@@ -21,6 +22,9 @@ type ServerInterface interface {
 
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
+	// List players
+	// (GET /players)
+	ListPlayers(w http.ResponseWriter, r *http.Request, params ListPlayersParams)
 
 	// (POST /players/add)
 	AddPlayer(w http.ResponseWriter, r *http.Request)
@@ -40,6 +44,12 @@ func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 // (GET /logout)
 func (_ Unimplemented) Logout(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List players
+// (GET /players)
+func (_ Unimplemented) ListPlayers(w http.ResponseWriter, r *http.Request, params ListPlayersParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -87,6 +97,74 @@ func (siw *ServerInterfaceWrapper) Logout(w http.ResponseWriter, r *http.Request
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Logout(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ListPlayers operation middleware
+func (siw *ServerInterfaceWrapper) ListPlayers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListPlayersParams
+
+	// ------------- Optional query parameter "owner_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "owner_id", r.URL.Query(), &params.OwnerId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "owner_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "page" -------------
+
+	if paramValue := r.URL.Query().Get("page"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "pageSize" -------------
+
+	if paramValue := r.URL.Query().Get("pageSize"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "pageSize"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "pageSize", r.URL.Query(), &params.PageSize)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pageSize", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "sortArrangement" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sortArrangement", r.URL.Query(), &params.SortArrangement)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sortArrangement", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPlayers(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -250,6 +328,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/players", wrapper.ListPlayers)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/players/add", wrapper.AddPlayer)
 	})
 	r.Group(func(r chi.Router) {
@@ -319,6 +400,31 @@ func (response LogoutdefaultJSONResponse) VisitLogoutResponse(w http.ResponseWri
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type ListPlayersRequestObject struct {
+	Params ListPlayersParams
+}
+
+type ListPlayersResponseObject interface {
+	VisitListPlayersResponse(w http.ResponseWriter) error
+}
+
+type ListPlayers200JSONResponse struct {
+	Pagination *struct {
+		CurrentPage int `json:"currentPage"`
+		PageSize    int `json:"pageSize"`
+		TotalItems  int `json:"totalItems"`
+		TotalPages  int `json:"totalPages"`
+	} `json:"pagination,omitempty"`
+	Players *[]Player `json:"players,omitempty"`
+}
+
+func (response ListPlayers200JSONResponse) VisitListPlayersResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type AddPlayerRequestObject struct {
 	Body *AddPlayerJSONRequestBody
 }
@@ -385,6 +491,9 @@ type StrictServerInterface interface {
 
 	// (GET /logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
+	// List players
+	// (GET /players)
+	ListPlayers(ctx context.Context, request ListPlayersRequestObject) (ListPlayersResponseObject, error)
 
 	// (POST /players/add)
 	AddPlayer(ctx context.Context, request AddPlayerRequestObject) (AddPlayerResponseObject, error)
@@ -463,6 +572,32 @@ func (sh *strictHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(LogoutResponseObject); ok {
 		if err := validResponse.VisitLogoutResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListPlayers operation middleware
+func (sh *strictHandler) ListPlayers(w http.ResponseWriter, r *http.Request, params ListPlayersParams) {
+	var request ListPlayersRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListPlayers(ctx, request.(ListPlayersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListPlayers")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListPlayersResponseObject); ok {
+		if err := validResponse.VisitListPlayersResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -20,6 +20,7 @@ sqlc-gen: ## Generate golang code from sqlc queries
 	sqlc generate --file internal/users/store/sqlc.yml
 	sqlc generate --file internal/sessions/store/sqlc.yml
 	sqlc generate --file internal/players/store/sqlc.yml
+	sqlc generate --file internal/clubs/store/sqlc.yml
 
 create-migration: ## Create migration file; Usage: make create-migration table_name=your_table_name
 	migrate create -ext sql -dir ./internal/migrations -seq $(table_name)

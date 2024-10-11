@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/oapi-codegen/runtime"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -93,6 +95,9 @@ type ClientInterface interface {
 	// Logout request
 	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListPlayers request
+	ListPlayers(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// AddPlayerWithBody request with any body
 	AddPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -116,6 +121,18 @@ func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (
 
 func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewLogoutRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListPlayers(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPlayersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -206,6 +223,95 @@ func NewLogoutRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPlayersRequest generates requests for ListPlayers
+func NewListPlayersRequest(server string, params *ListPlayersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/players")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.OwnerId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "owner_id", runtime.ParamLocationQuery, *params.OwnerId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, params.Page); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, params.PageSize); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.SortArrangement != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sortArrangement", runtime.ParamLocationQuery, *params.SortArrangement); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -332,6 +438,9 @@ type ClientWithResponsesInterface interface {
 	// LogoutWithResponse request
 	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
 
+	// ListPlayersWithResponse request
+	ListPlayersWithResponse(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*ListPlayersResponse, error)
+
 	// AddPlayerWithBodyWithResponse request with any body
 	AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
 
@@ -379,6 +488,36 @@ func (r LogoutResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r LogoutResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListPlayersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Pagination *struct {
+			CurrentPage int `json:"currentPage"`
+			PageSize    int `json:"pageSize"`
+			TotalItems  int `json:"totalItems"`
+			TotalPages  int `json:"totalPages"`
+		} `json:"pagination,omitempty"`
+		Players *[]Player `json:"players,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPlayersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPlayersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -446,6 +585,15 @@ func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors
 		return nil, err
 	}
 	return ParseLogoutResponse(rsp)
+}
+
+// ListPlayersWithResponse request returning *ListPlayersResponse
+func (c *ClientWithResponses) ListPlayersWithResponse(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*ListPlayersResponse, error) {
+	rsp, err := c.ListPlayers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPlayersResponse(rsp)
 }
 
 // AddPlayerWithBodyWithResponse request with arbitrary body returning *AddPlayerResponse
@@ -520,6 +668,40 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 			return nil, err
 		}
 		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPlayersResponse parses an HTTP response from a ListPlayersWithResponse call
+func ParseListPlayersResponse(rsp *http.Response) (*ListPlayersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPlayersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Pagination *struct {
+				CurrentPage int `json:"currentPage"`
+				PageSize    int `json:"pageSize"`
+				TotalItems  int `json:"totalItems"`
+				TotalPages  int `json:"totalPages"`
+			} `json:"pagination,omitempty"`
+			Players *[]Player `json:"players,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 

@@ -9,6 +9,7 @@ import (
 
 type PlayerServiceInterface interface {
 	AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error)
+	ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error)
 }
 
 type PlayerService struct {

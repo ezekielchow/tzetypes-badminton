@@ -6,6 +6,7 @@ import (
 	"common/oapipublic"
 	"context"
 	sessionstore "sessions/store"
+	clubs "tzetypes-badminton/clubs/store"
 	userstore "users/store"
 )
 
@@ -20,4 +21,5 @@ type UserServiceInterface interface {
 type UserService struct {
 	UserStore    userstore.UserRepository
 	SessionStore sessionstore.SessionRepository
+	ClubStore    clubs.ClubRepository
 }

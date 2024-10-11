@@ -17,6 +17,21 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Player defines model for Player.
+type Player struct {
+	CreatedAt string `json:"created_at"`
+
+	// Id The unique identifier for the player.
+	Id string `json:"id"`
+
+	// Name The name of the player.
+	Name      string `json:"name"`
+	UpdatedAt string `json:"updated_at"`
+
+	// UserId The unique identifier for the player's user.
+	UserId string `json:"user_id"`
+}
+
 // User defines model for User.
 type User struct {
 	CreatedAt string `json:"created_at"`
@@ -32,6 +47,21 @@ type CurrentUserResponseSchema struct {
 
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
+
+// ListPlayersParams defines parameters for ListPlayers.
+type ListPlayersParams struct {
+	// OwnerId The ID of the owner to filter players.
+	OwnerId *string `form:"owner_id,omitempty" json:"owner_id,omitempty"`
+
+	// Page The page number for pagination.
+	Page int `form:"page" json:"page"`
+
+	// PageSize The number of players per page.
+	PageSize int `form:"pageSize" json:"pageSize"`
+
+	// SortArrangement sort by and direction.
+	SortArrangement *string `form:"sortArrangement,omitempty" json:"sortArrangement,omitempty"`
+}
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema

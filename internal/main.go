@@ -18,6 +18,8 @@ import (
 	sessionstoregenerated "sessions/store/generated"
 	"strings"
 	"time"
+	clubs "tzetypes-badminton/clubs/store"
+	clubstoregenerated "tzetypes-badminton/clubs/store/generated"
 	userservice "users/service"
 	userstore "users/store"
 	userstoregenerated "users/store/generated"
@@ -111,6 +113,9 @@ func main() {
 			},
 			SessionStore: &sessionstore.SessionPostgres{
 				Queries: sessionstoregenerated.New(conn),
+			},
+			ClubStore: &clubs.ClubPostgres{
+				Queries: clubstoregenerated.New(conn),
 			},
 		},
 		PlayerService: playerservice.PlayerService{
