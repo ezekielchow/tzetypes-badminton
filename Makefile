@@ -19,6 +19,7 @@ test:  ## Run tests
 sqlc-gen: ## Generate golang code from sqlc queries
 	sqlc generate --file internal/users/store/sqlc.yml
 	sqlc generate --file internal/sessions/store/sqlc.yml
+	sqlc generate --file internal/players/store/sqlc.yml
 
 create-migration: ## Create migration file; Usage: make create-migration table_name=your_table_name
 	migrate create -ext sql -dir ./internal/migrations -seq $(table_name)
@@ -26,4 +27,4 @@ create-migration: ## Create migration file; Usage: make create-migration table_n
 gen-mocks:  ## Generate mocks to help in testing
 	docker run -v ./internal:/src -w /src vektra/mockery --all
 
-pre-commit: openapi sqlc-gen gen-mocks test ## Make sure all code is ok before commiting
+pre-commit: openapi openapi-js sqlc-gen gen-mocks test ## Make sure all code is ok before commiting

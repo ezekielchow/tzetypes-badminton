@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	oapiprivate "common/oapiprivate"
+	oapipublic "common/oapipublic"
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -14,28 +14,88 @@ type StrictServerInterface struct {
 	mock.Mock
 }
 
-// Dashboard provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) Dashboard(ctx context.Context, request oapiprivate.DashboardRequestObject) (oapiprivate.DashboardResponseObject, error) {
+// Login provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) Login(ctx context.Context, request oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Dashboard")
+		panic("no return value specified for Login")
 	}
 
-	var r0 oapiprivate.DashboardResponseObject
+	var r0 oapipublic.LoginResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DashboardRequestObject) (oapiprivate.DashboardResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DashboardRequestObject) oapiprivate.DashboardResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.LoginRequestObject) oapipublic.LoginResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapiprivate.DashboardResponseObject)
+			r0 = ret.Get(0).(oapipublic.LoginResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.DashboardRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.LoginRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RefreshToken provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) RefreshToken(ctx context.Context, request oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RefreshToken")
+	}
+
+	var r0 oapipublic.RefreshTokenResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.RefreshTokenRequestObject) oapipublic.RefreshTokenResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.RefreshTokenResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.RefreshTokenRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Signup provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) Signup(ctx context.Context, request oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Signup")
+	}
+
+	var r0 oapipublic.SignupResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) oapipublic.SignupResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.SignupResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)

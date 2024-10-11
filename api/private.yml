@@ -1,8 +1,8 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: go template
-  description: go template
+  title: tzetypes-badminton
+  description: tzetypes-badminton
   contact:
     name: ezekiel
     url: https://github.com/ezekielchow
@@ -26,9 +26,28 @@ paths:
   /logout:
     get:
       operationId: logout
+      tags:
+        - users
       responses:
         "204":
           description: logout success
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /player/add:
+    post:
+      operationId: add player
+      tags:
+        - players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPlayerRequestSchema"
+      responses:
+        "201":
+          description: add player success
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
@@ -40,6 +59,14 @@ components:
         - message
       properties:
         message:
+          type: string
+
+    AddPlayerRequestSchema:
+      type: object
+      required:
+        - name
+      properties:
+        name:
           type: string
 
   responses:

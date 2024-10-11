@@ -44,6 +44,52 @@ func (_m *SessionRepository) CreateSession(ctx context.Context, userID string, s
 	return r0, r1
 }
 
+// DeleteSession provides a mock function with given fields: ctx, sessionID
+func (_m *SessionRepository) DeleteSession(ctx context.Context, sessionID string) error {
+	ret := _m.Called(ctx, sessionID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteSession")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, sessionID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// FindSessionToRefreshAccessToken provides a mock function with given fields: ctx, refreshToken
+func (_m *SessionRepository) FindSessionToRefreshAccessToken(ctx context.Context, refreshToken string) (models.Session, error) {
+	ret := _m.Called(ctx, refreshToken)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindSessionToRefreshAccessToken")
+	}
+
+	var r0 models.Session
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (models.Session, error)); ok {
+		return rf(ctx, refreshToken)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) models.Session); ok {
+		r0 = rf(ctx, refreshToken)
+	} else {
+		r0 = ret.Get(0).(models.Session)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, refreshToken)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindSessionWithSessionID provides a mock function with given fields: ctx, sessionID
 func (_m *SessionRepository) FindSessionWithSessionID(ctx context.Context, sessionID string) (models.Session, error) {
 	ret := _m.Called(ctx, sessionID)
@@ -65,6 +111,34 @@ func (_m *SessionRepository) FindSessionWithSessionID(ctx context.Context, sessi
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, sessionID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateSessionWithRefreshToken provides a mock function with given fields: ctx, refreshToken, sessionTokenExpiresAt
+func (_m *SessionRepository) UpdateSessionWithRefreshToken(ctx context.Context, refreshToken string, sessionTokenExpiresAt time.Time) (models.Session, error) {
+	ret := _m.Called(ctx, refreshToken, sessionTokenExpiresAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateSessionWithRefreshToken")
+	}
+
+	var r0 models.Session
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, time.Time) (models.Session, error)); ok {
+		return rf(ctx, refreshToken, sessionTokenExpiresAt)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, time.Time) models.Session); ok {
+		r0 = rf(ctx, refreshToken, sessionTokenExpiresAt)
+	} else {
+		r0 = ret.Get(0).(models.Session)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, time.Time) error); ok {
+		r1 = rf(ctx, refreshToken, sessionTokenExpiresAt)
 	} else {
 		r1 = ret.Error(1)
 	}

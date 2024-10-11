@@ -7,6 +7,11 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
+// AddPlayerRequestSchema defines model for AddPlayerRequestSchema.
+type AddPlayerRequestSchema struct {
+	Name string `json:"name"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
@@ -14,3 +19,6 @@ type Error struct {
 
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
+
+// AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
+type AddPlayerJSONRequestBody = AddPlayerRequestSchema

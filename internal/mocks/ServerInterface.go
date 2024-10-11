@@ -13,8 +13,18 @@ type ServerInterface struct {
 	mock.Mock
 }
 
-// Dashboard provides a mock function with given fields: w, r
-func (_m *ServerInterface) Dashboard(w http.ResponseWriter, r *http.Request) {
+// Login provides a mock function with given fields: w, r
+func (_m *ServerInterface) Login(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// RefreshToken provides a mock function with given fields: w, r
+func (_m *ServerInterface) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// Signup provides a mock function with given fields: w, r
+func (_m *ServerInterface) Signup(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 

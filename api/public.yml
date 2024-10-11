@@ -1,8 +1,8 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: go template
-  description: go template
+  title: tzetypes-badminton
+  description: tzetypes-badminton
   contact:
     name: ezekiel
     url: https://github.com/ezekielchow

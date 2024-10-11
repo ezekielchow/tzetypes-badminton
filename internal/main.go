@@ -11,6 +11,9 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
+	playerservice "players/service"
+	playerstore "players/store"
+	playerstoregenerated "players/store/generated"
 	sessionstore "sessions/store"
 	sessionstoregenerated "sessions/store/generated"
 	"strings"
@@ -108,6 +111,14 @@ func main() {
 			},
 			SessionStore: &sessionstore.SessionPostgres{
 				Queries: sessionstoregenerated.New(conn),
+			},
+		},
+		PlayerService: playerservice.PlayerService{
+			PlayerStore: &playerstore.PlayerPostgres{
+				Queries: playerstoregenerated.New(conn),
+			},
+			UserStore: &userstore.UserPostgres{
+				Queries: userstoregenerated.New(conn),
 			},
 		},
 	}

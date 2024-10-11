@@ -6,16 +6,13 @@ import (
 	"common/oapipublic"
 	"context"
 	"fmt"
+	player "players/service"
 	userservice "users/service"
-	userstore "users/store"
 )
 
-type CommonStore struct {
-	UserRepository userstore.UserRepository
-}
-
 type CommonService struct {
-	UserService userservice.UserServiceInterface
+	UserService   userservice.UserServiceInterface
+	PlayerService player.PlayerServiceInterface
 }
 
 type Controller struct {
@@ -51,4 +48,8 @@ func (c Controller) Logout(ctx context.Context, input oapiprivate.LogoutRequestO
 	}
 
 	return c.Services.UserService.Logout(ctx, input, session)
+}
+
+func (c Controller) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error) {
+	return c.Services.PlayerService.AddPlayer(ctx, input)
 }

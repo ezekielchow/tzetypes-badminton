@@ -1,4 +1,4 @@
-module gotemplate
+module tzetypes-badminton
 
 go 1.22.5
 

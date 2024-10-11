@@ -4,6 +4,7 @@
 package oapiprivate
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -91,6 +92,11 @@ type ClientInterface interface {
 
 	// Logout request
 	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddPlayerWithBody request with any body
+	AddPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -107,6 +113,30 @@ func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (
 
 func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewLogoutRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddPlayerRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddPlayerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +201,46 @@ func NewLogoutRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewAddPlayerRequest calls the generic AddPlayer builder with application/json body
+func NewAddPlayerRequest(server string, body AddPlayerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddPlayerRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAddPlayerRequestWithBody generates requests for AddPlayer with any type of body
+func NewAddPlayerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/player/add")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -219,6 +289,11 @@ type ClientWithResponsesInterface interface {
 
 	// LogoutWithResponse request
 	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
+
+	// AddPlayerWithBodyWithResponse request with any body
+	AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
+
+	AddPlayerWithResponse(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
 }
 
 type DashboardResponse struct {
@@ -265,6 +340,28 @@ func (r LogoutResponse) StatusCode() int {
 	return 0
 }
 
+type AddPlayerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r AddPlayerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddPlayerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // DashboardWithResponse request returning *DashboardResponse
 func (c *ClientWithResponses) DashboardWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DashboardResponse, error) {
 	rsp, err := c.Dashboard(ctx, reqEditors...)
@@ -281,6 +378,23 @@ func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors
 		return nil, err
 	}
 	return ParseLogoutResponse(rsp)
+}
+
+// AddPlayerWithBodyWithResponse request with arbitrary body returning *AddPlayerResponse
+func (c *ClientWithResponses) AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error) {
+	rsp, err := c.AddPlayerWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddPlayerResponse(rsp)
+}
+
+func (c *ClientWithResponses) AddPlayerWithResponse(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error) {
+	rsp, err := c.AddPlayer(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddPlayerResponse(rsp)
 }
 
 // ParseDashboardResponse parses an HTTP response from a DashboardWithResponse call
@@ -318,6 +432,32 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 	}
 
 	response := &LogoutResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAddPlayerResponse parses an HTTP response from a AddPlayerWithResponse call
+func ParseAddPlayerResponse(rsp *http.Response) (*AddPlayerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddPlayerResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

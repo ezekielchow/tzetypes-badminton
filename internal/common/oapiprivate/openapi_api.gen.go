@@ -21,6 +21,9 @@ type ServerInterface interface {
 
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
+
+	// (POST /player/add)
+	AddPlayer(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -34,6 +37,11 @@ func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 // (GET /logout)
 func (_ Unimplemented) Logout(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /player/add)
+func (_ Unimplemented) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -71,6 +79,23 @@ func (siw *ServerInterfaceWrapper) Logout(w http.ResponseWriter, r *http.Request
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Logout(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// AddPlayer operation middleware
+func (siw *ServerInterfaceWrapper) AddPlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AddPlayer(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -199,6 +224,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/player/add", wrapper.AddPlayer)
+	})
 
 	return r
 }
@@ -259,6 +287,34 @@ func (response LogoutdefaultJSONResponse) VisitLogoutResponse(w http.ResponseWri
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type AddPlayerRequestObject struct {
+	Body *AddPlayerJSONRequestBody
+}
+
+type AddPlayerResponseObject interface {
+	VisitAddPlayerResponse(w http.ResponseWriter) error
+}
+
+type AddPlayer201Response struct {
+}
+
+func (response AddPlayer201Response) VisitAddPlayerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
+	return nil
+}
+
+type AddPlayerdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response AddPlayerdefaultJSONResponse) VisitAddPlayerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -267,6 +323,9 @@ type StrictServerInterface interface {
 
 	// (GET /logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
+
+	// (POST /player/add)
+	AddPlayer(ctx context.Context, request AddPlayerRequestObject) (AddPlayerResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -339,6 +398,37 @@ func (sh *strictHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(LogoutResponseObject); ok {
 		if err := validResponse.VisitLogoutResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AddPlayer operation middleware
+func (sh *strictHandler) AddPlayer(w http.ResponseWriter, r *http.Request) {
+	var request AddPlayerRequestObject
+
+	var body AddPlayerJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.AddPlayer(ctx, request.(AddPlayerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AddPlayer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(AddPlayerResponseObject); ok {
+		if err := validResponse.VisitAddPlayerResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -6,4 +6,5 @@ use (
 	./common
 	./sessions
 	./mocks
+	./players
 )
