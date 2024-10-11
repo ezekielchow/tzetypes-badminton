@@ -97,6 +97,9 @@ type ClientInterface interface {
 	AddPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetLoggedInUser request
+	GetLoggedInUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -137,6 +140,18 @@ func (c *Client) AddPlayerWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddPlayerRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetLoggedInUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLoggedInUserRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +236,7 @@ func NewAddPlayerRequestWithBody(server string, contentType string, body io.Read
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/player/add")
+	operationPath := fmt.Sprintf("/players/add")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -237,6 +252,33 @@ func NewAddPlayerRequestWithBody(server string, contentType string, body io.Read
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetLoggedInUserRequest generates requests for GetLoggedInUser
+func NewGetLoggedInUserRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/current")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -294,6 +336,9 @@ type ClientWithResponsesInterface interface {
 	AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
 
 	AddPlayerWithResponse(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
+
+	// GetLoggedInUserWithResponse request
+	GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLoggedInUserResponse, error)
 }
 
 type DashboardResponse struct {
@@ -362,6 +407,29 @@ func (r AddPlayerResponse) StatusCode() int {
 	return 0
 }
 
+type GetLoggedInUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CurrentUserResponseSchema
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLoggedInUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLoggedInUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // DashboardWithResponse request returning *DashboardResponse
 func (c *ClientWithResponses) DashboardWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DashboardResponse, error) {
 	rsp, err := c.Dashboard(ctx, reqEditors...)
@@ -395,6 +463,15 @@ func (c *ClientWithResponses) AddPlayerWithResponse(ctx context.Context, body Ad
 		return nil, err
 	}
 	return ParseAddPlayerResponse(rsp)
+}
+
+// GetLoggedInUserWithResponse request returning *GetLoggedInUserResponse
+func (c *ClientWithResponses) GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLoggedInUserResponse, error) {
+	rsp, err := c.GetLoggedInUser(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLoggedInUserResponse(rsp)
 }
 
 // ParseDashboardResponse parses an HTTP response from a DashboardWithResponse call
@@ -463,6 +540,39 @@ func ParseAddPlayerResponse(rsp *http.Response) (*AddPlayerResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetLoggedInUserResponse parses an HTTP response from a GetLoggedInUserWithResponse call
+func ParseGetLoggedInUserResponse(rsp *http.Response) (*GetLoggedInUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLoggedInUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CurrentUserResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

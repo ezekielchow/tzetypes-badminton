@@ -27,4 +27,7 @@ create-migration: ## Create migration file; Usage: make create-migration table_n
 gen-mocks:  ## Generate mocks to help in testing
 	docker run -v ./internal:/src -w /src vektra/mockery --all
 
-pre-commit: openapi openapi-js sqlc-gen gen-mocks test ## Make sure all code is ok before commiting
+web-build:
+	cd ./web && bun run build
+
+pre-commit: openapi openapi-js sqlc-gen gen-mocks test web-build ## Make sure all code is ok before commiting

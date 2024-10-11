@@ -34,7 +34,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
-  /player/add:
+  /players/add:
     post:
       operationId: add player
       tags:
@@ -51,7 +51,24 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /users/current:
+    get:
+      operationId: get logged in user # Corrected Typo
+      tags:
+        - users
+      responses:
+        "200":
+          description: get user success
+          $ref: "#/components/responses/CurrentUserResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
+  securitySchemes: # Added missing security scheme
+    BearerAuth:
+      type: http
+      scheme: bearer
+
   schemas:
     Error:
       type: object
@@ -69,6 +86,23 @@ components:
         name:
           type: string
 
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
   responses:
     ErrorResponseSchema:
       description: Error res
@@ -76,3 +110,14 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    CurrentUserResponseSchema:
+      description: current user success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user
+            properties:
+              user:
+                $ref: "#/components/schemas/User"

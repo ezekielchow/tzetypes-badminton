@@ -17,6 +17,19 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// User defines model for User.
+type User struct {
+	CreatedAt string `json:"created_at"`
+	Email     string `json:"email"`
+	Id        string `json:"id"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+// CurrentUserResponseSchema defines model for CurrentUserResponseSchema.
+type CurrentUserResponseSchema struct {
+	User User `json:"user"`
+}
+
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
 

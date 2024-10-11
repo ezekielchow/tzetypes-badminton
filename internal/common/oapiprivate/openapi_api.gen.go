@@ -22,8 +22,11 @@ type ServerInterface interface {
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
 
-	// (POST /player/add)
+	// (POST /players/add)
 	AddPlayer(w http.ResponseWriter, r *http.Request)
+
+	// (GET /users/current)
+	GetLoggedInUser(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -40,8 +43,13 @@ func (_ Unimplemented) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /player/add)
+// (POST /players/add)
 func (_ Unimplemented) AddPlayer(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /users/current)
+func (_ Unimplemented) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -96,6 +104,23 @@ func (siw *ServerInterfaceWrapper) AddPlayer(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddPlayer(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetLoggedInUser operation middleware
+func (siw *ServerInterfaceWrapper) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetLoggedInUser(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -225,10 +250,17 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/player/add", wrapper.AddPlayer)
+		r.Post(options.BaseURL+"/players/add", wrapper.AddPlayer)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/users/current", wrapper.GetLoggedInUser)
 	})
 
 	return r
+}
+
+type CurrentUserResponseSchemaJSONResponse struct {
+	User User `json:"user"`
 }
 
 type ErrorResponseSchemaJSONResponse Error
@@ -315,6 +347,36 @@ func (response AddPlayerdefaultJSONResponse) VisitAddPlayerResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type GetLoggedInUserRequestObject struct {
+}
+
+type GetLoggedInUserResponseObject interface {
+	VisitGetLoggedInUserResponse(w http.ResponseWriter) error
+}
+
+type GetLoggedInUser200JSONResponse struct {
+	CurrentUserResponseSchemaJSONResponse
+}
+
+func (response GetLoggedInUser200JSONResponse) VisitGetLoggedInUserResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetLoggedInUserdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetLoggedInUserdefaultJSONResponse) VisitGetLoggedInUserResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -324,8 +386,11 @@ type StrictServerInterface interface {
 	// (GET /logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
 
-	// (POST /player/add)
+	// (POST /players/add)
 	AddPlayer(ctx context.Context, request AddPlayerRequestObject) (AddPlayerResponseObject, error)
+
+	// (GET /users/current)
+	GetLoggedInUser(ctx context.Context, request GetLoggedInUserRequestObject) (GetLoggedInUserResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -429,6 +494,30 @@ func (sh *strictHandler) AddPlayer(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(AddPlayerResponseObject); ok {
 		if err := validResponse.VisitAddPlayerResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetLoggedInUser operation middleware
+func (sh *strictHandler) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
+	var request GetLoggedInUserRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetLoggedInUser(ctx, request.(GetLoggedInUserRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetLoggedInUser")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetLoggedInUserResponseObject); ok {
+		if err := validResponse.VisitGetLoggedInUserResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

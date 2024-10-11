@@ -1,0 +1,20 @@
+# Base image with Bun pre-installed
+FROM oven/bun:1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy package.json and bun.lockb into the container
+COPY package.json bun.lockb ./
+
+# Install dependencies
+RUN bun install
+
+# Copy all application files
+COPY . .
+
+# Build the Vue 3 application
+RUN bun run build
+
+# Run a basic command to keep the container alive for inspection
+CMD ["sleep", "infinity"]
