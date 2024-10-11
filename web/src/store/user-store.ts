@@ -5,7 +5,8 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    backendUrl: ""
+    backendUrl: "",
+    currentUser: null
   }),
   actions: {
     setBackendUrl(backendUrl: string) {
@@ -38,6 +39,27 @@ export const useUserStore = defineStore('user', {
         const res = await myApi.logoutRequest()
         myApi.deleteSession()
 
+        return res
+
+      } catch (error: any) {
+        console.log(error);
+
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getCurrentUser() {
+      if (this.currentUser != null) {
+        return this.currentUser
+      }
+
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.currentUser()
         return res
 
       } catch (error: any) {

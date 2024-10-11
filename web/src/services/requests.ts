@@ -35,8 +35,8 @@ export class MyApi extends runtime.BaseAPI {
 
     return new PrivateConf({
       basePath: `${this.backendUrl}/api`,
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: "include"
+      credentials: "include",
+      accessToken: token ?? "",
     });
   }
 
@@ -154,5 +154,26 @@ export class MyApi extends runtime.BaseAPI {
 
     // Redirect the user to the sign-in page
     window.location.href = this.signInPageUrl;
+  }
+
+  private async requestCurrentUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.GetLoggedInUser200Response>> {
+    const api = new PrivateUsersApi(this.getPrivateConf())
+
+    try {
+      return api.getLoggedInUserRaw(initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get current user');
+    }
+  }
+
+  /**
+   * Public method to access the dashboard endpoint
+   */
+  async currentUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.GetLoggedInUser200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.requestCurrentUser(initOverrides));
+    return await apiResponse.value();
   }
 }

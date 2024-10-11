@@ -18,6 +18,36 @@ type UserServiceInterface struct {
 	mock.Mock
 }
 
+// GetLoggedInUser provides a mock function with given fields: ctx, input, user
+func (_m *UserServiceInterface) GetLoggedInUser(ctx context.Context, input oapiprivate.GetLoggedInUserRequestObject, user models.User) (oapiprivate.GetLoggedInUserResponseObject, error) {
+	ret := _m.Called(ctx, input, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLoggedInUser")
+	}
+
+	var r0 oapiprivate.GetLoggedInUserResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject, models.User) (oapiprivate.GetLoggedInUserResponseObject, error)); ok {
+		return rf(ctx, input, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject, models.User) oapiprivate.GetLoggedInUserResponseObject); ok {
+		r0 = rf(ctx, input, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetLoggedInUserResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject, models.User) error); ok {
+		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Login provides a mock function with given fields: ctx, input
 func (_m *UserServiceInterface) Login(ctx context.Context, input oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
 	ret := _m.Called(ctx, input)

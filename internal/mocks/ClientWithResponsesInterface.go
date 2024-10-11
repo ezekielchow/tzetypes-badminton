@@ -127,6 +127,43 @@ func (_m *ClientWithResponsesInterface) DashboardWithResponse(ctx context.Contex
 	return r0, r1
 }
 
+// GetLoggedInUserWithResponse provides a mock function with given fields: ctx, reqEditors
+func (_m *ClientWithResponsesInterface) GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.GetLoggedInUserResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLoggedInUserWithResponse")
+	}
+
+	var r0 *oapiprivate.GetLoggedInUserResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ...oapiprivate.RequestEditorFn) (*oapiprivate.GetLoggedInUserResponse, error)); ok {
+		return rf(ctx, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ...oapiprivate.RequestEditorFn) *oapiprivate.GetLoggedInUserResponse); ok {
+		r0 = rf(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.GetLoggedInUserResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LogoutWithResponse provides a mock function with given fields: ctx, reqEditors
 func (_m *ClientWithResponsesInterface) LogoutWithResponse(ctx context.Context, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.LogoutResponse, error) {
 	_va := make([]interface{}, len(reqEditors))

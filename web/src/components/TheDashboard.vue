@@ -3,11 +3,12 @@ import { useUserStore } from '@/store/user-store';
 import { ref } from 'vue';
 
 const errorMessage = ref('')
+const userEmail = ref('')
+
+const userStore = useUserStore()
+userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
 
 const submitLogout = async () => {
-
-    const userStore = useUserStore()
-    userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
     const res = await userStore.logout()
 
     if (res instanceof Error) {
@@ -17,26 +18,53 @@ const submitLogout = async () => {
 
     errorMessage.value = ""
 }
+
+const getUserEmail = async () => {
+    const res = await userStore.getCurrentUser()
+    if (res instanceof Error) {
+        errorMessage.value = res.message
+        return
+    }
+
+    errorMessage.value = ""
+    userEmail.value = res.user.email
+}
+
+getUserEmail()
 </script>
 
-
 <template>
-    <div>
-        <h1>dashboard</h1>
+    <div class="dashboard-container">
+        <div class="header">
+            <div>
+                <h2><b>Dashboard</b></h2>
+                <h5>Welcome {{ userEmail }},</h5>
 
-        <form @submit.prevent="submitLogout">
-
-            <div class="actions">
-                <button type="submit">Logout</button>
             </div>
 
-            <div v-if="errorMessage" class="error">
-                {{ errorMessage }}
-            </div>
-        </form>
+            <form @submit.prevent="submitLogout">
 
+                <div class="actions">
+                    <button type="submit">Logout</button>
+                </div>
+
+                <div v-if="errorMessage" class="error">
+                    {{ errorMessage }}
+                </div>
+            </form>
+        </div>
     </div>
 </template>
 
 
-<style scoped></style>
+<style scoped>
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+</style>
