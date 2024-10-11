@@ -9,6 +9,8 @@ services:
       - "127.0.0.1:8080:5173"
     depends_on:
       - http
+    env_file:
+      - .env
       
   http:
     build:

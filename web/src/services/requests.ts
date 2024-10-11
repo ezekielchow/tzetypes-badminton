@@ -1,10 +1,11 @@
 import {
-  DefaultApi as PrivateApi,
+  DefaultApi,
   Configuration as PrivateConf,
+  UsersApi as PrivateUsersApi
 } from '@/repositories/clients/private';
 import {
-  DefaultApi as PublicApi,
   Configuration as PublicConf,
+  UsersApi as PublicUsersApi,
   type LoginRequest,
   type LoginResponseSchema
 } from '@/repositories/clients/public';
@@ -41,7 +42,7 @@ export class MyApi extends runtime.BaseAPI {
 
   async refreshToken(): Promise<void> {
 
-    const api = new PublicApi(this.getPublicConf())
+    const api = new PublicUsersApi(this.getPublicConf())
 
     try {
       const response = await api.refreshToken()
@@ -79,7 +80,7 @@ export class MyApi extends runtime.BaseAPI {
   }
 
   private async requestDashboardApi(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-    const api = new PrivateApi(this.getPrivateConf())
+    const api = new DefaultApi(this.getPrivateConf())
 
     try {
       await api.dashboardRaw(initOverrides)
@@ -102,7 +103,7 @@ export class MyApi extends runtime.BaseAPI {
   }
 
   private async requestLoginApi(requestParameters: LoginRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LoginResponseSchema> {
-    const api = new PublicApi(this.getPublicConf())
+    const api = new PublicUsersApi(this.getPublicConf())
 
     try {
       return api.login(requestParameters, initOverrides)
@@ -122,10 +123,10 @@ export class MyApi extends runtime.BaseAPI {
   }
 
   private async requestLogoutApi(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-    const api = new PrivateApi(this.getPrivateConf())
+    const api = new PrivateUsersApi(this.getPrivateConf())
 
     try {
-      await api.logoutRaw(initOverrides)
+      await api.logout(initOverrides)
     } catch (error) {
       if (error instanceof runtime.ResponseError) {
         throw new runtime.ResponseError(error.response, error.message)

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { MyApi } from '@/services/requests';
+import { useUserStore } from '@/store/user-store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -34,33 +34,18 @@ const router = useRouter()
 
 const submitLogin = async () => {
 
-  const myApi = new MyApi(import.meta.env.VITE_BACKEND_URL)
+  const userStore = useUserStore()
+  userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+  const res = await userStore.login(email.value, password.value)
 
-  try {
-    const res = await myApi.login({
-      loginRequestSchema: {
-        email: email.value,
-        password: password.value
-      }
-    })
-
-    errorMessage.value = ''
-
-    sessionStorage.setItem('session_token', res.sessionToken);
-    router.push('/dashboard')
-
-  } catch (error: any) {
-
-    if (error.response) {
-      const errorBody = await error.response.json() // Parse the error response body as JSON
-      errorMessage.value = `Error: ${errorBody.message || 'Something went wrong'}`
-      return
-    }
-
-    errorMessage.value = "Network error or unexpected error occurred"
+  if (res instanceof Error) {
+    errorMessage.value = res.message
     return
   }
 
+  errorMessage.value = ''
+  sessionStorage.setItem('session_token', res.sessionToken);
+  router.push('/dashboard')
 }
 </script>
 
