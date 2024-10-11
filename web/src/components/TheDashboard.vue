@@ -53,6 +53,14 @@ getUserEmail()
                 </div>
             </form>
         </div>
+
+        <div class="content">
+            <RouterLink to="/players">
+                <button class="green-button">
+                    My Players
+                </button>
+            </RouterLink>
+        </div>
     </div>
 </template>
 
@@ -66,5 +74,11 @@ getUserEmail()
 .header {
     display: flex;
     justify-content: space-between;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
 }
 </style>

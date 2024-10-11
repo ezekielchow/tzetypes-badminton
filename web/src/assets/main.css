@@ -1,4 +1,7 @@
 @import './base.css';
+@import './breadcrumb.css';
+@import './buttons.css';
+@import './table.css';
 
 /* Mobile First Styles */
 body {

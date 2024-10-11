@@ -12,7 +12,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit">Login</button>
+        <button class="green-button" type="submit">Login</button>
       </div>
 
       <div v-if="errorMessage" class="error">
@@ -76,19 +76,6 @@ const submitLogin = async () => {
 
 .actions {
   text-align: center;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #27ae60;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #2ecc71;
 }
 
 .error {

@@ -1,6 +1,7 @@
 import Dashboard from '@/components/TheDashboard.vue';
 import { MyApi } from '@/services/requests';
 import LoginView from '@/views/LoginView.vue';
+import PlayersDashboardView from '@/views/PlayersDashboardView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -22,7 +23,13 @@ const router = createRouter({
       name: 'dashboard',
       component: Dashboard,
       meta: { requiresAuth: true }
-    }
+    },
+    {
+      path: '/players',
+      name: 'players',
+      component: PlayersDashboardView,
+      meta: { requiresAuth: true }
+    },
   ]
 })
 

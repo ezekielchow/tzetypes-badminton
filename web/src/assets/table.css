@@ -1,0 +1,78 @@
+.table-wrapper {
+    margin: 20px;
+    overflow-x: auto; /* Enable horizontal scrolling on small screens */
+}
+
+.responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Fallback for browsers that don't support width 100% */
+    background-color: #ECF0F1; /* Secondary Color */
+}
+
+.responsive-table th,
+.responsive-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    color: #333333; /* Text Color */
+}
+
+.responsive-table thead {
+    background-color: #27AE60; /* Primary Color */
+    color: #fff;
+}
+
+.responsive-table tbody tr:nth-child(even) {
+    background-color: #2ECC71; /* Accent Color */
+}
+
+.responsive-table tbody tr:hover {
+    background-color: #27AE60; /* Primary Color */
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+@media(max-width: 768px) {
+    .responsive-table th,
+    .responsive-table td {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+}
+
+@media(max-width: 480px) {
+    .responsive-table th,
+    .responsive-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .responsive-table th {
+        background-color: #2ECC71; /* Accent Color */
+    }
+
+    .responsive-table thead {
+        display: none;
+    }
+
+    .responsive-table tbody tr {
+        margin-bottom: 15px;
+        display: block;
+        border: 1px solid #ddd;
+    }
+
+    .responsive-table tbody tr td {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 5px;
+    }
+
+    .responsive-table tbody tr td:before {
+        content: attr(data-label);
+        flex: 1;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+}
