@@ -40,7 +40,7 @@ func (response Logout204Response) VisitLogoutResponse(w http.ResponseWriter) err
 
 func (us UserService) Logout(ctx context.Context, input oapiprivate.LogoutRequestObject, session models.Session) (oapiprivate.LogoutResponseObject, error) {
 
-	err := us.SessionStore.DeleteSession(ctx, session.ID)
+	err := us.SessionStore.DeleteSession(ctx, nil, session.ID)
 	if err != nil {
 		return nil, err
 	}

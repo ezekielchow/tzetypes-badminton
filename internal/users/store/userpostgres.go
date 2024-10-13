@@ -3,17 +3,23 @@ package userstore
 import (
 	"common/models"
 	"context"
-	users "users/store/generated"
+	database "tzetypes-badminton/database/generated"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type UserPostgres struct {
-	Queries *users.Queries
+	Queries *database.Queries
 }
 
-func (up UserPostgres) Signup(ctx context.Context, email string, passwordHash string) (models.User, error) {
-	created, err := up.Queries.CreateUser(ctx, users.CreateUserParams{
+func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string) (models.User, error) {
+	queries := up.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	created, err := queries.CreateUser(ctx, database.CreateUserParams{
 		Email:        email,
 		PasswordHash: &passwordHash,
 	})
@@ -31,8 +37,13 @@ func (up UserPostgres) Signup(ctx context.Context, email string, passwordHash st
 	return user, nil
 }
 
-func (up UserPostgres) FindUserWithEmail(ctx context.Context, email string) (models.User, error) {
-	res, err := up.Queries.FindUserWithEmail(ctx, email)
+func (up UserPostgres) FindUserWithEmail(ctx context.Context, tx *pgx.Tx, email string) (models.User, error) {
+	queries := up.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	res, err := queries.FindUserWithEmail(ctx, email)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -43,14 +54,19 @@ func (up UserPostgres) FindUserWithEmail(ctx context.Context, email string) (mod
 	return user, nil
 }
 
-func (up UserPostgres) FindUserWithID(ctx context.Context, id string) (models.User, error) {
+func (up UserPostgres) FindUserWithID(ctx context.Context, tx *pgx.Tx, id string) (models.User, error) {
+	queries := up.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID := pgtype.UUID{}
 	err := pgID.Scan(id)
 	if err != nil {
 		return models.User{}, err
 	}
 
-	res, err := up.Queries.FindUserWithID(ctx, pgID)
+	res, err := queries.FindUserWithID(ctx, pgID)
 	if err != nil {
 		return models.User{}, err
 	}

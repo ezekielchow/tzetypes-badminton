@@ -1,0 +1,15 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries:
+      - "../players/store/player.sql"
+      - "../users/store/user.sql"
+      - "../clubs/store/club.sql"
+      - "../sessions/store/session.sql"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "database"
+        out: "./generated"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true

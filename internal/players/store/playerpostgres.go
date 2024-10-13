@@ -3,8 +3,9 @@ package players
 import (
 	"common/models"
 	"context"
-	playerstoregenerated "players/store/generated"
+	database "tzetypes-badminton/database/generated"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -16,10 +17,16 @@ const (
 )
 
 type PlayerPostgres struct {
-	Queries *playerstoregenerated.Queries
+	Queries *database.Queries
 }
 
-func (pp PlayerPostgres) CreatePlayer(ctx context.Context, toCreate models.Player, passwordHash string) (models.Player, error) {
+func (pp PlayerPostgres) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCreate models.Player, passwordHash string) (models.Player, error) {
+
+	queries := pp.Queries
+
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgUserID := pgtype.UUID{}
 	err := pgUserID.Scan(toCreate.UserID)
@@ -27,7 +34,7 @@ func (pp PlayerPostgres) CreatePlayer(ctx context.Context, toCreate models.Playe
 		return models.Player{}, err
 	}
 
-	created, err := pp.Queries.CreatePlayer(ctx, playerstoregenerated.CreatePlayerParams{
+	created, err := queries.CreatePlayer(ctx, database.CreatePlayerParams{
 		UserID: pgUserID,
 		Name:   toCreate.Name,
 	})
@@ -42,7 +49,12 @@ func (pp PlayerPostgres) CreatePlayer(ctx context.Context, toCreate models.Playe
 	return player, nil
 }
 
-func (pp PlayerPostgres) ListPlayers(ctx context.Context, ownerID *string, sortArrangement ListPlayersSort, offset int32, limit int32) ([]models.Player, int64, error) {
+func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *string, sortArrangement ListPlayersSort, offset int32, limit int32) ([]models.Player, int64, error) {
+
+	queries := pp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	var pgOwnerID pgtype.UUID
 
@@ -54,7 +66,7 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, ownerID *string, sortA
 		}
 	}
 
-	dbPlayers, err := pp.Queries.ListPlayers(ctx, playerstoregenerated.ListPlayersParams{
+	dbPlayers, err := queries.ListPlayers(ctx, database.ListPlayersParams{
 		OwnerID:         pgOwnerID,
 		SortArrangement: string(sortArrangement),
 		OffsetCount:     offset,
@@ -67,7 +79,7 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, ownerID *string, sortA
 	players := []models.Player{}
 	for _, row := range dbPlayers {
 		player := models.Player{}
-		err := player.PostgresToModel(playerstoregenerated.Player{
+		err := player.PostgresToModel(database.Player{
 			ID:        row.ID,
 			UserID:    row.UserID,
 			Name:      row.Name,

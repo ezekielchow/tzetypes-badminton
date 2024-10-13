@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	oapiprivate "common/oapiprivate"
 	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,18 +14,28 @@ type ServerInterface struct {
 	mock.Mock
 }
 
-// Login provides a mock function with given fields: w, r
-func (_m *ServerInterface) Login(w http.ResponseWriter, r *http.Request) {
+// AddPlayer provides a mock function with given fields: w, r
+func (_m *ServerInterface) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
-// RefreshToken provides a mock function with given fields: w, r
-func (_m *ServerInterface) RefreshToken(w http.ResponseWriter, r *http.Request) {
+// Dashboard provides a mock function with given fields: w, r
+func (_m *ServerInterface) Dashboard(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
-// Signup provides a mock function with given fields: w, r
-func (_m *ServerInterface) Signup(w http.ResponseWriter, r *http.Request) {
+// GetLoggedInUser provides a mock function with given fields: w, r
+func (_m *ServerInterface) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// ListPlayers provides a mock function with given fields: w, r, params
+func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
+	_m.Called(w, r, params)
+}
+
+// Logout provides a mock function with given fields: w, r
+func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 

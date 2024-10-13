@@ -2,9 +2,9 @@ package models
 
 import (
 	"os"
-	sessionstore "sessions/store/generated"
 	"strconv"
 	"time"
+	database "tzetypes-badminton/database/generated"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -21,7 +21,7 @@ type Session struct {
 	UpdatedAt             *time.Time
 }
 
-func (s *Session) PostgresToModel(fromDb sessionstore.Session) error {
+func (s *Session) PostgresToModel(fromDb database.Session) error {
 	id, err := uuid.FromBytes(fromDb.ID.Bytes[:])
 	if err != nil {
 		return err
@@ -54,9 +54,9 @@ func (s *Session) PostgresToModel(fromDb sessionstore.Session) error {
 	return nil
 }
 
-func (session *Session) ModelToPostgres(model Session) (sessionstore.Session, error) {
+func (session *Session) ModelToPostgres(model Session) (database.Session, error) {
 
-	s := sessionstore.Session{}
+	s := database.Session{}
 
 	id := pgtype.UUID{}
 	err := id.Scan(model.ID)

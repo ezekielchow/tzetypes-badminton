@@ -31,7 +31,7 @@ func validateSignup(ctx context.Context, userStore userstore.UserRepository, inp
 		return errors.New(PasswordRepeatError)
 	}
 
-	user, err := userStore.FindUserWithEmail(ctx, string(input.Body.Email))
+	user, err := userStore.FindUserWithEmail(ctx, nil, string(input.Body.Email))
 	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 		return err
 	}
@@ -45,7 +45,13 @@ func validateSignup(ctx context.Context, userStore userstore.UserRepository, inp
 
 func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
 
-	err := validateSignup(ctx, us.UserStore, input)
+	tx, err := us.PgxPool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	err = validateSignup(ctx, us.UserStore, input)
 	if err != nil {
 		return returnSignupError(err), nil
 	}
@@ -55,17 +61,24 @@ func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequest
 		return nil, err
 	}
 
-	user, err := us.UserStore.Signup(ctx, string(input.Body.Email), string(hash))
+	user, err := us.UserStore.CreateUser(ctx, &tx, string(input.Body.Email), string(hash))
 
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = us.ClubStore.CreateClub(ctx, models.Club{
+	return nil, errors.New("test")
+
+	_, err = us.ClubStore.CreateClub(ctx, &tx, models.Club{
 		OwnerID: user.ID,
 		Name:    user.Email,
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}

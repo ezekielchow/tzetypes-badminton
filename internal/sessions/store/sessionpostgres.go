@@ -3,17 +3,23 @@ package sessionstore
 import (
 	"common/models"
 	"context"
-	sessionstore "sessions/store/generated"
 	"time"
+	database "tzetypes-badminton/database/generated"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type SessionPostgres struct {
-	Queries *sessionstore.Queries
+	Queries *database.Queries
 }
 
-func (sp SessionPostgres) CreateSession(ctx context.Context, userID string, sessionTokenExpiry time.Time, refreshTokenExpiry time.Time) (models.Session, error) {
+func (sp SessionPostgres) CreateSession(ctx context.Context, tx *pgx.Tx, userID string, sessionTokenExpiry time.Time, refreshTokenExpiry time.Time) (models.Session, error) {
+	queries := sp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID := pgtype.UUID{}
 	err := pgID.Scan(userID)
 	if err != nil {
@@ -32,7 +38,7 @@ func (sp SessionPostgres) CreateSession(ctx context.Context, userID string, sess
 		return models.Session{}, err
 	}
 
-	created, err := sp.Queries.CreateSession(ctx, sessionstore.CreateSessionParams{
+	created, err := queries.CreateSession(ctx, database.CreateSessionParams{
 		UserID:                pgID,
 		SessionTokenExpiresAt: sessionTokenExpiryTimestamp,
 		RefreshTokenExpiresAt: refreshTokenExpiryTimestamp,
@@ -51,14 +57,19 @@ func (sp SessionPostgres) CreateSession(ctx context.Context, userID string, sess
 	return session, nil
 }
 
-func (sp SessionPostgres) FindSessionWithSessionID(ctx context.Context, sessionID string) (models.Session, error) {
+func (sp SessionPostgres) FindSessionWithSessionID(ctx context.Context, tx *pgx.Tx, sessionID string) (models.Session, error) {
+	queries := sp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID := pgtype.UUID{}
 	err := pgID.Scan(sessionID)
 	if err != nil {
 		return models.Session{}, err
 	}
 
-	found, err := sp.Queries.FindSessionWithSessionID(ctx, pgID)
+	found, err := queries.FindSessionWithSessionID(ctx, pgID)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -72,7 +83,11 @@ func (sp SessionPostgres) FindSessionWithSessionID(ctx context.Context, sessionI
 	return session, nil
 }
 
-func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, refreshToken string) (models.Session, error) {
+func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, tx *pgx.Tx, refreshToken string) (models.Session, error) {
+	queries := sp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	refreshTokenPG := pgtype.UUID{}
 	err := refreshTokenPG.Scan(refreshToken)
@@ -80,7 +95,7 @@ func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, r
 		return models.Session{}, err
 	}
 
-	found, err := sp.Queries.FindSessionWithRefreshToken(ctx, refreshTokenPG)
+	found, err := queries.FindSessionWithRefreshToken(ctx, refreshTokenPG)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -94,7 +109,12 @@ func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, r
 	return session, nil
 }
 
-func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, refreshToken string, sessionTokenExpiresAt time.Time) (models.Session, error) {
+func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, tx *pgx.Tx, refreshToken string, sessionTokenExpiresAt time.Time) (models.Session, error) {
+	queries := sp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	refreshTokenPG := pgtype.UUID{}
 	err := refreshTokenPG.Scan(refreshToken)
 	if err != nil {
@@ -107,7 +127,7 @@ func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, ref
 		return models.Session{}, err
 	}
 
-	updated, err := sp.Queries.UpdateSessionWithRefreshToken(ctx, sessionstore.UpdateSessionWithRefreshTokenParams{
+	updated, err := queries.UpdateSessionWithRefreshToken(ctx, database.UpdateSessionWithRefreshTokenParams{
 		RefreshToken:          refreshTokenPG,
 		SessionTokenExpiresAt: sessionTokenExpiry,
 	})
@@ -124,14 +144,19 @@ func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, ref
 	return session, nil
 }
 
-func (sp SessionPostgres) DeleteSession(ctx context.Context, sessionID string) error {
+func (sp SessionPostgres) DeleteSession(ctx context.Context, tx *pgx.Tx, sessionID string) error {
+	queries := sp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID := pgtype.UUID{}
 	err := pgID.Scan(sessionID)
 	if err != nil {
 		return err
 	}
 
-	err = sp.Queries.DeleteSession(ctx, pgID)
+	err = queries.DeleteSession(ctx, pgID)
 	if err != nil {
 		return err
 	}

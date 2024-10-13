@@ -9,7 +9,7 @@ import (
 func (ps PlayerService) ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error) {
 	offset := (input.Params.Page - 1) * input.Params.PageSize
 
-	players, totalCount, err := ps.PlayerStore.ListPlayers(ctx, input.Params.OwnerId, players.ListPlayersSort(*input.Params.SortArrangement), int32(offset), int32(input.Params.PageSize))
+	players, totalCount, err := ps.PlayerStore.ListPlayers(ctx, nil, input.Params.OwnerId, players.ListPlayersSort(*input.Params.SortArrangement), int32(offset), int32(input.Params.PageSize))
 	totalPages := totalCount / int64(input.Params.PageSize)
 
 	if err != nil {

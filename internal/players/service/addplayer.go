@@ -6,18 +6,40 @@ import (
 	"context"
 )
 
-func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error) {
+func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject, ownerID string) (oapiprivate.AddPlayerResponseObject, error) {
 
-	user, err := ps.UserStore.Signup(ctx, "", "")
+	tx, err := ps.PgxPool.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = ps.PlayerStore.CreatePlayer(ctx, models.Player{
+	defer tx.Rollback(ctx)
+
+	user, err := ps.UserStore.CreateUser(ctx, &tx, "", "")
+	if err != nil {
+		return nil, err
+	}
+
+	player, err := ps.PlayerStore.CreatePlayer(ctx, &tx, models.Player{
 		UserID: user.ID,
 		Name:   input.Body.Name,
 	}, "")
 
+	if err != nil {
+		return nil, err
+	}
+
+	club, err := ps.ClubStore.GetClubGivenOwnerId(ctx, &tx, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ps.ClubStore.AddPlayerToClub(ctx, &tx, player.ID, club.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}

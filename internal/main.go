@@ -6,23 +6,20 @@ import (
 	"common/models"
 	"common/oapiprivate"
 	"common/oapipublic"
-	"common/utils"
 	"context"
 	"database/sql"
 	"net/http"
 	"os"
 	playerservice "players/service"
 	playerstore "players/store"
-	playerstoregenerated "players/store/generated"
 	sessionstore "sessions/store"
-	sessionstoregenerated "sessions/store/generated"
 	"strings"
 	"time"
 	clubs "tzetypes-badminton/clubs/store"
-	clubstoregenerated "tzetypes-badminton/clubs/store/generated"
+	database "tzetypes-badminton/database"
+	databasegenerated "tzetypes-badminton/database/generated"
 	userservice "users/service"
 	userstore "users/store"
-	userstoregenerated "users/store/generated"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
@@ -52,7 +49,7 @@ func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore user
 				return
 			}
 
-			user, err := userStore.FindUserWithID(r.Context(), session.UserID)
+			user, err := userStore.FindUserWithID(r.Context(), nil, session.UserID)
 			if err != nil || user.ID == "" {
 				http.Error(w, "Invalid user", http.StatusUnauthorized)
 				return
@@ -67,7 +64,7 @@ func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore user
 }
 
 func checkToken(ctx context.Context, sessionStore sessionstore.SessionRepository, token string) (models.Session, error) {
-	session, err := sessionStore.FindSessionWithSessionID(ctx, token)
+	session, err := sessionStore.FindSessionWithSessionID(ctx, nil, token)
 	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 		return models.Session{}, err
 	}
@@ -75,16 +72,16 @@ func checkToken(ctx context.Context, sessionStore sessionstore.SessionRepository
 	return session, err
 }
 
-func getPrivateRouter(conn *pgx.Conn) *chi.Mux {
+func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 
 	apiRoute := commonmiddlewares.NewRouter()
 	apiRoute.Use(
 		BearerTokenAuth(
 			&sessionstore.SessionPostgres{
-				Queries: sessionstoregenerated.New(conn),
+				Queries: queries,
 			},
 			&userstore.UserPostgres{
-				Queries: userstoregenerated.New(conn),
+				Queries: queries,
 			}))
 
 	return apiRoute
@@ -95,7 +92,9 @@ func main() {
 
 	dbURI := "postgresql://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
 
-	err := utils.RunMigrations(dbURI)
+	db := database.Database{}
+
+	err := db.RunMigrations(dbURI)
 	if err != nil {
 		panic(err)
 	}
@@ -106,25 +105,38 @@ func main() {
 	}
 	defer conn.Close(ctx)
 
+	pool, err := db.Open(ctx, dbURI)
+	if err != nil {
+		panic(err)
+	}
+	defer pool.Close() // Ensure that the connection is properly closed on exit
+
+	queries := databasegenerated.New(conn)
+
 	service := common.CommonService{
 		UserService: userservice.UserService{
 			UserStore: &userstore.UserPostgres{
-				Queries: userstoregenerated.New(conn),
+				Queries: queries,
 			},
 			SessionStore: &sessionstore.SessionPostgres{
-				Queries: sessionstoregenerated.New(conn),
+				Queries: queries,
 			},
 			ClubStore: &clubs.ClubPostgres{
-				Queries: clubstoregenerated.New(conn),
+				Queries: queries,
 			},
+			PgxPool: pool,
 		},
 		PlayerService: playerservice.PlayerService{
 			PlayerStore: &playerstore.PlayerPostgres{
-				Queries: playerstoregenerated.New(conn),
+				Queries: queries,
 			},
 			UserStore: &userstore.UserPostgres{
-				Queries: userstoregenerated.New(conn),
+				Queries: queries,
 			},
+			ClubStore: &clubs.ClubPostgres{
+				Queries: queries,
+			},
+			PgxPool: pool,
 		},
 	}
 
@@ -132,7 +144,7 @@ func main() {
 
 	rootRouter := chi.NewRouter()
 
-	apiRouter := getPrivateRouter(conn)
+	apiRouter := getPrivateRouter(queries)
 	rootRouter.Mount("/api", oapiprivate.HandlerFromMux(oapiprivate.NewStrictHandler(handler, nil), apiRouter))
 
 	publicRouter := commonmiddlewares.NewRouter()

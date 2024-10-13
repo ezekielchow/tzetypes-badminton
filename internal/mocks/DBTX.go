@@ -5,8 +5,9 @@ package mocks
 import (
 	context "context"
 
-	pgconn "github.com/jackc/pgx/v5/pgconn"
 	mock "github.com/stretchr/testify/mock"
+
+	pgconn "github.com/jackc/pgx/v5/pgconn"
 
 	pgx "github.com/jackc/pgx/v5"
 )

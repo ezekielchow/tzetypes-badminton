@@ -2,7 +2,7 @@ package models
 
 import (
 	"time"
-	clubstoregenerated "tzetypes-badminton/clubs/store/generated"
+	database "tzetypes-badminton/database/generated"
 
 	"github.com/google/uuid"
 )
@@ -15,7 +15,7 @@ type Club struct {
 	UpdatedAt *time.Time
 }
 
-func (c *Club) PostgresToModel(fromDb clubstoregenerated.Club) error {
+func (c *Club) PostgresToModel(fromDb database.Club) error {
 	id, err := uuid.FromBytes(fromDb.ID.Bytes[:])
 	if err != nil {
 		return err

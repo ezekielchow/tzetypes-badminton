@@ -1,8 +1,8 @@
 package models
 
 import (
-	playerstore "players/store/generated"
 	"time"
+	database "tzetypes-badminton/database/generated"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -16,7 +16,7 @@ type Player struct {
 	UpdatedAt *time.Time
 }
 
-func (p *Player) PostgresToModel(fromDb playerstore.Player) error {
+func (p *Player) PostgresToModel(fromDb database.Player) error {
 	id, err := uuid.FromBytes(fromDb.ID.Bytes[:])
 	if err != nil {
 		return err
@@ -36,9 +36,9 @@ func (p *Player) PostgresToModel(fromDb playerstore.Player) error {
 	return nil
 }
 
-func (p *Player) ModelToPostgres(model Player) (playerstore.Player, error) {
+func (p *Player) ModelToPostgres(model Player) (database.Player, error) {
 
-	dbPlayer := playerstore.Player{}
+	dbPlayer := database.Player{}
 
 	id := pgtype.UUID{}
 	err := id.Scan(model.ID)

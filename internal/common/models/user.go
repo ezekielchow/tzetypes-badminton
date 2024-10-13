@@ -3,7 +3,7 @@ package models
 import (
 	"common/utils"
 	"time"
-	userstore "users/store/generated"
+	database "tzetypes-badminton/database/generated"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +16,7 @@ type User struct {
 	UpdatedAt    *time.Time
 }
 
-func (u *User) PostgresToModel(fromDb userstore.User) error {
+func (u *User) PostgresToModel(fromDb database.User) error {
 	uuid, err := uuid.FromBytes(fromDb.ID.Bytes[:])
 	if err != nil {
 		return err

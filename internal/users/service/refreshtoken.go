@@ -40,6 +40,12 @@ func validate(session models.Session) error {
 
 func (us UserService) RefreshToken(ctx context.Context, input oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error) {
 
+	tx, err := us.PgxPool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	req, ok := ctx.Value(middlewares.RequestKey).(*http.Request)
 	if !ok {
 		return nil, fmt.Errorf("could not retrieve request from context")
@@ -50,7 +56,7 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 		return nil, err
 	}
 
-	session, err := us.SessionStore.FindSessionToRefreshAccessToken(ctx, refreshTokenCookie.Value)
+	session, err := us.SessionStore.FindSessionToRefreshAccessToken(ctx, &tx, refreshTokenCookie.Value)
 	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 		return nil, err
 	}
@@ -64,7 +70,12 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 	if err != nil {
 		return nil, err
 	}
-	newSession, err := us.SessionStore.UpdateSessionWithRefreshToken(ctx, refreshTokenCookie.Value, *newSessionExpiry)
+	newSession, err := us.SessionStore.UpdateSessionWithRefreshToken(ctx, &tx, refreshTokenCookie.Value, *newSessionExpiry)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -3,8 +3,12 @@ package clubs
 import (
 	"common/models"
 	"context"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type ClubRepository interface {
-	CreateClub(ctx context.Context, toCreate models.Club) (models.Club, error)
+	CreateClub(ctx context.Context, tx *pgx.Tx, toCreate models.Club) (models.Club, error)
+	AddPlayerToClub(ctx context.Context, tx *pgx.Tx, playerID string, clubID string) error
+	GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error)
 }

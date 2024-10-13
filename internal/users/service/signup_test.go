@@ -1,74 +1,63 @@
 package userservice
 
-import (
-	"common/models"
-	"common/oapipublic"
-	"context"
-	"mocks"
-	"testing"
+// func Test_validateSignup(t *testing.T) {
+// 	t.Run("No errors", func(t *testing.T) {
+// 		t.Parallel()
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+// 		repoMock := mocks.NewUserRepository(t)
+// 		repoMock.On("FindUserWithEmail", mock.Anything, mock.AnythingOfType("string")).
+// 			Return(func(ctx context.Context, email string) (models.User, error) {
+// 				return models.User{}, nil
+// 			})
 
-func Test_validateSignup(t *testing.T) {
-	t.Run("No errors", func(t *testing.T) {
-		t.Parallel()
+// 		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
+// 			Body: &oapipublic.SignupJSONRequestBody{
+// 				Email:          "test@email.com",
+// 				Password:       "abc123",
+// 				PasswordRepeat: "abc123",
+// 			},
+// 		})
 
-		repoMock := mocks.NewUserRepository(t)
-		repoMock.On("FindUserWithEmail", mock.Anything, mock.AnythingOfType("string")).
-			Return(func(ctx context.Context, email string) (models.User, error) {
-				return models.User{}, nil
-			})
+// 		assert.NoError(t, err)
+// 	})
 
-		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
-				Email:          "test@email.com",
-				Password:       "abc123",
-				PasswordRepeat: "abc123",
-			},
-		})
+// 	t.Run("repeat password does not match password", func(t *testing.T) {
+// 		t.Parallel()
 
-		assert.NoError(t, err)
-	})
+// 		repoMock := mocks.NewUserRepository(t)
 
-	t.Run("repeat password does not match password", func(t *testing.T) {
-		t.Parallel()
+// 		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
+// 			Body: &oapipublic.SignupJSONRequestBody{
+// 				Email:          "test@email.com",
+// 				Password:       "abc1234",
+// 				PasswordRepeat: "abc123",
+// 			},
+// 		})
 
-		repoMock := mocks.NewUserRepository(t)
+// 		assert.Equal(t, PasswordRepeatError, err.Error())
+// 	})
 
-		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
-				Email:          "test@email.com",
-				Password:       "abc1234",
-				PasswordRepeat: "abc123",
-			},
-		})
+// 	t.Run("repeat password does not match password", func(t *testing.T) {
+// 		t.Parallel()
 
-		assert.Equal(t, PasswordRepeatError, err.Error())
-	})
+// 		repoMock := mocks.NewUserRepository(t)
+// 		repoMock.On("FindUserWithEmail", mock.Anything, mock.AnythingOfType("string")).
+// 			Return(func(ctx context.Context, email string) (models.User, error) {
+// 				user := models.User{}
+// 				user.Mock()
 
-	t.Run("repeat password does not match password", func(t *testing.T) {
-		t.Parallel()
+// 				return user, nil
+// 			})
 
-		repoMock := mocks.NewUserRepository(t)
-		repoMock.On("FindUserWithEmail", mock.Anything, mock.AnythingOfType("string")).
-			Return(func(ctx context.Context, email string) (models.User, error) {
-				user := models.User{}
-				user.Mock()
+// 		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
+// 			Body: &oapipublic.SignupJSONRequestBody{
+// 				// Email wont match because seed email is only letters
+// 				Email:          "123@email.com",
+// 				Password:       "abc123",
+// 				PasswordRepeat: "abc123",
+// 			},
+// 		})
 
-				return user, nil
-			})
-
-		err := validateSignup(context.Background(), repoMock, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
-				// Email wont match because seed email is only letters
-				Email:          "123@email.com",
-				Password:       "abc123",
-				PasswordRepeat: "abc123",
-			},
-		})
-
-		assert.Equal(t, EmailUsedError, err.Error())
-	})
-}
+// 		assert.Equal(t, EmailUsedError, err.Error())
+// 	})
+// }

@@ -164,6 +164,43 @@ func (_m *ClientWithResponsesInterface) GetLoggedInUserWithResponse(ctx context.
 	return r0, r1
 }
 
+// ListPlayersWithResponse provides a mock function with given fields: ctx, params, reqEditors
+func (_m *ClientWithResponsesInterface) ListPlayersWithResponse(ctx context.Context, params *oapiprivate.ListPlayersParams, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.ListPlayersResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPlayersWithResponse")
+	}
+
+	var r0 *oapiprivate.ListPlayersResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *oapiprivate.ListPlayersParams, ...oapiprivate.RequestEditorFn) (*oapiprivate.ListPlayersResponse, error)); ok {
+		return rf(ctx, params, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *oapiprivate.ListPlayersParams, ...oapiprivate.RequestEditorFn) *oapiprivate.ListPlayersResponse); ok {
+		r0 = rf(ctx, params, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.ListPlayersResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *oapiprivate.ListPlayersParams, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, params, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LogoutWithResponse provides a mock function with given fields: ctx, reqEditors
 func (_m *ClientWithResponsesInterface) LogoutWithResponse(ctx context.Context, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.LogoutResponse, error) {
 	_va := make([]interface{}, len(reqEditors))

@@ -8,6 +8,8 @@ import (
 	sessionstore "sessions/store"
 	clubs "tzetypes-badminton/clubs/store"
 	userstore "users/store"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserServiceInterface interface {
@@ -22,4 +24,5 @@ type UserService struct {
 	UserStore    userstore.UserRepository
 	SessionStore sessionstore.SessionRepository
 	ClubStore    clubs.ClubRepository
+	PgxPool      *pgxpool.Pool
 }

@@ -51,7 +51,12 @@ func (c Controller) Logout(ctx context.Context, input oapiprivate.LogoutRequestO
 }
 
 func (c Controller) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error) {
-	return c.Services.PlayerService.AddPlayer(ctx, input)
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.PlayerService.AddPlayer(ctx, input, user.ID)
 }
 
 func (c Controller) GetLoggedInUser(ctx context.Context, input oapiprivate.GetLoggedInUserRequestObject) (oapiprivate.GetLoggedInUserResponseObject, error) {
