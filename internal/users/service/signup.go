@@ -67,8 +67,6 @@ func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequest
 		return nil, err
 	}
 
-	return nil, errors.New("test")
-
 	_, err = us.ClubStore.CreateClub(ctx, &tx, models.Club{
 		OwnerID: user.ID,
 		Name:    user.Email,
