@@ -1,4 +1,4 @@
-package userservice
+package users
 
 import (
 	"common/models"
@@ -12,12 +12,18 @@ const (
 
 func (us UserService) GetLoggedInUser(ctx context.Context, input oapiprivate.GetLoggedInUserRequestObject, user models.User) (oapiprivate.GetLoggedInUserResponseObject, error) {
 
+	var updatedAt = ""
+
+	if user.UpdatedAt != nil {
+		updatedAt = user.UpdatedAt.String()
+	}
+
 	currentUserResponse := oapiprivate.CurrentUserResponseSchemaJSONResponse{
 		User: oapiprivate.User{
 			Id:        user.ID,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.String(),
-			UpdatedAt: user.UpdatedAt.String(),
+			UpdatedAt: updatedAt,
 		},
 	}
 

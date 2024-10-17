@@ -1,4 +1,44 @@
 <script setup lang="ts">
+
+import 'datatables.net-bs5';
+import DataTablesCore from 'datatables.net-dt';
+import 'datatables.net-responsive-dt';
+import DataTable from 'datatables.net-vue3';
+
+DataTable.use(DataTablesCore);
+
+const columns = [
+    {
+        label: 'Name',
+        field: 'name',
+    },
+    {
+        label: 'Age',
+        field: 'age',
+        type: 'number',
+    },
+    {
+        label: 'Created On',
+        field: 'createdAt',
+        type: 'date',
+        dateInputFormat: 'yyyy-MM-dd',
+        dateOutputFormat: 'MMM do yy',
+    },
+    {
+        label: 'Percent',
+        field: 'score',
+        type: 'percentage',
+    },
+]
+
+const rows = [
+    { id: 1, name: "John", age: 20, createdAt: '', score: 0.03343 },
+    { id: 2, name: "Jane", age: 24, createdAt: '2011-10-31', score: 0.03343 },
+    { id: 3, name: "Susan", age: 16, createdAt: '2011-10-30', score: 0.03343 },
+    { id: 4, name: "Chris", age: 55, createdAt: '2011-10-11', score: 0.03343 },
+    { id: 5, name: "Dan", age: 40, createdAt: '2011-10-21', score: 0.03343 },
+    { id: 6, name: "John", age: 20, createdAt: '2011-10-31', score: 0.03343 },
+]
 </script>
 
 <template>
@@ -13,36 +53,8 @@
         </nav>
 
         <div class="table-wrapper">
-            <table class="responsive-table">
-                <thead>
-                    <tr>
-                        <th>Header 1</th>
-                        <th>Header 2</th>
-                        <th>Header 3</th>
-                        <th>Header 4</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Data 1</td>
-                        <td>Data 2</td>
-                        <td>Data 3</td>
-                        <td>Data 4</td>
-                    </tr>
-                    <tr>
-                        <td>Data 5</td>
-                        <td>Data 6</td>
-                        <td>Data 7</td>
-                        <td>Data 8</td>
-                    </tr>
-                    <tr>
-                        <td>Data 9</td>
-                        <td>Data 10</td>
-                        <td>Data 11</td>
-                        <td>Data 12</td>
-                    </tr>
-                </tbody>
-            </table>
+            <vue-good-table :columns="columns" :rows="rows" />
+
         </div>
     </div>
 </template>

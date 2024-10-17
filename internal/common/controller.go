@@ -6,13 +6,13 @@ import (
 	"common/oapipublic"
 	"context"
 	"fmt"
-	player "players/service"
-	userservice "users/service"
+	players "players/service"
+	users "users/service"
 )
 
 type CommonService struct {
-	UserService   userservice.UserServiceInterface
-	PlayerService player.PlayerServiceInterface
+	UserService   users.UserServiceInterface
+	PlayerService players.PlayerServiceInterface
 }
 
 type Controller struct {

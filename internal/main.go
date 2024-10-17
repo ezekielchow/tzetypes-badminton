@@ -18,15 +18,16 @@ import (
 	clubs "tzetypes-badminton/clubs/store"
 	database "tzetypes-badminton/database"
 	databasegenerated "tzetypes-badminton/database/generated"
-	userservice "users/service"
-	userstore "users/store"
+	usersService "users/service"
+	usersStore "users/store"
 
 	"github.com/go-chi/chi/v5"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
 
-func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore userstore.UserRepository) func(next http.Handler) http.Handler {
+func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore usersStore.UserRepository) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -80,7 +81,7 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 			&sessionstore.SessionPostgres{
 				Queries: queries,
 			},
-			&userstore.UserPostgres{
+			&usersStore.UserPostgres{
 				Queries: queries,
 			}))
 
@@ -94,7 +95,7 @@ func main() {
 
 	db := database.Database{}
 
-	err := db.RunMigrations(dbURI)
+	err := db.RunMigrations(dbURI, "file://database/migrations")
 	if err != nil {
 		panic(err)
 	}
@@ -114,8 +115,8 @@ func main() {
 	queries := databasegenerated.New(conn)
 
 	service := common.CommonService{
-		UserService: userservice.UserService{
-			UserStore: &userstore.UserPostgres{
+		UserService: usersService.UserService{
+			UserStore: &usersStore.UserPostgres{
 				Queries: queries,
 			},
 			SessionStore: &sessionstore.SessionPostgres{
@@ -130,7 +131,7 @@ func main() {
 			PlayerStore: &playerstore.PlayerPostgres{
 				Queries: queries,
 			},
-			UserStore: &userstore.UserPostgres{
+			UserStore: &usersStore.UserPostgres{
 				Queries: queries,
 			},
 			ClubStore: &clubs.ClubPostgres{

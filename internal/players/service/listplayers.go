@@ -1,8 +1,9 @@
-package player
+package players
 
 import (
 	"common/oapiprivate"
 	"context"
+	"math"
 	players "players/store"
 )
 
@@ -10,7 +11,7 @@ func (ps PlayerService) ListPlayers(ctx context.Context, input oapiprivate.ListP
 	offset := (input.Params.Page - 1) * input.Params.PageSize
 
 	players, totalCount, err := ps.PlayerStore.ListPlayers(ctx, nil, input.Params.OwnerId, players.ListPlayersSort(*input.Params.SortArrangement), int32(offset), int32(input.Params.PageSize))
-	totalPages := totalCount / int64(input.Params.PageSize)
+	totalPages := math.Ceil(float64(totalCount) / float64(input.Params.PageSize))
 
 	if err != nil {
 		return nil, err

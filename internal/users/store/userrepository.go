@@ -1,4 +1,4 @@
-package userstore
+package users
 
 import (
 	"common/models"

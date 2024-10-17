@@ -1,4 +1,4 @@
-package sessionstore
+package sessions
 
 import (
 	"common/models"

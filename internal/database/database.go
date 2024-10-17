@@ -5,17 +5,16 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Database struct{}
 
-func (d Database) RunMigrations(dbURI string) error {
+func (d Database) RunMigrations(dbURI string, migrationFiles string) error {
 
 	m, err := migrate.New(
-		"file://database/migrations",
+		migrationFiles,
 		dbURI)
 	if err != nil {
 		return err

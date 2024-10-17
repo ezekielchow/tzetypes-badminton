@@ -1,4 +1,4 @@
-package userservice
+package users
 
 import (
 	"common/models"
@@ -62,7 +62,14 @@ func (response Login200JSONResponse) VisitLoginResponse(w http.ResponseWriter) e
 }
 
 func (us UserService) Login(ctx context.Context, input oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
-	user, err := us.UserStore.FindUserWithEmail(ctx, nil, string(input.Body.Email))
+	tx, err := us.PgxPool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback(ctx)
+
+	user, err := us.UserStore.FindUserWithEmail(ctx, &tx, string(input.Body.Email))
 	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 		return nil, err
 	}
@@ -90,7 +97,12 @@ func (us UserService) Login(ctx context.Context, input oapipublic.LoginRequestOb
 		return nil, err
 	}
 
-	session, err := us.SessionStore.CreateSession(ctx, nil, user.ID, *sessionExpiresAt, *refreshExpiresAt)
+	session, err := us.SessionStore.CreateSession(ctx, &tx, user.ID, *sessionExpiresAt, *refreshExpiresAt)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}
