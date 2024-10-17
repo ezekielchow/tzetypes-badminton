@@ -12,7 +12,6 @@ func (ps PlayerService) ListPlayers(ctx context.Context, input oapiprivate.ListP
 
 	players, totalCount, err := ps.PlayerStore.ListPlayers(ctx, nil, input.Params.OwnerId, players.ListPlayersSort(*input.Params.SortArrangement), int32(offset), int32(input.Params.PageSize))
 	totalPages := math.Ceil(float64(totalCount) / float64(input.Params.PageSize))
-
 	if err != nil {
 		return nil, err
 	}

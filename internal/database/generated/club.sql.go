@@ -55,8 +55,31 @@ func (q *Queries) CreateClub(ctx context.Context, arg CreateClubParams) (Club, e
 	return i, err
 }
 
+const findPlayerInClub = `-- name: FindPlayerInClub :one
+SELECT id, player_id, club_id, created_at, updated_at FROM player_clubs WHERE club_id = $1::uuid
+AND player_id = $2::uuid limit 1
+`
+
+type FindPlayerInClubParams struct {
+	ClubID   pgtype.UUID
+	PlayerID pgtype.UUID
+}
+
+func (q *Queries) FindPlayerInClub(ctx context.Context, arg FindPlayerInClubParams) (PlayerClub, error) {
+	row := q.db.QueryRow(ctx, findPlayerInClub, arg.ClubID, arg.PlayerID)
+	var i PlayerClub
+	err := row.Scan(
+		&i.ID,
+		&i.PlayerID,
+		&i.ClubID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getClubGivenOwnerId = `-- name: GetClubGivenOwnerId :one
-SELECT id, owner_id, name, created_at, updated_at FROM clubs where owner_id = $1::uuid limit 1
+SELECT id, owner_id, name, created_at, updated_at FROM clubs WHERE owner_id = $1::uuid limit 1
 `
 
 func (q *Queries) GetClubGivenOwnerId(ctx context.Context, ownerID pgtype.UUID) (Club, error) {

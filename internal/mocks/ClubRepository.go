@@ -62,6 +62,34 @@ func (_m *ClubRepository) CreateClub(ctx context.Context, tx *pgx.Tx, toCreate m
 	return r0, r1
 }
 
+// FindPlayerInClub provides a mock function with given fields: ctx, tx, clubID, playerID
+func (_m *ClubRepository) FindPlayerInClub(ctx context.Context, tx *pgx.Tx, clubID string, playerID string) (models.PlayerClub, error) {
+	ret := _m.Called(ctx, tx, clubID, playerID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindPlayerInClub")
+	}
+
+	var r0 models.PlayerClub
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string) (models.PlayerClub, error)); ok {
+		return rf(ctx, tx, clubID, playerID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string) models.PlayerClub); ok {
+		r0 = rf(ctx, tx, clubID, playerID)
+	} else {
+		r0 = ret.Get(0).(models.PlayerClub)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, string) error); ok {
+		r1 = rf(ctx, tx, clubID, playerID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetClubGivenOwnerId provides a mock function with given fields: ctx, tx, ownerID
 func (_m *ClubRepository) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
 	ret := _m.Called(ctx, tx, ownerID)

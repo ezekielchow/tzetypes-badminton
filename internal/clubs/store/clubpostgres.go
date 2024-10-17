@@ -82,3 +82,31 @@ func (cp ClubPostgres) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, owne
 
 	return club, nil
 }
+
+func (cp ClubPostgres) FindPlayerInClub(ctx context.Context, tx *pgx.Tx, clubID string, playerID string) (models.PlayerClub, error) {
+	pgClubID, err := utils.StringToPgId(clubID)
+	if err != nil {
+		return models.PlayerClub{}, err
+	}
+
+	pgPlayerID, err := utils.StringToPgId(playerID)
+	if err != nil {
+		return models.PlayerClub{}, err
+	}
+
+	dbPlayerClub, err := cp.Queries.FindPlayerInClub(ctx, database.FindPlayerInClubParams{
+		ClubID:   pgClubID,
+		PlayerID: pgPlayerID,
+	})
+	if err != nil {
+		return models.PlayerClub{}, err
+	}
+
+	playerClub := models.PlayerClub{}
+	err = playerClub.PostgresToModel(dbPlayerClub)
+	if err != nil {
+		return models.PlayerClub{}, err
+	}
+
+	return playerClub, nil
+}

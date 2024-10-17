@@ -7,6 +7,7 @@ import (
 )
 
 func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject, ownerID string) (oapiprivate.AddPlayerResponseObject, error) {
+	// ownerID is logged in user
 
 	tx, err := ps.PgxPool.Begin(ctx)
 	if err != nil {

@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const allPlayers = `-- name: AllPlayers :many
+SELECT id, user_id, name, created_at, updated_at FROM players
+`
+
+func (q *Queries) AllPlayers(ctx context.Context) ([]Player, error) {
+	rows, err := q.db.Query(ctx, allPlayers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Player
+	for rows.Next() {
+		var i Player
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const createPlayer = `-- name: CreatePlayer :one
 INSERT INTO players (
   user_id, name
@@ -37,6 +67,23 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 	return i, err
 }
 
+const findPlayerWithName = `-- name: FindPlayerWithName :one
+SELECT id, user_id, name, created_at, updated_at FROM players WHERE name=($1::text)
+`
+
+func (q *Queries) FindPlayerWithName(ctx context.Context, name string) (Player, error) {
+	row := q.db.QueryRow(ctx, findPlayerWithName, name)
+	var i Player
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listPlayers = `-- name: ListPlayers :many
 SELECT
   p.id, p.user_id, p.name, p.created_at, p.updated_at,
@@ -48,7 +95,7 @@ JOIN
 JOIN 
   clubs AS c ON pc.club_id = c.id 
 WHERE
-  ($1::uuid IS NULL OR c.id = $1::uuid) -- Optional filtering by owner_id
+  ($1::uuid IS NULL OR c.owner_id = $1::uuid) -- Optional filtering by owner_id
 ORDER BY
   CASE WHEN $2::text = 'name_asc' THEN p.name END ASC,
   CASE WHEN $2::text = 'name_desc' THEN p.name END DESC

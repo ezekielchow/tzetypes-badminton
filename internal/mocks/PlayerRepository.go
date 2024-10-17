@@ -18,6 +18,36 @@ type PlayerRepository struct {
 	mock.Mock
 }
 
+// AllPlayers provides a mock function with given fields: ctx, tx
+func (_m *PlayerRepository) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.Player, error) {
+	ret := _m.Called(ctx, tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AllPlayers")
+	}
+
+	var r0 []models.Player
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) ([]models.Player, error)); ok {
+		return rf(ctx, tx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) []models.Player); ok {
+		r0 = rf(ctx, tx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Player)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx) error); ok {
+		r1 = rf(ctx, tx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreatePlayer provides a mock function with given fields: ctx, tx, toCreate, passwordHash
 func (_m *PlayerRepository) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCreate models.Player, passwordHash string) (models.Player, error) {
 	ret := _m.Called(ctx, tx, toCreate, passwordHash)
@@ -39,6 +69,34 @@ func (_m *PlayerRepository) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCrea
 
 	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, models.Player, string) error); ok {
 		r1 = rf(ctx, tx, toCreate, passwordHash)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindUserWithName provides a mock function with given fields: ctx, tx, name
+func (_m *PlayerRepository) FindUserWithName(ctx context.Context, tx *pgx.Tx, name string) (models.Player, error) {
+	ret := _m.Called(ctx, tx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindUserWithName")
+	}
+
+	var r0 models.Player
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) (models.Player, error)); ok {
+		return rf(ctx, tx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) models.Player); ok {
+		r0 = rf(ctx, tx, name)
+	} else {
+		r0 = ret.Get(0).(models.Player)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, name)
 	} else {
 		r1 = ret.Error(1)
 	}

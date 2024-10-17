@@ -15,6 +15,7 @@ test:  ## Run tests
 	@./scripts/test.sh common .test.env
 	@./scripts/test.sh users .test.env
 	@./scripts/test.sh sessions .test.env
+	@./scripts/test.sh players .test.env
 
 sqlc-gen: ## Generate golang code from sqlc queries
 	sqlc generate --file internal/database/sqlc.yml

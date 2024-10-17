@@ -16,9 +16,15 @@ JOIN
 JOIN 
   clubs AS c ON pc.club_id = c.id 
 WHERE
-  (@owner_id::uuid IS NULL OR c.id = @owner_id::uuid) -- Optional filtering by owner_id
+  (@owner_id::uuid IS NULL OR c.owner_id = @owner_id::uuid) -- Optional filtering by owner_id
 ORDER BY
   CASE WHEN @sort_arrangement::text = 'name_asc' THEN p.name END ASC,
   CASE WHEN @sort_arrangement::text = 'name_desc' THEN p.name END DESC
 LIMIT @limit_count
 OFFSET @offset_count;
+
+-- name: FindPlayerWithName :one
+SELECT * FROM players WHERE name=(@name::text);
+
+-- name: AllPlayers :many
+SELECT * FROM players;

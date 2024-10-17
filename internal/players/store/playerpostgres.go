@@ -50,7 +50,6 @@ func (pp PlayerPostgres) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCreate 
 }
 
 func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *string, sortArrangement ListPlayersSort, offset int32, limit int32) ([]models.Player, int64, error) {
-
 	queries := pp.Queries
 	if tx != nil {
 		queries = queries.WithTx(*tx)
@@ -60,7 +59,7 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *s
 
 	if ownerID != nil {
 		pgOwnerID = pgtype.UUID{}
-		err := pgOwnerID.Scan(ownerID)
+		err := pgOwnerID.Scan(*ownerID)
 		if err != nil {
 			return []models.Player{}, 0, err
 		}
@@ -99,4 +98,39 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *s
 	}
 
 	return players, totalCount, nil
+}
+
+func (pp PlayerPostgres) FindUserWithName(ctx context.Context, tx *pgx.Tx, name string) (models.Player, error) {
+	dbPlayer, err := pp.Queries.FindPlayerWithName(ctx, name)
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	player := models.Player{}
+	err = player.PostgresToModel(dbPlayer)
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	return player, nil
+}
+
+func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.Player, error) {
+	dbPlayers, err := pp.Queries.AllPlayers(ctx)
+	if err != nil {
+		return []models.Player{}, nil
+	}
+
+	players := []models.Player{}
+	for _, dbPlayer := range dbPlayers {
+		player := models.Player{}
+		err := player.PostgresToModel(dbPlayer)
+		if err != nil {
+			return []models.Player{}, nil
+		}
+
+		players = append(players, player)
+	}
+
+	return players, nil
 }
