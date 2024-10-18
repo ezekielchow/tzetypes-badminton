@@ -32,7 +32,7 @@ const table = reactive({
                 return (
                     '<button type="button" data-id="' +
                     row.id +
-                    '" class="is-rows-el edit-btn green-button">Edit</button>'
+                    '" class="is-rows-el edit-btn primary-button">Edit</button>'
                 );
             },
         }
@@ -102,12 +102,19 @@ doSearch(0, 0, "name", "asc")
     <div class="container">
         <h2><b>Players</b></h2>
 
-        <nav aria-label="Breadcrumb">
-            <ol class="breadcrumb">
-                <RouterLink to="/dashboard">Dashboard</RouterLink> /
-                <RouterLink to="/players">Players</RouterLink>
-            </ol>
-        </nav>
+        <div class="navigation-wrapper">
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <RouterLink to="/dashboard">Dashboard</RouterLink> /
+                    <RouterLink to="/players">Players</RouterLink>
+                </ol>
+            </nav>
+            <RouterLink to="/players/add">
+                <button class="primary-button">
+                    Add Player
+                </button>
+            </RouterLink>
+        </div>
 
         <div class="table-wrapper">
             <div v-if="errorMessage" class="error">
@@ -117,7 +124,6 @@ doSearch(0, 0, "name", "asc")
             <VueTableLite :is-loading="table.isLoading" :columns="table.columns" :rows="table.rows"
                 :total="table.totalRecordCount" :sortable="table.sortable" :page="table.page" :pageSize="table.pageSize"
                 @do-search="doSearch" @is-finished="tableLoadingFinish" />
-
         </div>
     </div>
 </template>
@@ -129,7 +135,12 @@ doSearch(0, 0, "name", "asc")
     flex-direction: column;
 }
 
-.breadcrumb {
-    margin-top: 1rem;
+.navigation-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    border: 0.5px solid silver;
 }
 </style>

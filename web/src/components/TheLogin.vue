@@ -12,7 +12,7 @@
       </div>
 
       <div class="actions">
-        <button class="green-button" type="submit">Login</button>
+        <button class="primary-button" type="submit">Login</button>
       </div>
 
       <div v-if="errorMessage" class="error">

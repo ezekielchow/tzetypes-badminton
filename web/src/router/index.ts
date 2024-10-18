@@ -1,6 +1,7 @@
 import Dashboard from '@/components/TheDashboard.vue';
 import { MyApi } from '@/services/requests';
 import LoginView from '@/views/LoginView.vue';
+import PlayersAddView from '@/views/PlayersAddView.vue';
 import PlayersDashboardView from '@/views/PlayersDashboardView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
@@ -28,6 +29,12 @@ const router = createRouter({
       path: '/players',
       name: 'players',
       component: PlayersDashboardView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/players/add',
+      name: 'players/add',
+      component: PlayersAddView,
       meta: { requiresAuth: true }
     },
   ]

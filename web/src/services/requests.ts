@@ -198,4 +198,22 @@ export class MyApi extends runtime.BaseAPI {
     const apiResponse = await this.authenticatedRequest(() => this.listPlayersRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
+
+  private async addPlayerRequest(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    const api = new PrivatePlayersApi(this.getPrivateConf())
+
+    try {
+      return api.addPlayerRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to add player');
+    }
+  }
+
+  async addPlayer(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    const apiResponse = await this.authenticatedRequest(() => this.addPlayerRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
 }

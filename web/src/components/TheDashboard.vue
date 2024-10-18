@@ -56,7 +56,7 @@ getUserEmail()
 
         <div class="content">
             <RouterLink to="/players">
-                <button class="green-button">
+                <button class="primary-button">
                     My Players
                 </button>
             </RouterLink>

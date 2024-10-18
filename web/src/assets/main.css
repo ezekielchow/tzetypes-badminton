@@ -2,6 +2,7 @@
 @import './breadcrumb.css';
 @import './buttons.css';
 @import './table.css';
+@import './form.css';
 
 /* Mobile First Styles */
 body {
