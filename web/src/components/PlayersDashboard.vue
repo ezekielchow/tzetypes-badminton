@@ -103,7 +103,10 @@ const tableLoadingFinish = (elements) => {
     Array.prototype.forEach.call(elements, function (element) {
         if (element.classList.contains("edit-btn")) {
             element.addEventListener("click", function () {
-                console.log(this.dataset.id + " quick-btn click!!");
+                router.push({
+                    name: 'players/edit',
+                    params: { id: this.dataset.id }
+                })
             });
         }
     });

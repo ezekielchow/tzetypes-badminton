@@ -34,6 +34,58 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /players/{id}:
+    get:
+      summary: Get a player by ID
+      description: Retrieve information about a player using their unique ID.
+      tags:
+        - players
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the player
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful retrieval of player data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+    put:
+      summary: Update a player by ID
+      description: Update the details of a player using their unique ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the player
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+              required:
+                - name
+      responses:
+        "200":
+          description: Player successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
   /players:
     get:
       summary: List players

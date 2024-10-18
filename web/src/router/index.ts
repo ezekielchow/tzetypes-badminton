@@ -3,6 +3,7 @@ import { MyApi } from '@/services/requests';
 import LoginView from '@/views/LoginView.vue';
 import PlayersAddView from '@/views/PlayersAddView.vue';
 import PlayersDashboardView from '@/views/PlayersDashboardView.vue';
+import PlayersEditView from '@/views/PlayersEditView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -35,6 +36,12 @@ const router = createRouter({
       path: '/players/add',
       name: 'players/add',
       component: PlayersAddView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/players/:id',
+      name: 'players/edit',
+      component: PlayersEditView,
       meta: { requiresAuth: true }
     },
   ]

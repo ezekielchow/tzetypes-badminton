@@ -103,6 +103,14 @@ type ClientInterface interface {
 
 	AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPlayersId request
+	GetPlayersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutPlayersIdWithBody request with any body
+	PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutPlayersId(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetLoggedInUser request
 	GetLoggedInUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
@@ -157,6 +165,42 @@ func (c *Client) AddPlayerWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAddPlayerRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPlayersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPlayersIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPlayersIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutPlayersId(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPlayersIdRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -362,6 +406,87 @@ func NewAddPlayerRequestWithBody(server string, contentType string, body io.Read
 	return req, nil
 }
 
+// NewGetPlayersIdRequest generates requests for GetPlayersId
+func NewGetPlayersIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/players/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutPlayersIdRequest calls the generic PutPlayersId builder with application/json body
+func NewPutPlayersIdRequest(server string, id string, body PutPlayersIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutPlayersIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutPlayersIdRequestWithBody generates requests for PutPlayersId with any type of body
+func NewPutPlayersIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/players/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetLoggedInUserRequest generates requests for GetLoggedInUser
 func NewGetLoggedInUserRequest(server string) (*http.Request, error) {
 	var err error
@@ -445,6 +570,14 @@ type ClientWithResponsesInterface interface {
 	AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
 
 	AddPlayerWithResponse(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
+
+	// GetPlayersIdWithResponse request
+	GetPlayersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayersIdResponse, error)
+
+	// PutPlayersIdWithBodyWithResponse request with any body
+	PutPlayersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error)
+
+	PutPlayersIdWithResponse(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error)
 
 	// GetLoggedInUserWithResponse request
 	GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLoggedInUserResponse, error)
@@ -546,6 +679,51 @@ func (r AddPlayerResponse) StatusCode() int {
 	return 0
 }
 
+type GetPlayersIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Player
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPlayersIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPlayersIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutPlayersIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Player
+}
+
+// Status returns HTTPResponse.Status
+func (r PutPlayersIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutPlayersIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetLoggedInUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -611,6 +789,32 @@ func (c *ClientWithResponses) AddPlayerWithResponse(ctx context.Context, body Ad
 		return nil, err
 	}
 	return ParseAddPlayerResponse(rsp)
+}
+
+// GetPlayersIdWithResponse request returning *GetPlayersIdResponse
+func (c *ClientWithResponses) GetPlayersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayersIdResponse, error) {
+	rsp, err := c.GetPlayersId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPlayersIdResponse(rsp)
+}
+
+// PutPlayersIdWithBodyWithResponse request with arbitrary body returning *PutPlayersIdResponse
+func (c *ClientWithResponses) PutPlayersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error) {
+	rsp, err := c.PutPlayersIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutPlayersIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutPlayersIdWithResponse(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error) {
+	rsp, err := c.PutPlayersId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutPlayersIdResponse(rsp)
 }
 
 // GetLoggedInUserWithResponse request returning *GetLoggedInUserResponse
@@ -728,6 +932,65 @@ func ParseAddPlayerResponse(rsp *http.Response) (*AddPlayerResponse, error) {
 			return nil, err
 		}
 		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPlayersIdResponse parses an HTTP response from a GetPlayersIdWithResponse call
+func ParseGetPlayersIdResponse(rsp *http.Response) (*GetPlayersIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPlayersIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Player
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutPlayersIdResponse parses an HTTP response from a PutPlayersIdWithResponse call
+func ParsePutPlayersIdResponse(rsp *http.Response) (*PutPlayersIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutPlayersIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Player
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 

@@ -28,6 +28,12 @@ type ServerInterface interface {
 
 	// (POST /players/add)
 	AddPlayer(w http.ResponseWriter, r *http.Request)
+	// Get a player by ID
+	// (GET /players/{id})
+	GetPlayersId(w http.ResponseWriter, r *http.Request, id string)
+	// Update a player by ID
+	// (PUT /players/{id})
+	PutPlayersId(w http.ResponseWriter, r *http.Request, id string)
 
 	// (GET /users/current)
 	GetLoggedInUser(w http.ResponseWriter, r *http.Request)
@@ -55,6 +61,18 @@ func (_ Unimplemented) ListPlayers(w http.ResponseWriter, r *http.Request, param
 
 // (POST /players/add)
 func (_ Unimplemented) AddPlayer(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a player by ID
+// (GET /players/{id})
+func (_ Unimplemented) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a player by ID
+// (PUT /players/{id})
+func (_ Unimplemented) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -182,6 +200,62 @@ func (siw *ServerInterfaceWrapper) AddPlayer(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddPlayer(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetPlayersId operation middleware
+func (siw *ServerInterfaceWrapper) GetPlayersId(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPlayersId(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PutPlayersId operation middleware
+func (siw *ServerInterfaceWrapper) PutPlayersId(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PutPlayersId(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -334,6 +408,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/players/add", wrapper.AddPlayer)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/players/{id}", wrapper.GetPlayersId)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/players/{id}", wrapper.PutPlayersId)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/users/current", wrapper.GetLoggedInUser)
 	})
 
@@ -453,6 +533,53 @@ func (response AddPlayerdefaultJSONResponse) VisitAddPlayerResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type GetPlayersIdRequestObject struct {
+	Id string `json:"id"`
+}
+
+type GetPlayersIdResponseObject interface {
+	VisitGetPlayersIdResponse(w http.ResponseWriter) error
+}
+
+type GetPlayersId200JSONResponse Player
+
+func (response GetPlayersId200JSONResponse) VisitGetPlayersIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPlayersIddefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetPlayersIddefaultJSONResponse) VisitGetPlayersIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type PutPlayersIdRequestObject struct {
+	Id   string `json:"id"`
+	Body *PutPlayersIdJSONRequestBody
+}
+
+type PutPlayersIdResponseObject interface {
+	VisitPutPlayersIdResponse(w http.ResponseWriter) error
+}
+
+type PutPlayersId200JSONResponse Player
+
+func (response PutPlayersId200JSONResponse) VisitPutPlayersIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetLoggedInUserRequestObject struct {
 }
 
@@ -497,6 +624,12 @@ type StrictServerInterface interface {
 
 	// (POST /players/add)
 	AddPlayer(ctx context.Context, request AddPlayerRequestObject) (AddPlayerResponseObject, error)
+	// Get a player by ID
+	// (GET /players/{id})
+	GetPlayersId(ctx context.Context, request GetPlayersIdRequestObject) (GetPlayersIdResponseObject, error)
+	// Update a player by ID
+	// (PUT /players/{id})
+	PutPlayersId(ctx context.Context, request PutPlayersIdRequestObject) (PutPlayersIdResponseObject, error)
 
 	// (GET /users/current)
 	GetLoggedInUser(ctx context.Context, request GetLoggedInUserRequestObject) (GetLoggedInUserResponseObject, error)
@@ -629,6 +762,65 @@ func (sh *strictHandler) AddPlayer(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(AddPlayerResponseObject); ok {
 		if err := validResponse.VisitAddPlayerResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPlayersId operation middleware
+func (sh *strictHandler) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+	var request GetPlayersIdRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPlayersId(ctx, request.(GetPlayersIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPlayersId")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPlayersIdResponseObject); ok {
+		if err := validResponse.VisitGetPlayersIdResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PutPlayersId operation middleware
+func (sh *strictHandler) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+	var request PutPlayersIdRequestObject
+
+	request.Id = id
+
+	var body PutPlayersIdJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PutPlayersId(ctx, request.(PutPlayersIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PutPlayersId")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PutPlayersIdResponseObject); ok {
+		if err := validResponse.VisitPutPlayersIdResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
