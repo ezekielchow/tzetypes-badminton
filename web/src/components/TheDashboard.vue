@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUserStore } from '@/store/user-store';
+import { useUserStore } from '@/stores/user-store';
 import { ref } from 'vue';
 
 const errorMessage = ref('')
@@ -27,7 +27,7 @@ const getUserEmail = async () => {
     }
 
     errorMessage.value = ""
-    userEmail.value = res.user.email
+    userEmail.value = res.email
 }
 
 getUserEmail()

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/store/user-store';
+import { useUserStore } from '@/stores/user-store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 

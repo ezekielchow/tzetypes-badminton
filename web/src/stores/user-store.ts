@@ -1,4 +1,5 @@
 
+import type { User } from '@/repositories/clients/private'
 import type { LoginResponseSchema } from '@/repositories/clients/public'
 import { MyApi } from '@/services/requests'
 import { defineStore } from 'pinia'
@@ -6,7 +7,7 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('user', {
   state: () => ({
     backendUrl: "",
-    currentUser: null
+    currentUser: null as User | null
   }),
   actions: {
     setBackendUrl(backendUrl: string) {
@@ -42,8 +43,6 @@ export const useUserStore = defineStore('user', {
         return res
 
       } catch (error: any) {
-        console.log(error);
-
         if (error.response) {
           const errorBody = await error.response.json() // Parse the error response body as JSON
           return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
@@ -51,7 +50,7 @@ export const useUserStore = defineStore('user', {
         return new Error("Network error or unexpected error occurred")
       }
     },
-    async getCurrentUser() {
+    async getCurrentUser(): Promise<User | Error> {
       if (this.currentUser != null) {
         return this.currentUser
       }
@@ -60,11 +59,11 @@ export const useUserStore = defineStore('user', {
 
       try {
         const res = await myApi.currentUser()
-        return res
+        this.currentUser = res.user
+
+        return this.currentUser
 
       } catch (error: any) {
-        console.log(error);
-
         if (error.response) {
           const errorBody = await error.response.json() // Parse the error response body as JSON
           return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)

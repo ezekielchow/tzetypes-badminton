@@ -38,6 +38,8 @@ paths:
     get:
       summary: List players
       operationId: listPlayers
+      tags:
+        - players
       parameters:
         - name: owner_id
           in: query

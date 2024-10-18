@@ -1,6 +1,7 @@
 import {
   DefaultApi,
   Configuration as PrivateConf,
+  PlayersApi as PrivatePlayersApi,
   UsersApi as PrivateUsersApi
 } from '@/repositories/clients/private';
 import {
@@ -174,6 +175,27 @@ export class MyApi extends runtime.BaseAPI {
    */
   async currentUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.GetLoggedInUser200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.requestCurrentUser(initOverrides));
+    return apiResponse.value();
+  }
+
+  private async listPlayersRequest(requestParameters: runtime.ListPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.ListPlayers200Response>> {
+    const api = new PrivatePlayersApi(this.getPrivateConf())
+
+    try {
+      return api.listPlayersRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to list players');
+    }
+  }
+
+  /**
+   * Public method to access the dashboard endpoint
+   */
+  async listPlayers(requestParameters: runtime.ListPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ListPlayers200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.listPlayersRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
 }

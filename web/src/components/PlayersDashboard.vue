@@ -1,44 +1,76 @@
 <script setup lang="ts">
 
-import 'datatables.net-bs5';
-import DataTablesCore from 'datatables.net-dt';
-import 'datatables.net-responsive-dt';
-import DataTable from 'datatables.net-vue3';
+import type { Player } from "@/repositories/clients/private";
+import { usePlayerStore } from "@/stores/player-store";
+import { useUserStore } from "@/stores/user-store";
+import { reactive, ref } from "vue";
+import VueTableLite from "vue3-table-lite/ts";
 
-DataTable.use(DataTablesCore);
+const errorMessage = ref('')
 
-const columns = [
-    {
-        label: 'Name',
-        field: 'name',
-    },
-    {
-        label: 'Age',
-        field: 'age',
-        type: 'number',
-    },
-    {
-        label: 'Created On',
-        field: 'createdAt',
-        type: 'date',
-        dateInputFormat: 'yyyy-MM-dd',
-        dateOutputFormat: 'MMM do yy',
-    },
-    {
-        label: 'Percent',
-        field: 'score',
-        type: 'percentage',
-    },
-]
+const playerStore = usePlayerStore()
+playerStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
 
-const rows = [
-    { id: 1, name: "John", age: 20, createdAt: '', score: 0.03343 },
-    { id: 2, name: "Jane", age: 24, createdAt: '2011-10-31', score: 0.03343 },
-    { id: 3, name: "Susan", age: 16, createdAt: '2011-10-30', score: 0.03343 },
-    { id: 4, name: "Chris", age: 55, createdAt: '2011-10-11', score: 0.03343 },
-    { id: 5, name: "Dan", age: 40, createdAt: '2011-10-21', score: 0.03343 },
-    { id: 6, name: "John", age: 20, createdAt: '2011-10-31', score: 0.03343 },
-]
+const userStore = useUserStore()
+userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+
+const table = reactive({
+    isLoading: false,
+    columns: [
+        {
+            label: "Name",
+            field: "name",
+            width: "90%",
+            sortable: true,
+        }
+    ],
+    rows: [] as Player[],
+    totalRecordCount: 0,
+    sortable: {
+        order: "name",
+        sort: "asc",
+    },
+    pageSize: 10,
+    page: 1,
+});
+
+const doSearch = async (offset: number, limit: number, order: string, sort: string) => {
+    table.isLoading = true;
+
+    let page = 1
+    if (offset > 0) {
+        page = (offset / limit) + 1
+    }
+
+    const res = await userStore.getCurrentUser()
+
+    if (res instanceof Error) {
+        errorMessage.value = res.message
+        return
+    }
+
+    errorMessage.value = ""
+    table.page = page
+
+    const listPlayersRes = await playerStore.listPlayers({
+        page: table.page,
+        pageSize: table.pageSize,
+        ownerId: res ? res.id : undefined,
+        sortArrangement: `${order}_${sort}`
+    })
+
+    if (listPlayersRes instanceof Error) {
+        errorMessage.value = listPlayersRes.message
+        return
+    }
+
+    errorMessage.value = ""
+    table.rows = (!!listPlayersRes.players && listPlayersRes.players?.length > 0) ? listPlayersRes.players : []
+    table.totalRecordCount = listPlayersRes.pagination?.totalItems ?? 0
+};
+
+doSearch(0, 0, "name", "asc")
+
 </script>
 
 <template>
@@ -53,7 +85,13 @@ const rows = [
         </nav>
 
         <div class="table-wrapper">
-            <vue-good-table :columns="columns" :rows="rows" />
+            <div v-if="errorMessage" class="error">
+                {{ errorMessage }}
+            </div>
+
+            <VueTableLite :is-loading="table.isLoading" :columns="table.columns" :rows="table.rows"
+                :total="table.totalRecordCount" :sortable="table.sortable" :page="table.page" :pageSize="table.pageSize"
+                @do-search="doSearch" @is-finished="table.isLoading = false" />
 
         </div>
     </div>
