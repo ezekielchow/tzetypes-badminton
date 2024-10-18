@@ -7,6 +7,7 @@ import { reactive, ref } from "vue";
 import VueTableLite from "vue3-table-lite/ts";
 
 const errorMessage = ref('')
+const nameSearch = ref('')
 
 const playerStore = usePlayerStore()
 playerStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
@@ -20,8 +21,20 @@ const table = reactive({
         {
             label: "Name",
             field: "name",
-            width: "90%",
+            width: "150%",
             sortable: true,
+        },
+        {
+            label: "Actions",
+            field: "quick",
+            width: "10%",
+            display: function (row) {
+                return (
+                    '<button type="button" data-id="' +
+                    row.id +
+                    '" class="is-rows-el edit-btn green-button">Edit</button>'
+                );
+            },
         }
     ],
     rows: [] as Player[],
@@ -69,6 +82,18 @@ const doSearch = async (offset: number, limit: number, order: string, sort: stri
     table.totalRecordCount = listPlayersRes.pagination?.totalItems ?? 0
 };
 
+const tableLoadingFinish = (elements) => {
+    table.isLoading = false;
+    Array.prototype.forEach.call(elements, function (element) {
+        if (element.classList.contains("edit-btn")) {
+            element.addEventListener("click", function () {
+                console.log(this.dataset.id + " quick-btn click!!");
+            });
+        }
+    });
+};
+
+
 doSearch(0, 0, "name", "asc")
 
 </script>
@@ -91,7 +116,7 @@ doSearch(0, 0, "name", "asc")
 
             <VueTableLite :is-loading="table.isLoading" :columns="table.columns" :rows="table.rows"
                 :total="table.totalRecordCount" :sortable="table.sortable" :page="table.page" :pageSize="table.pageSize"
-                @do-search="doSearch" @is-finished="table.isLoading = false" />
+                @do-search="doSearch" @is-finished="tableLoadingFinish" />
 
         </div>
     </div>
