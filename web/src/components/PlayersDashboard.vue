@@ -4,7 +4,10 @@ import type { Player } from "@/repositories/clients/private";
 import { usePlayerStore } from "@/stores/player-store";
 import { useUserStore } from "@/stores/user-store";
 import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import VueTableLite from "vue3-table-lite/ts";
+
+const router = useRouter(); // Access router object
 
 const errorMessage = ref('')
 const nameSearch = ref('')
@@ -45,10 +48,17 @@ const table = reactive({
     },
     pageSize: 10,
     page: 1,
+    offset: 0,
+    order: "",
+    sort: ""
 });
 
 const doSearch = async (offset: number, limit: number, order: string, sort: string) => {
-    table.isLoading = true;
+    table.isLoading = true
+    table.pageSize = limit
+    table.offset = offset
+    table.order = order
+    table.sort = sort
 
     let page = 1
     if (offset > 0) {
@@ -84,6 +94,12 @@ const doSearch = async (offset: number, limit: number, order: string, sort: stri
 
 const tableLoadingFinish = (elements) => {
     table.isLoading = false;
+
+    router.push({
+        name: 'players',
+        query: { offset: table.offset, limit: table.pageSize, order: table.order, sort: table.sort },
+    });
+
     Array.prototype.forEach.call(elements, function (element) {
         if (element.classList.contains("edit-btn")) {
             element.addEventListener("click", function () {
@@ -93,8 +109,11 @@ const tableLoadingFinish = (elements) => {
     });
 };
 
+const handlePageUpdate = (pageNo: Number) => {
+    table.page = pageNo.valueOf()
+}
 
-doSearch(0, 0, "name", "asc")
+doSearch(0, 10, "name", "asc")
 
 </script>
 
@@ -122,8 +141,8 @@ doSearch(0, 0, "name", "asc")
             </div>
 
             <VueTableLite :is-loading="table.isLoading" :columns="table.columns" :rows="table.rows"
-                :total="table.totalRecordCount" :sortable="table.sortable" :page="table.page" :pageSize="table.pageSize"
-                @do-search="doSearch" @is-finished="tableLoadingFinish" />
+                :total="table.totalRecordCount" :sortable="table.sortable" @do-search="doSearch"
+                @is-finished="tableLoadingFinish" @get-now-page="handlePageUpdate" />
         </div>
     </div>
 </template>
