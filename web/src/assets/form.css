@@ -45,6 +45,10 @@
     margin-bottom: 10px;
 }
 
+.success-message {
+    color: #4BB543; /* Red color for error */
+    margin-bottom: 10px;
+}
 
 @media (max-width: 600px) {
     .form-container {

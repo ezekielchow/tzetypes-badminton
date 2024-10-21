@@ -103,13 +103,13 @@ type ClientInterface interface {
 
 	AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetPlayersId request
-	GetPlayersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetPlayerWithId request
+	GetPlayerWithId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutPlayersIdWithBody request with any body
-	PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdatePlayerWithIdWithBody request with any body
+	UpdatePlayerWithIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PutPlayersId(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdatePlayerWithId(ctx context.Context, id string, body UpdatePlayerWithIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetLoggedInUser request
 	GetLoggedInUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -175,8 +175,8 @@ func (c *Client) AddPlayer(ctx context.Context, body AddPlayerJSONRequestBody, r
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPlayersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPlayersIdRequest(c.Server, id)
+func (c *Client) GetPlayerWithId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPlayerWithIdRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -187,8 +187,8 @@ func (c *Client) GetPlayersId(ctx context.Context, id string, reqEditors ...Requ
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutPlayersIdRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) UpdatePlayerWithIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePlayerWithIdRequestWithBody(c.Server, id, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +199,8 @@ func (c *Client) PutPlayersIdWithBody(ctx context.Context, id string, contentTyp
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutPlayersId(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutPlayersIdRequest(c.Server, id, body)
+func (c *Client) UpdatePlayerWithId(ctx context.Context, id string, body UpdatePlayerWithIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePlayerWithIdRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -406,8 +406,8 @@ func NewAddPlayerRequestWithBody(server string, contentType string, body io.Read
 	return req, nil
 }
 
-// NewGetPlayersIdRequest generates requests for GetPlayersId
-func NewGetPlayersIdRequest(server string, id string) (*http.Request, error) {
+// NewGetPlayerWithIdRequest generates requests for GetPlayerWithId
+func NewGetPlayerWithIdRequest(server string, id string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -440,19 +440,19 @@ func NewGetPlayersIdRequest(server string, id string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewPutPlayersIdRequest calls the generic PutPlayersId builder with application/json body
-func NewPutPlayersIdRequest(server string, id string, body PutPlayersIdJSONRequestBody) (*http.Request, error) {
+// NewUpdatePlayerWithIdRequest calls the generic UpdatePlayerWithId builder with application/json body
+func NewUpdatePlayerWithIdRequest(server string, id string, body UpdatePlayerWithIdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPutPlayersIdRequestWithBody(server, id, "application/json", bodyReader)
+	return NewUpdatePlayerWithIdRequestWithBody(server, id, "application/json", bodyReader)
 }
 
-// NewPutPlayersIdRequestWithBody generates requests for PutPlayersId with any type of body
-func NewPutPlayersIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+// NewUpdatePlayerWithIdRequestWithBody generates requests for UpdatePlayerWithId with any type of body
+func NewUpdatePlayerWithIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -571,13 +571,13 @@ type ClientWithResponsesInterface interface {
 
 	AddPlayerWithResponse(ctx context.Context, body AddPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*AddPlayerResponse, error)
 
-	// GetPlayersIdWithResponse request
-	GetPlayersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayersIdResponse, error)
+	// GetPlayerWithIdWithResponse request
+	GetPlayerWithIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayerWithIdResponse, error)
 
-	// PutPlayersIdWithBodyWithResponse request with any body
-	PutPlayersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error)
+	// UpdatePlayerWithIdWithBodyWithResponse request with any body
+	UpdatePlayerWithIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePlayerWithIdResponse, error)
 
-	PutPlayersIdWithResponse(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error)
+	UpdatePlayerWithIdWithResponse(ctx context.Context, id string, body UpdatePlayerWithIdJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePlayerWithIdResponse, error)
 
 	// GetLoggedInUserWithResponse request
 	GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLoggedInUserResponse, error)
@@ -660,6 +660,7 @@ func (r ListPlayersResponse) StatusCode() int {
 type AddPlayerResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON201      *Player
 	JSONDefault  *ErrorResponseSchema
 }
 
@@ -679,7 +680,7 @@ func (r AddPlayerResponse) StatusCode() int {
 	return 0
 }
 
-type GetPlayersIdResponse struct {
+type GetPlayerWithIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *Player
@@ -687,7 +688,7 @@ type GetPlayersIdResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetPlayersIdResponse) Status() string {
+func (r GetPlayerWithIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -695,21 +696,21 @@ func (r GetPlayersIdResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetPlayersIdResponse) StatusCode() int {
+func (r GetPlayerWithIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type PutPlayersIdResponse struct {
+type UpdatePlayerWithIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *Player
 }
 
 // Status returns HTTPResponse.Status
-func (r PutPlayersIdResponse) Status() string {
+func (r UpdatePlayerWithIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -717,7 +718,7 @@ func (r PutPlayersIdResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PutPlayersIdResponse) StatusCode() int {
+func (r UpdatePlayerWithIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -791,30 +792,30 @@ func (c *ClientWithResponses) AddPlayerWithResponse(ctx context.Context, body Ad
 	return ParseAddPlayerResponse(rsp)
 }
 
-// GetPlayersIdWithResponse request returning *GetPlayersIdResponse
-func (c *ClientWithResponses) GetPlayersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayersIdResponse, error) {
-	rsp, err := c.GetPlayersId(ctx, id, reqEditors...)
+// GetPlayerWithIdWithResponse request returning *GetPlayerWithIdResponse
+func (c *ClientWithResponses) GetPlayerWithIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPlayerWithIdResponse, error) {
+	rsp, err := c.GetPlayerWithId(ctx, id, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetPlayersIdResponse(rsp)
+	return ParseGetPlayerWithIdResponse(rsp)
 }
 
-// PutPlayersIdWithBodyWithResponse request with arbitrary body returning *PutPlayersIdResponse
-func (c *ClientWithResponses) PutPlayersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error) {
-	rsp, err := c.PutPlayersIdWithBody(ctx, id, contentType, body, reqEditors...)
+// UpdatePlayerWithIdWithBodyWithResponse request with arbitrary body returning *UpdatePlayerWithIdResponse
+func (c *ClientWithResponses) UpdatePlayerWithIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePlayerWithIdResponse, error) {
+	rsp, err := c.UpdatePlayerWithIdWithBody(ctx, id, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePutPlayersIdResponse(rsp)
+	return ParseUpdatePlayerWithIdResponse(rsp)
 }
 
-func (c *ClientWithResponses) PutPlayersIdWithResponse(ctx context.Context, id string, body PutPlayersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPlayersIdResponse, error) {
-	rsp, err := c.PutPlayersId(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) UpdatePlayerWithIdWithResponse(ctx context.Context, id string, body UpdatePlayerWithIdJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePlayerWithIdResponse, error) {
+	rsp, err := c.UpdatePlayerWithId(ctx, id, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePutPlayersIdResponse(rsp)
+	return ParseUpdatePlayerWithIdResponse(rsp)
 }
 
 // GetLoggedInUserWithResponse request returning *GetLoggedInUserResponse
@@ -926,6 +927,13 @@ func ParseAddPlayerResponse(rsp *http.Response) (*AddPlayerResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Player
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -938,15 +946,15 @@ func ParseAddPlayerResponse(rsp *http.Response) (*AddPlayerResponse, error) {
 	return response, nil
 }
 
-// ParseGetPlayersIdResponse parses an HTTP response from a GetPlayersIdWithResponse call
-func ParseGetPlayersIdResponse(rsp *http.Response) (*GetPlayersIdResponse, error) {
+// ParseGetPlayerWithIdResponse parses an HTTP response from a GetPlayerWithIdWithResponse call
+func ParseGetPlayerWithIdResponse(rsp *http.Response) (*GetPlayerWithIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetPlayersIdResponse{
+	response := &GetPlayerWithIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -971,15 +979,15 @@ func ParseGetPlayersIdResponse(rsp *http.Response) (*GetPlayersIdResponse, error
 	return response, nil
 }
 
-// ParsePutPlayersIdResponse parses an HTTP response from a PutPlayersIdWithResponse call
-func ParsePutPlayersIdResponse(rsp *http.Response) (*PutPlayersIdResponse, error) {
+// ParseUpdatePlayerWithIdResponse parses an HTTP response from a UpdatePlayerWithIdWithResponse call
+func ParseUpdatePlayerWithIdResponse(rsp *http.Response) (*UpdatePlayerWithIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PutPlayersIdResponse{
+	response := &UpdatePlayerWithIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

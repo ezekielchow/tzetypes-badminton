@@ -13,8 +13,8 @@ import (
 type PlayerServiceInterface interface {
 	AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject, ownerID string) (oapiprivate.AddPlayerResponseObject, error)
 	ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error)
-	UpdatePlayer(ctx context.Context, input oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error)
-	GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error)
+	UpdatePlayer(ctx context.Context, input oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error)
+	GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error)
 }
 
 type PlayerService struct {

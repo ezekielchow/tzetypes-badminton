@@ -29,14 +29,14 @@ func TestGetPlayerWithId(t *testing.T) {
 			t.Fatalf("unable to create player: %s", err)
 		}
 
-		res, err := playerService.GetPlayerWithId(ct, oapiprivate.GetPlayersIdRequestObject{
+		res, err := playerService.GetPlayerWithId(ct, oapiprivate.GetPlayerWithIdRequestObject{
 			Id: created.ID,
 		})
 		if err != nil {
 			t.Fatalf("unable to get player: %s", err)
 		}
 
-		successRes, ok := res.(oapiprivate.GetPlayersId200JSONResponse)
+		successRes, ok := res.(oapiprivate.GetPlayerWithId200JSONResponse)
 		if !ok {
 			t.Fatal("unable to convert response")
 		}
@@ -47,7 +47,7 @@ func TestGetPlayerWithId(t *testing.T) {
 	t.Run("get player with doesnt exist id", func(t *testing.T) {
 		ct := context.Background()
 
-		res, err := playerService.GetPlayerWithId(ct, oapiprivate.GetPlayersIdRequestObject{
+		res, err := playerService.GetPlayerWithId(ct, oapiprivate.GetPlayerWithIdRequestObject{
 			Id: uuid.NewString(),
 		})
 		assert.Nil(t, res)

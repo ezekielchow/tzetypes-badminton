@@ -27,11 +27,41 @@ export const usePlayerStore = defineStore('player', {
         return new Error("Network error or unexpected error occurred")
       }
     },
-    async addPlayer(params: runtime.AddPlayerRequest): Promise<void | Error> {
+    async addPlayer(params: runtime.AddPlayerRequest): Promise<runtime.Player | Error> {
       const myApi = new MyApi(this.backendUrl)
 
       try {
         const res = await myApi.addPlayer(params)
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getPlayer(params: runtime.GetPlayerWithIdRequest): Promise<runtime.Player | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.getPlayer(params)
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async updatePlayer(params: runtime.UpdatePlayerWithIdOperationRequest): Promise<runtime.Player | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.updatePlayer(params)
         return res
 
       } catch (error: any) {

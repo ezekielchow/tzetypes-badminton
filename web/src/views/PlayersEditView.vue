@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import PlayersEdit from '@/components/PlayersEdit.vue';
+import PlayersAddUpdate from '@/components/PlayersAddUpdate.vue';
 </script>
 
 <template>
     <main>
-        <PlayersEdit />
+        <PlayersAddUpdate :is-edit="true" />
     </main>
 </template>

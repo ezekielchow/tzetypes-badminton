@@ -37,6 +37,7 @@ paths:
   /players/{id}:
     get:
       summary: Get a player by ID
+      operationId: getPlayerWithId
       description: Retrieve information about a player using their unique ID.
       tags:
         - players
@@ -58,6 +59,7 @@ paths:
           $ref: "#/components/responses/ErrorResponseSchema"
     put:
       summary: Update a player by ID
+      operationId: updatePlayerWithId
       description: Update the details of a player using their unique ID.
       tags:
         - players
@@ -164,6 +166,10 @@ paths:
       responses:
         "201":
           description: add player success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 

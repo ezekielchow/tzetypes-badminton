@@ -6,7 +6,7 @@ import (
 	"context"
 )
 
-func (ps PlayerService) UpdatePlayer(ctx context.Context, input oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error) {
+func (ps PlayerService) UpdatePlayer(ctx context.Context, input oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error) {
 	created, err := ps.PlayerStore.UpdatePlayer(ctx, nil, models.Player{
 		ID:   input.Id,
 		Name: input.Body.Name,
@@ -15,7 +15,7 @@ func (ps PlayerService) UpdatePlayer(ctx context.Context, input oapiprivate.PutP
 		return nil, err
 	}
 
-	return oapiprivate.PutPlayersId200JSONResponse{
+	return oapiprivate.UpdatePlayerWithId200JSONResponse{
 		Id:        created.ID,
 		Name:      created.Name,
 		UserId:    created.UserID,

@@ -166,8 +166,8 @@ func (_m *ClientInterface) GetLoggedInUser(ctx context.Context, reqEditors ...oa
 	return r0, r1
 }
 
-// GetPlayersId provides a mock function with given fields: ctx, id, reqEditors
-func (_m *ClientInterface) GetPlayersId(ctx context.Context, id string, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+// GetPlayerWithId provides a mock function with given fields: ctx, id, reqEditors
+func (_m *ClientInterface) GetPlayerWithId(ctx context.Context, id string, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -178,7 +178,7 @@ func (_m *ClientInterface) GetPlayersId(ctx context.Context, id string, reqEdito
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPlayersId")
+		panic("no return value specified for GetPlayerWithId")
 	}
 
 	var r0 *http.Response
@@ -277,8 +277,8 @@ func (_m *ClientInterface) Logout(ctx context.Context, reqEditors ...oapiprivate
 	return r0, r1
 }
 
-// PutPlayersId provides a mock function with given fields: ctx, id, body, reqEditors
-func (_m *ClientInterface) PutPlayersId(ctx context.Context, id string, body oapiprivate.PutPlayersIdJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+// UpdatePlayerWithId provides a mock function with given fields: ctx, id, body, reqEditors
+func (_m *ClientInterface) UpdatePlayerWithId(ctx context.Context, id string, body oapiprivate.UpdatePlayerWithIdJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -289,15 +289,15 @@ func (_m *ClientInterface) PutPlayersId(ctx context.Context, id string, body oap
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for PutPlayersId")
+		panic("no return value specified for UpdatePlayerWithId")
 	}
 
 	var r0 *http.Response
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.UpdatePlayerWithIdJSONRequestBody, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
 		return rf(ctx, id, body, reqEditors...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.UpdatePlayerWithIdJSONRequestBody, ...oapiprivate.RequestEditorFn) *http.Response); ok {
 		r0 = rf(ctx, id, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
@@ -305,7 +305,7 @@ func (_m *ClientInterface) PutPlayersId(ctx context.Context, id string, body oap
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.UpdatePlayerWithIdJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
 		r1 = rf(ctx, id, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
@@ -314,8 +314,8 @@ func (_m *ClientInterface) PutPlayersId(ctx context.Context, id string, body oap
 	return r0, r1
 }
 
-// PutPlayersIdWithBody provides a mock function with given fields: ctx, id, contentType, body, reqEditors
-func (_m *ClientInterface) PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+// UpdatePlayerWithIdWithBody provides a mock function with given fields: ctx, id, contentType, body, reqEditors
+func (_m *ClientInterface) UpdatePlayerWithIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -326,7 +326,7 @@ func (_m *ClientInterface) PutPlayersIdWithBody(ctx context.Context, id string, 
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for PutPlayersIdWithBody")
+		panic("no return value specified for UpdatePlayerWithIdWithBody")
 	}
 
 	var r0 *http.Response

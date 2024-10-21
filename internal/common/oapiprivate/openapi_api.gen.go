@@ -30,10 +30,10 @@ type ServerInterface interface {
 	AddPlayer(w http.ResponseWriter, r *http.Request)
 	// Get a player by ID
 	// (GET /players/{id})
-	GetPlayersId(w http.ResponseWriter, r *http.Request, id string)
+	GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string)
 	// Update a player by ID
 	// (PUT /players/{id})
-	PutPlayersId(w http.ResponseWriter, r *http.Request, id string)
+	UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string)
 
 	// (GET /users/current)
 	GetLoggedInUser(w http.ResponseWriter, r *http.Request)
@@ -66,13 +66,13 @@ func (_ Unimplemented) AddPlayer(w http.ResponseWriter, r *http.Request) {
 
 // Get a player by ID
 // (GET /players/{id})
-func (_ Unimplemented) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+func (_ Unimplemented) GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Update a player by ID
 // (PUT /players/{id})
-func (_ Unimplemented) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+func (_ Unimplemented) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -209,8 +209,8 @@ func (siw *ServerInterfaceWrapper) AddPlayer(w http.ResponseWriter, r *http.Requ
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetPlayersId operation middleware
-func (siw *ServerInterfaceWrapper) GetPlayersId(w http.ResponseWriter, r *http.Request) {
+// GetPlayerWithId operation middleware
+func (siw *ServerInterfaceWrapper) GetPlayerWithId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -227,7 +227,7 @@ func (siw *ServerInterfaceWrapper) GetPlayersId(w http.ResponseWriter, r *http.R
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetPlayersId(w, r, id)
+		siw.Handler.GetPlayerWithId(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -237,8 +237,8 @@ func (siw *ServerInterfaceWrapper) GetPlayersId(w http.ResponseWriter, r *http.R
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PutPlayersId operation middleware
-func (siw *ServerInterfaceWrapper) PutPlayersId(w http.ResponseWriter, r *http.Request) {
+// UpdatePlayerWithId operation middleware
+func (siw *ServerInterfaceWrapper) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -255,7 +255,7 @@ func (siw *ServerInterfaceWrapper) PutPlayersId(w http.ResponseWriter, r *http.R
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PutPlayersId(w, r, id)
+		siw.Handler.UpdatePlayerWithId(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -408,10 +408,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/players/add", wrapper.AddPlayer)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/players/{id}", wrapper.GetPlayersId)
+		r.Get(options.BaseURL+"/players/{id}", wrapper.GetPlayerWithId)
 	})
 	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/players/{id}", wrapper.PutPlayersId)
+		r.Put(options.BaseURL+"/players/{id}", wrapper.UpdatePlayerWithId)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/users/current", wrapper.GetLoggedInUser)
@@ -513,12 +513,13 @@ type AddPlayerResponseObject interface {
 	VisitAddPlayerResponse(w http.ResponseWriter) error
 }
 
-type AddPlayer201Response struct {
-}
+type AddPlayer201JSONResponse Player
 
-func (response AddPlayer201Response) VisitAddPlayerResponse(w http.ResponseWriter) error {
+func (response AddPlayer201JSONResponse) VisitAddPlayerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
-	return nil
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type AddPlayerdefaultJSONResponse struct {
@@ -533,47 +534,47 @@ func (response AddPlayerdefaultJSONResponse) VisitAddPlayerResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type GetPlayersIdRequestObject struct {
+type GetPlayerWithIdRequestObject struct {
 	Id string `json:"id"`
 }
 
-type GetPlayersIdResponseObject interface {
-	VisitGetPlayersIdResponse(w http.ResponseWriter) error
+type GetPlayerWithIdResponseObject interface {
+	VisitGetPlayerWithIdResponse(w http.ResponseWriter) error
 }
 
-type GetPlayersId200JSONResponse Player
+type GetPlayerWithId200JSONResponse Player
 
-func (response GetPlayersId200JSONResponse) VisitGetPlayersIdResponse(w http.ResponseWriter) error {
+func (response GetPlayerWithId200JSONResponse) VisitGetPlayerWithIdResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetPlayersIddefaultJSONResponse struct {
+type GetPlayerWithIddefaultJSONResponse struct {
 	Body       Error
 	StatusCode int
 }
 
-func (response GetPlayersIddefaultJSONResponse) VisitGetPlayersIdResponse(w http.ResponseWriter) error {
+func (response GetPlayerWithIddefaultJSONResponse) VisitGetPlayerWithIdResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type PutPlayersIdRequestObject struct {
+type UpdatePlayerWithIdRequestObject struct {
 	Id   string `json:"id"`
-	Body *PutPlayersIdJSONRequestBody
+	Body *UpdatePlayerWithIdJSONRequestBody
 }
 
-type PutPlayersIdResponseObject interface {
-	VisitPutPlayersIdResponse(w http.ResponseWriter) error
+type UpdatePlayerWithIdResponseObject interface {
+	VisitUpdatePlayerWithIdResponse(w http.ResponseWriter) error
 }
 
-type PutPlayersId200JSONResponse Player
+type UpdatePlayerWithId200JSONResponse Player
 
-func (response PutPlayersId200JSONResponse) VisitPutPlayersIdResponse(w http.ResponseWriter) error {
+func (response UpdatePlayerWithId200JSONResponse) VisitUpdatePlayerWithIdResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
@@ -626,10 +627,10 @@ type StrictServerInterface interface {
 	AddPlayer(ctx context.Context, request AddPlayerRequestObject) (AddPlayerResponseObject, error)
 	// Get a player by ID
 	// (GET /players/{id})
-	GetPlayersId(ctx context.Context, request GetPlayersIdRequestObject) (GetPlayersIdResponseObject, error)
+	GetPlayerWithId(ctx context.Context, request GetPlayerWithIdRequestObject) (GetPlayerWithIdResponseObject, error)
 	// Update a player by ID
 	// (PUT /players/{id})
-	PutPlayersId(ctx context.Context, request PutPlayersIdRequestObject) (PutPlayersIdResponseObject, error)
+	UpdatePlayerWithId(ctx context.Context, request UpdatePlayerWithIdRequestObject) (UpdatePlayerWithIdResponseObject, error)
 
 	// (GET /users/current)
 	GetLoggedInUser(ctx context.Context, request GetLoggedInUserRequestObject) (GetLoggedInUserResponseObject, error)
@@ -769,25 +770,25 @@ func (sh *strictHandler) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetPlayersId operation middleware
-func (sh *strictHandler) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
-	var request GetPlayersIdRequestObject
+// GetPlayerWithId operation middleware
+func (sh *strictHandler) GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
+	var request GetPlayerWithIdRequestObject
 
 	request.Id = id
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetPlayersId(ctx, request.(GetPlayersIdRequestObject))
+		return sh.ssi.GetPlayerWithId(ctx, request.(GetPlayerWithIdRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetPlayersId")
+		handler = middleware(handler, "GetPlayerWithId")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetPlayersIdResponseObject); ok {
-		if err := validResponse.VisitGetPlayersIdResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetPlayerWithIdResponseObject); ok {
+		if err := validResponse.VisitGetPlayerWithIdResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -795,13 +796,13 @@ func (sh *strictHandler) GetPlayersId(w http.ResponseWriter, r *http.Request, id
 	}
 }
 
-// PutPlayersId operation middleware
-func (sh *strictHandler) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
-	var request PutPlayersIdRequestObject
+// UpdatePlayerWithId operation middleware
+func (sh *strictHandler) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
+	var request UpdatePlayerWithIdRequestObject
 
 	request.Id = id
 
-	var body PutPlayersIdJSONRequestBody
+	var body UpdatePlayerWithIdJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -809,18 +810,18 @@ func (sh *strictHandler) PutPlayersId(w http.ResponseWriter, r *http.Request, id
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PutPlayersId(ctx, request.(PutPlayersIdRequestObject))
+		return sh.ssi.UpdatePlayerWithId(ctx, request.(UpdatePlayerWithIdRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PutPlayersId")
+		handler = middleware(handler, "UpdatePlayerWithId")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PutPlayersIdResponseObject); ok {
-		if err := validResponse.VisitPutPlayersIdResponse(w); err != nil {
+	} else if validResponse, ok := response.(UpdatePlayerWithIdResponseObject); ok {
+		if err := validResponse.VisitUpdatePlayerWithIdResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

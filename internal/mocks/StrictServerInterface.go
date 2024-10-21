@@ -104,28 +104,28 @@ func (_m *StrictServerInterface) GetLoggedInUser(ctx context.Context, request oa
 	return r0, r1
 }
 
-// GetPlayersId provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) GetPlayersId(ctx context.Context, request oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error) {
+// GetPlayerWithId provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) GetPlayerWithId(ctx context.Context, request oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPlayersId")
+		panic("no return value specified for GetPlayerWithId")
 	}
 
-	var r0 oapiprivate.GetPlayersIdResponseObject
+	var r0 oapiprivate.GetPlayerWithIdResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) oapiprivate.GetPlayersIdResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) oapiprivate.GetPlayerWithIdResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapiprivate.GetPlayersIdResponseObject)
+			r0 = ret.Get(0).(oapiprivate.GetPlayerWithIdResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
@@ -194,28 +194,28 @@ func (_m *StrictServerInterface) Logout(ctx context.Context, request oapiprivate
 	return r0, r1
 }
 
-// PutPlayersId provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) PutPlayersId(ctx context.Context, request oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error) {
+// UpdatePlayerWithId provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) UpdatePlayerWithId(ctx context.Context, request oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for PutPlayersId")
+		panic("no return value specified for UpdatePlayerWithId")
 	}
 
-	var r0 oapiprivate.PutPlayersIdResponseObject
+	var r0 oapiprivate.UpdatePlayerWithIdResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) oapiprivate.PutPlayersIdResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) oapiprivate.UpdatePlayerWithIdResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapiprivate.PutPlayersIdResponseObject)
+			r0 = ret.Get(0).(oapiprivate.UpdatePlayerWithIdResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)

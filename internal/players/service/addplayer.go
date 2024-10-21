@@ -45,5 +45,11 @@ func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlay
 		return nil, err
 	}
 
-	return oapiprivate.AddPlayer201Response{}, nil
+	return oapiprivate.AddPlayer201JSONResponse{
+		Id:        player.ID,
+		Name:      player.Name,
+		UserId:    player.UserID,
+		CreatedAt: player.CreatedAt.String(),
+		UpdatedAt: player.UpdatedAt.String(),
+	}, nil
 }

@@ -29,8 +29,8 @@ func (_m *ServerInterface) GetLoggedInUser(w http.ResponseWriter, r *http.Reques
 	_m.Called(w, r)
 }
 
-// GetPlayersId provides a mock function with given fields: w, r, id
-func (_m *ServerInterface) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+// GetPlayerWithId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
 	_m.Called(w, r, id)
 }
 
@@ -44,8 +44,8 @@ func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
-// PutPlayersId provides a mock function with given fields: w, r, id
-func (_m *ServerInterface) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+// UpdatePlayerWithId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
 	_m.Called(w, r, id)
 }
 

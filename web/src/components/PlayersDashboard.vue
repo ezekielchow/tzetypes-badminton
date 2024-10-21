@@ -92,7 +92,7 @@ const doSearch = async (offset: number, limit: number, order: string, sort: stri
     table.totalRecordCount = listPlayersRes.pagination?.totalItems ?? 0
 };
 
-const tableLoadingFinish = (elements: HTMLElement[]) => {
+const tableLoadingFinish = (elements: HTMLCollection[]) => {
     table.isLoading = false;
 
     router.push({
@@ -100,14 +100,16 @@ const tableLoadingFinish = (elements: HTMLElement[]) => {
         query: { offset: table.offset, limit: table.pageSize, order: table.order, sort: table.sort },
     });
 
-    Array.prototype.forEach.call(elements, function (element) {
+    Array.prototype.forEach.call(elements, function (element: HTMLButtonElement) {
         if (element.classList.contains("edit-btn")) {
-            element.addEventListener("click", (event: HTMLElement) => {
-                router.push({
-                    name: 'players/edit',
-                    params: { id: event.dataset.id }
-                })
-            });
+            element.addEventListener("click", (event: MouseEvent) => {
+                if (event.target) {
+                    router.push({
+                        name: 'players/edit',
+                        params: { id: element.dataset.id }
+                    })
+                }
+            })
         }
     });
 };

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import PlayersAdd from '@/components/PlayersAdd.vue';
+import PlayersAddUpdate from '@/components/PlayersAddUpdate.vue';
 
 </script>
 
 <template>
     <main>
-        <PlayersAdd />
+        <PlayersAddUpdate :is-edit="false" />
     </main>
 </template>

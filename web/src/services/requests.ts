@@ -199,7 +199,7 @@ export class MyApi extends runtime.BaseAPI {
     return await apiResponse.value();
   }
 
-  private async addPlayerRequest(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+  private async addPlayerRequest(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.Player>> {
     const api = new PrivatePlayersApi(this.getPrivateConf())
 
     try {
@@ -212,8 +212,44 @@ export class MyApi extends runtime.BaseAPI {
     }
   }
 
-  async addPlayer(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+  async addPlayer(requestParameters: runtime.AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.Player> {
     const apiResponse = await this.authenticatedRequest(() => this.addPlayerRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async updatePlayerRequest(requestParameters: runtime.UpdatePlayerWithIdOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.Player>> {
+    const api = new PrivatePlayersApi(this.getPrivateConf())
+
+    try {
+      return api.updatePlayerWithIdRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to update player');
+    }
+  }
+
+  async updatePlayer(requestParameters: runtime.UpdatePlayerWithIdOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.Player> {
+    const apiResponse = await this.authenticatedRequest(() => this.updatePlayerRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async getPlayerRequest(requestParameters: runtime.GetPlayerWithIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.Player>> {
+    const api = new PrivatePlayersApi(this.getPrivateConf())
+
+    try {
+      return api.getPlayerWithIdRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get player');
+    }
+  }
+
+  async getPlayer(requestParameters: runtime.GetPlayerWithIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.Player> {
+    const apiResponse = await this.authenticatedRequest(() => this.getPlayerRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
 }

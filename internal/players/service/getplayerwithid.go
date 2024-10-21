@@ -10,7 +10,7 @@ const (
 	GetPlayerWithIdNotFoundError = "unable to find player with given ID"
 )
 
-func (ps PlayerService) GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error) {
+func (ps PlayerService) GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error) {
 
 	player, err := ps.PlayerStore.GetPlayerWithId(ctx, nil, input.Id)
 	if err != nil {
@@ -21,7 +21,7 @@ func (ps PlayerService) GetPlayerWithId(ctx context.Context, input oapiprivate.G
 		return nil, errors.New(GetPlayerWithIdNotFoundError)
 	}
 
-	return oapiprivate.GetPlayersId200JSONResponse{
+	return oapiprivate.GetPlayerWithId200JSONResponse{
 		Id:        player.ID,
 		Name:      player.Name,
 		UserId:    player.UserID,

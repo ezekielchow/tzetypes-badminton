@@ -40,7 +40,7 @@ func TestAddPlayer(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unable to add player:%s", err)
 		}
-		_, ok := res.(oapiprivate.AddPlayer201Response)
+		_, ok := res.(oapiprivate.AddPlayer201JSONResponse)
 		if !ok {
 			t.Fatal("unable to convert response")
 		}

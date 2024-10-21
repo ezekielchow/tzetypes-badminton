@@ -63,13 +63,13 @@ type ListPlayersParams struct {
 	SortArrangement *string `form:"sortArrangement,omitempty" json:"sortArrangement,omitempty"`
 }
 
-// PutPlayersIdJSONBody defines parameters for PutPlayersId.
-type PutPlayersIdJSONBody struct {
+// UpdatePlayerWithIdJSONBody defines parameters for UpdatePlayerWithId.
+type UpdatePlayerWithIdJSONBody struct {
 	Name string `json:"name"`
 }
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema
 
-// PutPlayersIdJSONRequestBody defines body for PutPlayersId for application/json ContentType.
-type PutPlayersIdJSONRequestBody PutPlayersIdJSONBody
+// UpdatePlayerWithIdJSONRequestBody defines body for UpdatePlayerWithId for application/json ContentType.
+type UpdatePlayerWithIdJSONRequestBody UpdatePlayerWithIdJSONBody

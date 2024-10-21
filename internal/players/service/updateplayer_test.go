@@ -28,9 +28,9 @@ func TestUpdatePlayer(t *testing.T) {
 		}
 
 		toUpdateName := utils.NewString(10)
-		res, err := playerService.UpdatePlayer(ctx, oapiprivate.PutPlayersIdRequestObject{
+		res, err := playerService.UpdatePlayer(ctx, oapiprivate.UpdatePlayerWithIdRequestObject{
 			Id: created.ID,
-			Body: &oapiprivate.PutPlayersIdJSONRequestBody{
+			Body: &oapiprivate.UpdatePlayerWithIdJSONRequestBody{
 				Name: toUpdateName,
 			},
 		})
@@ -38,19 +38,19 @@ func TestUpdatePlayer(t *testing.T) {
 			t.Fatalf("unable to update player: %s", err)
 		}
 
-		successRes, ok := res.(oapiprivate.PutPlayersId200JSONResponse)
+		successRes, ok := res.(oapiprivate.UpdatePlayerWithId200JSONResponse)
 		if !ok {
 			t.Fatal("unable to convert response")
 		}
 
-		resGet, err := playerService.GetPlayerWithId(ctx, oapiprivate.GetPlayersIdRequestObject{
+		resGet, err := playerService.GetPlayerWithId(ctx, oapiprivate.GetPlayerWithIdRequestObject{
 			Id: created.ID,
 		})
 		if err != nil {
 			t.Fatalf("unable to get player: %s", err)
 		}
 
-		updatedPlayerRes, ok := resGet.(oapiprivate.GetPlayersId200JSONResponse)
+		updatedPlayerRes, ok := resGet.(oapiprivate.GetPlayerWithId200JSONResponse)
 		if !ok {
 			t.Fatal("unable to convert response")
 		}
