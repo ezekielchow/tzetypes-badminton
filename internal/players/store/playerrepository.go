@@ -12,4 +12,6 @@ type PlayerRepository interface {
 	ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *string, sortArrangement ListPlayersSort, offset int32, limit int32) ([]models.Player, int64, error)
 	FindUserWithName(ctx context.Context, tx *pgx.Tx, name string) (models.Player, error)
 	AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.Player, error)
+	UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate models.Player) (models.Player, error)
+	GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id string) (models.Player, error)
 }

@@ -59,6 +59,8 @@ paths:
     put:
       summary: Update a player by ID
       description: Update the details of a player using their unique ID.
+      tags:
+        - players
       parameters:
         - name: id
           in: path

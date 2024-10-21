@@ -28,3 +28,14 @@ SELECT * FROM players WHERE name=(@name::text);
 
 -- name: AllPlayers :many
 SELECT * FROM players;
+
+-- name: UpdatePlayer :one
+UPDATE players SET 
+name = @name::text,
+updated_at = @updated_at
+WHERE id = @id::uuid
+RETURNING *;
+
+-- name: GetPlayerWithId :one
+SELECT * FROM players
+WHERE id = @id::uuid limit 1;

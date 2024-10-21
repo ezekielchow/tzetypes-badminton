@@ -104,6 +104,34 @@ func (_m *PlayerRepository) FindUserWithName(ctx context.Context, tx *pgx.Tx, na
 	return r0, r1
 }
 
+// GetPlayerWithId provides a mock function with given fields: ctx, tx, id
+func (_m *PlayerRepository) GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id string) (models.Player, error) {
+	ret := _m.Called(ctx, tx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPlayerWithId")
+	}
+
+	var r0 models.Player
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) (models.Player, error)); ok {
+		return rf(ctx, tx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) models.Player); ok {
+		r0 = rf(ctx, tx, id)
+	} else {
+		r0 = ret.Get(0).(models.Player)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListPlayers provides a mock function with given fields: ctx, tx, ownerID, sortArrangement, offset, limit
 func (_m *PlayerRepository) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *string, sortArrangement players.ListPlayersSort, offset int32, limit int32) ([]models.Player, int64, error) {
 	ret := _m.Called(ctx, tx, ownerID, sortArrangement, offset, limit)
@@ -139,6 +167,34 @@ func (_m *PlayerRepository) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID
 	}
 
 	return r0, r1, r2
+}
+
+// UpdatePlayer provides a mock function with given fields: ctx, tx, toUpdate
+func (_m *PlayerRepository) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate models.Player) (models.Player, error) {
+	ret := _m.Called(ctx, tx, toUpdate)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePlayer")
+	}
+
+	var r0 models.Player
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, models.Player) (models.Player, error)); ok {
+		return rf(ctx, tx, toUpdate)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, models.Player) models.Player); ok {
+		r0 = rf(ctx, tx, toUpdate)
+	} else {
+		r0 = ret.Get(0).(models.Player)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, models.Player) error); ok {
+		r1 = rf(ctx, tx, toUpdate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewPlayerRepository creates a new instance of PlayerRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

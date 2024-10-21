@@ -166,6 +166,43 @@ func (_m *ClientInterface) GetLoggedInUser(ctx context.Context, reqEditors ...oa
 	return r0, r1
 }
 
+// GetPlayersId provides a mock function with given fields: ctx, id, reqEditors
+func (_m *ClientInterface) GetPlayersId(ctx context.Context, id string, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPlayersId")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, id, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, id, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, id, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListPlayers provides a mock function with given fields: ctx, params, reqEditors
 func (_m *ClientInterface) ListPlayers(ctx context.Context, params *oapiprivate.ListPlayersParams, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
 	_va := make([]interface{}, len(reqEditors))
@@ -233,6 +270,80 @@ func (_m *ClientInterface) Logout(ctx context.Context, reqEditors ...oapiprivate
 
 	if rf, ok := ret.Get(1).(func(context.Context, ...oapiprivate.RequestEditorFn) error); ok {
 		r1 = rf(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PutPlayersId provides a mock function with given fields: ctx, id, body, reqEditors
+func (_m *ClientInterface) PutPlayersId(ctx context.Context, id string, body oapiprivate.PutPlayersIdJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutPlayersId")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, id, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, id, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.PutPlayersIdJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, id, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PutPlayersIdWithBody provides a mock function with given fields: ctx, id, contentType, body, reqEditors
+func (_m *ClientInterface) PutPlayersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutPlayersIdWithBody")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, id, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, id, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, id, contentType, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}

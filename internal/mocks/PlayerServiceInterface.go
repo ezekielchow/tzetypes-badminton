@@ -44,6 +44,36 @@ func (_m *PlayerServiceInterface) AddPlayer(ctx context.Context, input oapipriva
 	return r0, r1
 }
 
+// GetPlayerWithId provides a mock function with given fields: ctx, input
+func (_m *PlayerServiceInterface) GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPlayerWithId")
+	}
+
+	var r0 oapiprivate.GetPlayersIdResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) oapiprivate.GetPlayersIdResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetPlayersIdResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetPlayersIdRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListPlayers provides a mock function with given fields: ctx, input
 func (_m *PlayerServiceInterface) ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error) {
 	ret := _m.Called(ctx, input)
@@ -66,6 +96,36 @@ func (_m *PlayerServiceInterface) ListPlayers(ctx context.Context, input oapipri
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.ListPlayersRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdatePlayer provides a mock function with given fields: ctx, input
+func (_m *PlayerServiceInterface) UpdatePlayer(ctx context.Context, input oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePlayer")
+	}
+
+	var r0 oapiprivate.PutPlayersIdResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) oapiprivate.PutPlayersIdResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.PutPlayersIdResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.PutPlayersIdRequestObject) error); ok {
 		r1 = rf(ctx, input)
 	} else {
 		r1 = ret.Error(1)

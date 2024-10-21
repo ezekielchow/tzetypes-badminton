@@ -84,6 +84,24 @@ func (q *Queries) FindPlayerWithName(ctx context.Context, name string) (Player, 
 	return i, err
 }
 
+const getPlayerWithId = `-- name: GetPlayerWithId :one
+SELECT id, user_id, name, created_at, updated_at FROM players
+WHERE id = $1::uuid limit 1
+`
+
+func (q *Queries) GetPlayerWithId(ctx context.Context, id pgtype.UUID) (Player, error) {
+	row := q.db.QueryRow(ctx, getPlayerWithId, id)
+	var i Player
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listPlayers = `-- name: ListPlayers :many
 SELECT
   p.id, p.user_id, p.name, p.created_at, p.updated_at,
@@ -149,4 +167,31 @@ func (q *Queries) ListPlayers(ctx context.Context, arg ListPlayersParams) ([]Lis
 		return nil, err
 	}
 	return items, nil
+}
+
+const updatePlayer = `-- name: UpdatePlayer :one
+UPDATE players SET 
+name = $1::text,
+updated_at = $2
+WHERE id = $3::uuid
+RETURNING id, user_id, name, created_at, updated_at
+`
+
+type UpdatePlayerParams struct {
+	Name      string
+	UpdatedAt pgtype.Timestamp
+	ID        pgtype.UUID
+}
+
+func (q *Queries) UpdatePlayer(ctx context.Context, arg UpdatePlayerParams) (Player, error) {
+	row := q.db.QueryRow(ctx, updatePlayer, arg.Name, arg.UpdatedAt, arg.ID)
+	var i Player
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

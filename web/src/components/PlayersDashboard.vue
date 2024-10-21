@@ -31,7 +31,7 @@ const table = reactive({
             label: "Actions",
             field: "quick",
             width: "10%",
-            display: function (row) {
+            display: function (row: Player) {
                 return (
                     '<button type="button" data-id="' +
                     row.id +
@@ -92,7 +92,7 @@ const doSearch = async (offset: number, limit: number, order: string, sort: stri
     table.totalRecordCount = listPlayersRes.pagination?.totalItems ?? 0
 };
 
-const tableLoadingFinish = (elements) => {
+const tableLoadingFinish = (elements: HTMLElement[]) => {
     table.isLoading = false;
 
     router.push({
@@ -102,10 +102,10 @@ const tableLoadingFinish = (elements) => {
 
     Array.prototype.forEach.call(elements, function (element) {
         if (element.classList.contains("edit-btn")) {
-            element.addEventListener("click", function () {
+            element.addEventListener("click", (event: HTMLElement) => {
                 router.push({
                     name: 'players/edit',
-                    params: { id: this.dataset.id }
+                    params: { id: event.dataset.id }
                 })
             });
         }

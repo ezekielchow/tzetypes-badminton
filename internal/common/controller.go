@@ -71,3 +71,11 @@ func (c Controller) GetLoggedInUser(ctx context.Context, input oapiprivate.GetLo
 func (c Controller) ListPlayers(ctx context.Context, input oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error) {
 	return c.Services.PlayerService.ListPlayers(ctx, input)
 }
+
+func (c Controller) PutPlayersId(ctx context.Context, input oapiprivate.PutPlayersIdRequestObject) (oapiprivate.PutPlayersIdResponseObject, error) {
+	return c.Services.PlayerService.UpdatePlayer(ctx, input)
+}
+
+func (c Controller) GetPlayersId(ctx context.Context, input oapiprivate.GetPlayersIdRequestObject) (oapiprivate.GetPlayersIdResponseObject, error) {
+	return c.Services.PlayerService.GetPlayerWithId(ctx, input)
+}

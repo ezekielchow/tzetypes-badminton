@@ -29,6 +29,11 @@ func (_m *ServerInterface) GetLoggedInUser(w http.ResponseWriter, r *http.Reques
 	_m.Called(w, r)
 }
 
+// GetPlayersId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) GetPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+	_m.Called(w, r, id)
+}
+
 // ListPlayers provides a mock function with given fields: w, r, params
 func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
 	_m.Called(w, r, params)
@@ -37,6 +42,11 @@ func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, p
 // Logout provides a mock function with given fields: w, r
 func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
+}
+
+// PutPlayersId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) PutPlayersId(w http.ResponseWriter, r *http.Request, id string) {
+	_m.Called(w, r, id)
 }
 
 // NewServerInterface creates a new instance of ServerInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

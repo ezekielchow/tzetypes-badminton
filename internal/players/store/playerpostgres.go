@@ -3,6 +3,7 @@ package players
 import (
 	"common/models"
 	"context"
+	"time"
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
@@ -133,4 +134,53 @@ func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.P
 	}
 
 	return players, nil
+}
+
+func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate models.Player) (models.Player, error) {
+	pgID := pgtype.UUID{}
+	err := pgID.Scan(toUpdate.ID)
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	pgUpdated := pgtype.Timestamp{}
+	err = pgUpdated.Scan(time.Now())
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	dbPlayer, err := pp.Queries.UpdatePlayer(ctx, database.UpdatePlayerParams{
+		ID:        pgID,
+		Name:      toUpdate.Name,
+		UpdatedAt: pgUpdated,
+	})
+
+	player := models.Player{}
+	err = player.PostgresToModel(dbPlayer)
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	return player, nil
+}
+
+func (pp PlayerPostgres) GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id string) (models.Player, error) {
+	pgID := pgtype.UUID{}
+	err := pgID.Scan(id)
+	if err != nil {
+		return models.Player{}, err
+	}
+
+	dbPlayer, err := pp.Queries.GetPlayerWithId(ctx, pgID)
+	if err != nil {
+		return models.Player{}, nil
+	}
+
+	player := models.Player{}
+	err = player.PostgresToModel(dbPlayer)
+	if err != nil {
+		return models.Player{}, nil
+	}
+
+	return player, nil
 }
