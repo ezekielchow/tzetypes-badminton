@@ -157,6 +157,7 @@ doSearch(0, 10, "name", "asc")
 .container {
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
 .navigation-wrapper {

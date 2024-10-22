@@ -45,7 +45,7 @@ getUserEmail()
             <form @submit.prevent="submitLogout">
 
                 <div class="actions">
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="primary-button">Logout</button>
                 </div>
 
                 <div v-if="errorMessage" class="error">
@@ -60,6 +60,11 @@ getUserEmail()
                     My Players
                 </button>
             </RouterLink>
+            <RouterLink to="/game/setup" class="mt">
+                <button class="primary-button">
+                    New Game
+                </button>
+            </RouterLink>
         </div>
     </div>
 </template>
@@ -69,6 +74,7 @@ getUserEmail()
 .dashboard-container {
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
 .header {
@@ -78,7 +84,12 @@ getUserEmail()
 
 .content {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.mt {
     margin-top: 2rem;
 }
 </style>

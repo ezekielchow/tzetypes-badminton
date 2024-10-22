@@ -144,6 +144,7 @@ if (props.isEdit) {
 .container {
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
 .navigation-wrapper {
