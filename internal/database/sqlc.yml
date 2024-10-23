@@ -6,6 +6,7 @@ sql:
       - "../users/store/user.sql"
       - "../clubs/store/club.sql"
       - "../sessions/store/session.sql"
+      - "../games/store/game.sql"
     schema: "./migrations"
     gen:
       go:

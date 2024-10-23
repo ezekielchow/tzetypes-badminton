@@ -7,6 +7,18 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
+// Defines values for GameStartRequestSchemaGameType.
+const (
+	Doubles GameStartRequestSchemaGameType = "doubles"
+	Singles GameStartRequestSchemaGameType = "singles"
+)
+
+// Defines values for GameStartRequestSchemaServingSide.
+const (
+	LeftEven  GameStartRequestSchemaServingSide = "left_even"
+	RightEven GameStartRequestSchemaServingSide = "right_even"
+)
+
 // AddPlayerRequestSchema defines model for AddPlayerRequestSchema.
 type AddPlayerRequestSchema struct {
 	Name string `json:"name"`
@@ -15,6 +27,48 @@ type AddPlayerRequestSchema struct {
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
+}
+
+// Game defines model for Game.
+type Game struct {
+	ClubId              string `json:"club_id"`
+	CreatedAt           string `json:"created_at"`
+	GameType            string `json:"game_type"`
+	Id                  string `json:"id"`
+	LeftEvenPlayerName  string `json:"left_even_player_name"`
+	LeftOddPlayerName   string `json:"left_odd_player_name"`
+	RightEvenPlayerName string `json:"right_even_player_name"`
+	RightOddPlayerName  string `json:"right_odd_player_name"`
+	ServingSide         string `json:"serving_side"`
+	UpdatedAt           string `json:"updated_at"`
+}
+
+// GameStartRequestSchema defines model for GameStartRequestSchema.
+type GameStartRequestSchema struct {
+	GameType            GameStartRequestSchemaGameType    `json:"game_type"`
+	LeftEvenPlayerName  string                            `json:"left_even_player_name"`
+	LeftOddPlayerName   *string                           `json:"left_odd_player_name,omitempty"`
+	RightEvenPlayerName string                            `json:"right_even_player_name"`
+	RightOddPlayerName  *string                           `json:"right_odd_player_name,omitempty"`
+	ServingSide         GameStartRequestSchemaServingSide `json:"serving_side"`
+}
+
+// GameStartRequestSchemaGameType defines model for GameStartRequestSchema.GameType.
+type GameStartRequestSchemaGameType string
+
+// GameStartRequestSchemaServingSide defines model for GameStartRequestSchema.ServingSide.
+type GameStartRequestSchemaServingSide string
+
+// GameStep defines model for GameStep.
+type GameStep struct {
+	CreatedAt      string `json:"created_at"`
+	GameId         string `json:"game_id"`
+	Id             string `json:"id"`
+	ScoreAt        string `json:"score_at"`
+	StepNum        int    `json:"step_num"`
+	TeamLeftScore  int    `json:"team_left_score"`
+	TeamRightScore int    `json:"team_right_score"`
+	UpdatedAt      string `json:"updated_at"`
 }
 
 // Player defines model for Player.
@@ -67,6 +121,9 @@ type ListPlayersParams struct {
 type UpdatePlayerWithIdJSONBody struct {
 	Name string `json:"name"`
 }
+
+// StartGameJSONRequestBody defines body for StartGame for application/json ContentType.
+type StartGameJSONRequestBody = GameStartRequestSchema
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema

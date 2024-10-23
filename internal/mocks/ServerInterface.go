@@ -44,6 +44,11 @@ func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
+// StartGame provides a mock function with given fields: w, r
+func (_m *ServerInterface) StartGame(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
 // UpdatePlayerWithId provides a mock function with given fields: w, r, id
 func (_m *ServerInterface) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
 	_m.Called(w, r, id)

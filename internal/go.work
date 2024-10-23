@@ -7,4 +7,5 @@ use (
 	./sessions
 	./mocks
 	./players
+	./games
 )

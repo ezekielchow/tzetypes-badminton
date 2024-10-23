@@ -20,6 +20,9 @@ type ServerInterface interface {
 	// (GET /dashboard)
 	Dashboard(w http.ResponseWriter, r *http.Request)
 
+	// (POST /game)
+	StartGame(w http.ResponseWriter, r *http.Request)
+
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
 	// List players
@@ -45,6 +48,11 @@ type Unimplemented struct{}
 
 // (GET /dashboard)
 func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /game)
+func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -98,6 +106,23 @@ func (siw *ServerInterfaceWrapper) Dashboard(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Dashboard(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// StartGame operation middleware
+func (siw *ServerInterfaceWrapper) StartGame(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartGame(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -399,6 +424,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/dashboard", wrapper.Dashboard)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/game", wrapper.StartGame)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
 	r.Group(func(r chi.Router) {
@@ -447,6 +475,38 @@ type DashboarddefaultJSONResponse struct {
 }
 
 func (response DashboarddefaultJSONResponse) VisitDashboardResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type StartGameRequestObject struct {
+	Body *StartGameJSONRequestBody
+}
+
+type StartGameResponseObject interface {
+	VisitStartGameResponse(w http.ResponseWriter) error
+}
+
+type StartGame201JSONResponse struct {
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
+func (response StartGame201JSONResponse) VisitStartGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type StartGamedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response StartGamedefaultJSONResponse) VisitStartGameResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -617,6 +677,9 @@ type StrictServerInterface interface {
 	// (GET /dashboard)
 	Dashboard(ctx context.Context, request DashboardRequestObject) (DashboardResponseObject, error)
 
+	// (POST /game)
+	StartGame(ctx context.Context, request StartGameRequestObject) (StartGameResponseObject, error)
+
 	// (GET /logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
 	// List players
@@ -682,6 +745,37 @@ func (sh *strictHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(DashboardResponseObject); ok {
 		if err := validResponse.VisitDashboardResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartGame operation middleware
+func (sh *strictHandler) StartGame(w http.ResponseWriter, r *http.Request) {
+	var request StartGameRequestObject
+
+	var body StartGameJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartGame(ctx, request.(StartGameRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartGame")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartGameResponseObject); ok {
+		if err := validResponse.VisitStartGameResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

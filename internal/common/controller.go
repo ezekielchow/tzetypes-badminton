@@ -6,6 +6,7 @@ import (
 	"common/oapipublic"
 	"context"
 	"fmt"
+	games "games/service"
 	players "players/service"
 	users "users/service"
 )
@@ -13,6 +14,7 @@ import (
 type CommonService struct {
 	UserService   users.UserServiceInterface
 	PlayerService players.PlayerServiceInterface
+	GameService   games.GameServiceInterface
 }
 
 type Controller struct {
@@ -78,4 +80,13 @@ func (c Controller) UpdatePlayerWithId(ctx context.Context, input oapiprivate.Up
 
 func (c Controller) GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error) {
 	return c.Services.PlayerService.GetPlayerWithId(ctx, input)
+}
+
+func (c Controller) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject) (oapiprivate.StartGameResponseObject, error) {
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.GameService.StartGame(ctx, input, user)
 }

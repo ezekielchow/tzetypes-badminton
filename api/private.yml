@@ -173,6 +173,38 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game:
+    post:
+      operationId: start game
+      tags:
+        - game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameStartRequestSchema"
+      responses:
+        "201":
+          description: game start successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - steps
+                  - game
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameStep"
+                  game:
+                    $ref: "#/components/schemas/Game"
+
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /users/current:
     get:
       operationId: get logged in user # Corrected Typo
@@ -208,6 +240,33 @@ components:
         name:
           type: string
 
+    GameStartRequestSchema:
+      type: object
+      required:
+        - left_even_player_name
+        - right_even_player_name
+        - game_type
+        - serving_side
+      properties:
+        left_odd_player_name:
+          type: string
+        left_even_player_name:
+          type: string
+        right_odd_player_name:
+          type: string
+        right_even_player_name:
+          type: string
+        game_type:
+          type: string
+          enum:
+            - singles
+            - doubles
+        serving_side:
+          type: string
+          enum:
+            - left_even
+            - right_even
+
     User:
       type: object
       required:
@@ -220,6 +279,70 @@ components:
           type: string
         email:
           type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    Game:
+      type: object
+      required:
+        - id
+        - club_id
+        - left_odd_player_name
+        - left_even_player_name
+        - right_odd_player_name
+        - right_even_player_name
+        - game_type
+        - serving_side
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        club_id:
+          type: string
+        left_odd_player_name:
+          type: string
+        left_even_player_name:
+          type: string
+        right_odd_player_name:
+          type: string
+        right_even_player_name:
+          type: string
+        game_type:
+          type: string
+        serving_side:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    GameStep:
+      type: object
+      required:
+        - id
+        - game_id
+        - team_left_score
+        - team_right_score
+        - score_at
+        - step_num
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        game_id:
+          type: string
+        team_left_score:
+          type: integer
+        team_right_score:
+          type: integer
+        score_at:
+          type: string
+        step_num:
+          type: integer
         created_at:
           type: string
         updated_at:

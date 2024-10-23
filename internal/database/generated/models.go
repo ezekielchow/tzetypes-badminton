@@ -16,6 +16,30 @@ type Club struct {
 	UpdatedAt pgtype.Timestamp
 }
 
+type Game struct {
+	ID                  pgtype.UUID
+	ClubID              pgtype.UUID
+	LeftOddPlayerName   *string
+	LeftEvenPlayerName  string
+	RightOddPlayerName  *string
+	RightEvenPlayerName string
+	GameType            string
+	ServingSide         string
+	CreatedAt           pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
+}
+
+type GameStep struct {
+	ID             pgtype.UUID
+	GameID         pgtype.UUID
+	TeamLeftScore  int32
+	TeamRightScore int32
+	ScoreAt        pgtype.Timestamp
+	StepNum        int32
+	CreatedAt      pgtype.Timestamp
+	UpdatedAt      pgtype.Timestamp
+}
+
 type Player struct {
 	ID        pgtype.UUID
 	UserID    pgtype.UUID

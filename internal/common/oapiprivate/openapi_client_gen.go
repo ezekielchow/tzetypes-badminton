@@ -92,6 +92,11 @@ type ClientInterface interface {
 	// Dashboard request
 	Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// StartGameWithBody request with any body
+	StartGameWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// Logout request
 	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -117,6 +122,30 @@ type ClientInterface interface {
 
 func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDashboardRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartGameWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartGameRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartGameRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -246,6 +275,46 @@ func NewDashboardRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewStartGameRequest calls the generic StartGame builder with application/json body
+func NewStartGameRequest(server string, body StartGameJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewStartGameRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewStartGameRequestWithBody generates requests for StartGame with any type of body
+func NewStartGameRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/game")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -560,6 +629,11 @@ type ClientWithResponsesInterface interface {
 	// DashboardWithResponse request
 	DashboardWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DashboardResponse, error)
 
+	// StartGameWithBodyWithResponse request with any body
+	StartGameWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartGameResponse, error)
+
+	StartGameWithResponse(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*StartGameResponse, error)
+
 	// LogoutWithResponse request
 	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
 
@@ -599,6 +673,32 @@ func (r DashboardResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StartGameResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		Game  Game       `json:"game"`
+		Steps []GameStep `json:"steps"`
+	}
+	JSONDefault *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r StartGameResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StartGameResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -757,6 +857,23 @@ func (c *ClientWithResponses) DashboardWithResponse(ctx context.Context, reqEdit
 	return ParseDashboardResponse(rsp)
 }
 
+// StartGameWithBodyWithResponse request with arbitrary body returning *StartGameResponse
+func (c *ClientWithResponses) StartGameWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartGameResponse, error) {
+	rsp, err := c.StartGameWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartGameResponse(rsp)
+}
+
+func (c *ClientWithResponses) StartGameWithResponse(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*StartGameResponse, error) {
+	rsp, err := c.StartGame(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartGameResponse(rsp)
+}
+
 // LogoutWithResponse request returning *LogoutResponse
 func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error) {
 	rsp, err := c.Logout(ctx, reqEditors...)
@@ -841,6 +958,42 @@ func ParseDashboardResponse(rsp *http.Response) (*DashboardResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStartGameResponse parses an HTTP response from a StartGameWithResponse call
+func ParseStartGameResponse(rsp *http.Response) (*StartGameResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StartGameResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			Game  Game       `json:"game"`
+			Steps []GameStep `json:"steps"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
