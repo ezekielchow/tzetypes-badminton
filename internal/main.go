@@ -8,6 +8,8 @@ import (
 	"common/oapipublic"
 	"context"
 	"database/sql"
+	games "games/service"
+	gamestore "games/store"
 	"net/http"
 	"os"
 	playerservice "players/service"
@@ -135,6 +137,15 @@ func main() {
 				Queries: queries,
 			},
 			ClubStore: &clubs.ClubPostgres{
+				Queries: queries,
+			},
+			PgxPool: pool,
+		},
+		GameService: games.GameService{
+			ClubStore: &clubs.ClubPostgres{
+				Queries: queries,
+			},
+			GameStore: &gamestore.GamePostgres{
 				Queries: queries,
 			},
 			PgxPool: pool,

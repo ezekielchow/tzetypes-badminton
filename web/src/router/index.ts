@@ -2,6 +2,7 @@ import Dashboard from '@/components/TheDashboard.vue';
 import { MyApi } from '@/services/requests';
 import GameSetupView from '@/views/GameSetupView.vue';
 import LoginView from '@/views/LoginView.vue';
+import OngoingGameView from '@/views/OngoingGameView.vue';
 import PlayersAddView from '@/views/PlayersAddView.vue';
 import PlayersDashboardView from '@/views/PlayersDashboardView.vue';
 import PlayersEditView from '@/views/PlayersEditView.vue';
@@ -49,6 +50,12 @@ const router = createRouter({
       path: '/game/setup',
       name: 'game/setup',
       component: GameSetupView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/game/:id',
+      name: 'game/playing',
+      component: OngoingGameView,
       meta: { requiresAuth: true }
     },
   ]

@@ -252,4 +252,22 @@ export class MyApi extends runtime.BaseAPI {
     const apiResponse = await this.authenticatedRequest(() => this.getPlayerRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
+
+  private async startGameRequest(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.StartGame201Response>> {
+    const api = new runtime.GameApi(this.getPrivateConf())
+
+    try {
+      return api.startGameRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to start game');
+    }
+  }
+
+  async startGame(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.StartGame201Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.startGameRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
 }
