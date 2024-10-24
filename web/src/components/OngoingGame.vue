@@ -7,12 +7,15 @@ import { DateTime } from "luxon";
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 const isLandscape = ref(false)
+const pointsOrientation = ref("equal")
 const currentCourtState = reactive({
     leftEvenPlayer: "",
     leftOddPlayer: "",
     rightEvenPlayer: "",
     rightOddPlayer: "",
-    currentServer: ""
+    currentServer: "",
+    teamLeftScore: 0,
+    teamRightScore: 0
 })
 
 const gameStore = useGameStore()
@@ -46,6 +49,8 @@ const updateCourtState = () => {
     currentCourtState.rightEvenPlayer = lastProgress.rightEvenPlayerName
     currentCourtState.rightOddPlayer = lastProgress.rightOddPlayerName
     currentCourtState.currentServer = lastProgress.currentServer
+    currentCourtState.teamLeftScore = lastProgress.teamLeftScore
+    currentCourtState.teamRightScore = lastProgress.teamRightScore
 }
 
 const handleScorePoint = (position: string) => {
@@ -120,6 +125,15 @@ const handleScorePoint = (position: string) => {
     }
 }
 
+const handlePointsOrientation = (orientation: string) => {
+    pointsOrientation.value = orientation
+}
+
+const handleUndo = () => {
+    const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
+    console.log(toRemove);
+}
+
 </script>
 
 <template>
@@ -128,11 +142,29 @@ const handleScorePoint = (position: string) => {
             Please rotate your device to landscape orientation.
         </div>
         <div v-else class="main-content">
-            <div class="header-actions">header actions</div>
+            <div class="header-actions">
+                <div class="points-control">
+                    <button class="points-control-button" @click="handlePointsOrientation('equal')">{{ "O : O"
+                        }}</button>
+                    <button class="points-control-button" @click="handlePointsOrientation('left')">{{ "O : [ ]"
+                        }}</button>
+                    <button class="points-control-button" @click="handlePointsOrientation('right')">{{ "[ ] : O"
+                        }}</button>
+                </div>
+                <div class="points">{{ `${currentCourtState.teamLeftScore} : ${currentCourtState.teamRightScore}` }}
+                </div>
+                <div></div>
+            </div>
             <div class="content-section">
-                <div>
-                    <button class="primary-button" @click="handleScorePoint('left')">
-                        Add +
+                <button v-if="pointsOrientation == 'equal'" class="add-button equal" @click="handleScorePoint('left')">
+                    + 1
+                </button>
+                <div v-if="pointsOrientation == 'left'" class="sides-add-button-wrapper">
+                    <button class="add-button sides" @click="handleScorePoint('left')">
+                        + 1
+                    </button>
+                    <button class="add-button sides red" @click="handleScorePoint('right')">
+                        + 1
                     </button>
                 </div>
                 <div class="court">
@@ -149,16 +181,16 @@ const handleScorePoint = (position: string) => {
                     </div>
                     <div class="sideline sideline-right squares"></div>
                     <div class="left-top-player squares">
-                        {{ currentCourtState.leftOddPlayer }}
+                        <div class="player-names">{{ currentCourtState.leftOddPlayer }}</div>
                     </div>
                     <div class="left-bottom-player squares">
-                        {{ currentCourtState.leftEvenPlayer }}
+                        <div class="player-names">{{ currentCourtState.leftEvenPlayer }}</div>
                     </div>
                     <div class="right-top-player squares">
-                        {{ currentCourtState.rightEvenPlayer }}
+                        <div class="player-names">{{ currentCourtState.rightEvenPlayer }}</div>
                     </div>
                     <div class="right-bottom-player squares">
-                        {{ currentCourtState.rightOddPlayer }}
+                        <div class="player-names">{{ currentCourtState.rightOddPlayer }}</div>
                     </div>
                     <div class="left-top-backline squares">
                         <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_LEFT_ODD"
@@ -185,11 +217,25 @@ const handleScorePoint = (position: string) => {
                         </div>
                     </div>
                 </div>
-                <div><button class="primary-button" @click="handleScorePoint('right')">
-                        Add +
-                    </button></div>
+                <button v-if="pointsOrientation == 'equal'" class="add-button equal red"
+                    @click="handleScorePoint('right')">
+                    + 1
+                </button>
+                <div v-if="pointsOrientation == 'right'" class="sides-add-button-wrapper">
+                    <button class="add-button sides" @click="handleScorePoint('left')">
+                        + 1
+                    </button>
+                    <button class="add-button sides red" @click="handleScorePoint('right')">
+                        + 1
+                    </button>
+                </div>
             </div>
-            <div class="footer-actions">footer actions</div>
+            <div class="footer-actions">
+                <div class="push-end">
+                    <button class="footer-buttons">End Game</button>
+                    <button class="undo-button footer-buttons" @click="handleUndo()">Undo</button>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -221,12 +267,11 @@ const handleScorePoint = (position: string) => {
         display: grid;
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(4, 1fr);
-        width: 70vw;
+        width: 75vw;
         height: 70vh;
         background-color: green;
         position: relative;
         border: 4px solid white;
-        margin: 1rem;
     }
 
     .squares {
@@ -362,6 +407,101 @@ const handleScorePoint = (position: string) => {
 
     .content-section {
         display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .add-button {
+        background-color: green;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .add-button.equal {
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        height: 200px;
+    }
+
+    .add-button.sides {
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        height: 100px;
+    }
+
+    .add-button.red {
+        background-color: #D32F2F;
+    }
+
+    .player-names {
+        font-weight: bold;
+        font-size: 1.5rem;
+        padding: 0.5rem;
+    }
+
+    .header-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 0.5rem;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .footer-actions {
+        display: flex;
+        justify-content: end;
+        margin-top: 0.5rem;
+        margin-right: 0.5rem;
+    }
+
+    .footer-buttons {
+        background-color: #000080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+
+    .push-end {
+        display: flex;
+    }
+
+    .undo-button {
+        margin-left: 1rem;
+    }
+
+    .points-control {
+        display: flex;
+    }
+
+    .points-control-button {
+        margin-left: 0.5rem;
+        background-color: #000080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    .sides-add-button-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100px;
+    }
+
+    .points {
+        display: flex;
+        justify-content: center;
     }
 }
 </style>
