@@ -5,7 +5,9 @@ import { CurrentServer, GameTypes } from '@/enums/game';
 import { GameStartRequestSchemaGameTypeEnum, GameStartRequestSchemaServingSideEnum, type GameStartRequestSchema } from '@/repositories/clients/private';
 import { useGameStore } from '@/stores/game-store';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const isLandscape = ref(false)
 const gameType = ref(GameTypes.GAME_TYPE_DOUBLES);
 const firstServer = ref(CurrentServer.SERVER_LEFT_EVEN);
@@ -72,9 +74,10 @@ const handleStartGame = async () => {
         return
     }
 
-
-    formIsLoading.value = false
-
+    router.push({
+        name: 'game/playing',
+        params: { id: res.game.id }
+    })
 }
 </script>
 

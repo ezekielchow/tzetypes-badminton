@@ -1,27 +1,33 @@
 <script setup lang="ts">
-import loadingImage from '@/assets/images/loading.png';
 import shuttlecock from '@/assets/images/shuttlecock.png';
-import { CurrentServer, GameTypes } from '@/enums/game';
-import { GameStartRequestSchemaGameTypeEnum, GameStartRequestSchemaServingSideEnum, type GameStartRequestSchema } from '@/repositories/clients/private';
+import { CurrentServer } from '@/enums/game';
 import { useGameStore } from '@/stores/game-store';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import type { LocalGameStep } from '@/types/game';
+import { DateTime } from "luxon";
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 const isLandscape = ref(false)
-const gameType = ref(GameTypes.GAME_TYPE_DOUBLES);
-const firstServer = ref(CurrentServer.SERVER_LEFT_EVEN);
-const leftOddPlayer = ref("")
-const leftEvenPlayer = ref("")
-const rightEvenPlayer = ref("")
-const rightOddPlayer = ref("")
-const formIsLoading = ref(false)
+const currentCourtState = reactive({
+    leftEvenPlayer: "",
+    leftOddPlayer: "",
+    rightEvenPlayer: "",
+    rightOddPlayer: "",
+    currentServer: ""
+})
+
 const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
 
-const errorMessage = ref("")
+gameStore.$subscribe(() => {
+    updateCourtState()
+})
+
 
 onMounted(() => {
     handleOrientationChange();
     window.addEventListener('resize', handleOrientationChange);
+
+    updateCourtState()
 })
 
 onBeforeUnmount(() => {
@@ -32,50 +38,88 @@ const handleOrientationChange = () => {
     isLandscape.value = window.matchMedia("(orientation: landscape)").matches;
 };
 
-const switchSides = () => {
-    const old = {
-        "leftOddPlayer": leftOddPlayer.value,
-        "leftEvenPlayer": leftEvenPlayer.value,
-        "rightEvenPlayer": rightEvenPlayer.value,
-        "rightOddPlayer": rightOddPlayer.value,
-    }
+const updateCourtState = () => {
+    const lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
 
-    leftOddPlayer.value = old.rightOddPlayer
-    leftEvenPlayer.value = old.rightEvenPlayer
-    rightEvenPlayer.value = old.leftEvenPlayer
-    rightOddPlayer.value = old.leftOddPlayer
+    currentCourtState.leftEvenPlayer = lastProgress.leftEvenPlayerName
+    currentCourtState.leftOddPlayer = lastProgress.leftOddPlayerName
+    currentCourtState.rightEvenPlayer = lastProgress.rightEvenPlayerName
+    currentCourtState.rightOddPlayer = lastProgress.rightOddPlayerName
+    currentCourtState.currentServer = lastProgress.currentServer
 }
 
-const handleStartGame = async () => {
-    formIsLoading.value = true
+const handleScorePoint = (position: string) => {
+    const lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
 
-    const body: GameStartRequestSchema = {
-        gameType: GameStartRequestSchemaGameTypeEnum.Singles as GameStartRequestSchemaGameTypeEnum,
-        leftEvenPlayerName: leftEvenPlayer.value,
-        rightEvenPlayerName: rightEvenPlayer.value,
-        servingSide: firstServer.value === CurrentServer.SERVER_LEFT_EVEN ? GameStartRequestSchemaServingSideEnum.LeftEven : GameStartRequestSchemaServingSideEnum.RightEven
+    if (position === "left") {
+        const progress: LocalGameStep = {
+            isSynced: false,
+            id: "",
+            gameId: gameStore.currentGameSettings.id,
+            teamLeftScore: lastProgress.teamLeftScore + 1,
+            teamRightScore: lastProgress.teamRightScore,
+            scoreAt: DateTime.now().toString(),
+            stepNum: gameStore.currentGameProgress.length + 1,
+            currentServer: "" as CurrentServer,
+            leftEvenPlayerName: lastProgress.leftEvenPlayerName,
+            leftOddPlayerName: lastProgress.leftOddPlayerName,
+            rightEvenPlayerName: lastProgress.rightEvenPlayerName,
+            rightOddPlayerName: lastProgress.rightOddPlayerName,
+            createdAt: "",
+            updatedAt: "",
+        }
+
+        if (lastProgress.currentServer == CurrentServer.SERVER_LEFT_EVEN || lastProgress.currentServer == CurrentServer.SERVER_LEFT_ODD) {
+            progress.currentServer = lastProgress.currentServer == CurrentServer.SERVER_LEFT_EVEN ? CurrentServer.SERVER_LEFT_ODD : CurrentServer.SERVER_LEFT_EVEN
+
+            const evenPlayer = progress.leftEvenPlayerName
+            progress.leftEvenPlayerName = progress.leftOddPlayerName
+            progress.leftOddPlayerName = evenPlayer
+        } else {
+            if (progress.teamLeftScore % 2 != 0) {
+                progress.currentServer = CurrentServer.SERVER_LEFT_ODD
+            } else {
+                progress.currentServer = CurrentServer.SERVER_LEFT_EVEN
+            }
+        }
+
+        gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
+    } else {
+        const progress = {
+            isSynced: false,
+            id: "",
+            gameId: gameStore.currentGameSettings.id,
+            teamLeftScore: lastProgress.teamLeftScore,
+            teamRightScore: lastProgress.teamRightScore + 1,
+            scoreAt: DateTime.now().toString(),
+            stepNum: gameStore.currentGameProgress.length + 1,
+            currentServer: "" as CurrentServer,
+            leftEvenPlayerName: lastProgress.leftEvenPlayerName,
+            leftOddPlayerName: lastProgress.leftOddPlayerName,
+            rightEvenPlayerName: lastProgress.rightEvenPlayerName,
+            rightOddPlayerName: lastProgress.rightOddPlayerName,
+            createdAt: "",
+            updatedAt: "",
+        }
+
+        if (lastProgress.currentServer == CurrentServer.SERVER_RIGHT_EVEN || lastProgress.currentServer == CurrentServer.SERVER_RIGHT_ODD) {
+            progress.currentServer = lastProgress.currentServer == CurrentServer.SERVER_RIGHT_EVEN ? CurrentServer.SERVER_RIGHT_ODD : CurrentServer.SERVER_RIGHT_EVEN
+
+            const evenPlayer = progress.rightEvenPlayerName
+            progress.rightEvenPlayerName = progress.rightOddPlayerName
+            progress.rightOddPlayerName = evenPlayer
+        } else {
+            if (progress.teamRightScore % 2 != 0) {
+                progress.currentServer = CurrentServer.SERVER_RIGHT_ODD
+            } else {
+                progress.currentServer = CurrentServer.SERVER_RIGHT_EVEN
+            }
+        }
+
+        gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
     }
-
-    if (gameType.value === GameTypes.GAME_TYPE_DOUBLES) {
-        body.gameType = GameStartRequestSchemaGameTypeEnum.Doubles
-        body.leftOddPlayerName = leftOddPlayer.value
-        body.rightOddPlayerName = rightOddPlayer.value
-    }
-
-    const res = await gameStore.startGame({
-        gameStartRequestSchema: body
-    })
-
-    if (res instanceof Error) {
-        formIsLoading.value = false
-        errorMessage.value = res.message
-        return
-    }
-
-
-    formIsLoading.value = false
-
 }
+
 </script>
 
 <template>
@@ -84,103 +128,68 @@ const handleStartGame = async () => {
             Please rotate your device to landscape orientation.
         </div>
         <div v-else class="main-content">
-            <div class="court">
-                <div class="sideline sideline-left squares"></div>
-                <div class="top-court squares">
-                    <div class="net">
-                        <div class="v-line"></div>
+            <div class="header-actions">header actions</div>
+            <div class="content-section">
+                <div>
+                    <button class="primary-button" @click="handleScorePoint('left')">
+                        Add +
+                    </button>
+                </div>
+                <div class="court">
+                    <div class="sideline sideline-left squares"></div>
+                    <div class="top-court squares">
+                        <div class="net">
+                            <div class="v-line"></div>
+                        </div>
+                    </div>
+                    <div class="bottom-court squares">
+                        <div class="net">
+                            <div class="v-line"></div>
+                        </div>
+                    </div>
+                    <div class="sideline sideline-right squares"></div>
+                    <div class="left-top-player squares">
+                        {{ currentCourtState.leftOddPlayer }}
+                    </div>
+                    <div class="left-bottom-player squares">
+                        {{ currentCourtState.leftEvenPlayer }}
+                    </div>
+                    <div class="right-top-player squares">
+                        {{ currentCourtState.rightEvenPlayer }}
+                    </div>
+                    <div class="right-bottom-player squares">
+                        {{ currentCourtState.rightOddPlayer }}
+                    </div>
+                    <div class="left-top-backline squares">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_LEFT_ODD"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="left-bottom-backline squares">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_LEFT_EVEN"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="right-top-backline squares">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_RIGHT_EVEN"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="right-bottom-backline squares">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_RIGHT_ODD"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
                     </div>
                 </div>
-                <div class="bottom-court squares">
-                    <div class="net">
-                        <div class="v-line"></div>
-                    </div>
-                </div>
-                <div class="sideline sideline-right squares"></div>
-                <div class="left-top-player squares">
-                    <div v-if="gameType === GameTypes.GAME_TYPE_DOUBLES" class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Enter player name" v-model="leftOddPlayer"
-                            required :disabled="formIsLoading">
-                        <div class="loading-wrapper"><img :src="loadingImage" alt="loading left top player" width="30px"
-                                height="30px"></div>
-                    </div>
-                </div>
-                <div class="left-bottom-player squares">
-                    <div class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Enter player name"
-                            v-model="leftEvenPlayer" required :disabled="formIsLoading">
-                        <div class="loading-wrapper"><img :src="loadingImage" alt="loading left top player" width="30px"
-                                height="30px"></div>
-                    </div>
-                </div>
-                <div class="right-top-player squares">
-                    <div class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Enter player name"
-                            v-model="rightEvenPlayer" required :disabled="formIsLoading">
-                        <div class="loading-wrapper"><img :src="loadingImage" alt="loading left top player" width="30px"
-                                height="30px"></div>
-                    </div>
-                </div>
-                <div class="right-bottom-player squares">
-                    <div v-if="gameType === GameTypes.GAME_TYPE_DOUBLES" class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Enter player name"
-                            v-model="rightOddPlayer" required :disabled="formIsLoading">
-                        <div class="loading-wrapper"><img :src="loadingImage" alt="loading left top player" width="30px"
-                                height="30px"></div>
-                    </div>
-                </div>
-                <div class="left-top-backline squares"></div>
-                <div class="left-bottom-backline squares">
-                    <div v-if="firstServer === CurrentServer.SERVER_LEFT_EVEN" class="shuttle-wrapper">
-                        <img :src="shuttlecock" width="30px" height="30px">
-                    </div>
-                </div>
-                <div class="right-top-backline squares">
-                    <div v-if="firstServer === CurrentServer.SERVER_RIGHT_EVEN" class="shuttle-wrapper">
-                        <img :src="shuttlecock" width="30px" height="30px">
-                    </div>
-                </div>
-                <div class="right-bottom-backline squares"></div>
+                <div><button class="primary-button" @click="handleScorePoint('right')">
+                        Add +
+                    </button></div>
             </div>
-            <fieldset class="setup-form-container">
-                <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
-
-                <legend>Game Setup</legend>
-                <form @submit.prevent="(event) => { event.preventDefault() }">
-                    <fieldset>
-                        <legend>Game Type</legend>
-                        <label>
-                            <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_SINGLES" v-model="gameType"
-                                :disabled="formIsLoading" />
-                            Singles
-                        </label>
-                        <label>
-                            <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_DOUBLES" v-model="gameType"
-                                default :disabled="formIsLoading" />
-                            Doubles
-                        </label>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Serving Side</legend>
-                        <label>
-                            <input type="radio" name="servingSide" :value="CurrentServer.SERVER_LEFT_EVEN"
-                                v-model="firstServer" default :disabled="formIsLoading" />
-                            Left
-                        </label>
-                        <label>
-                            <input type="radio" name="servingSide" :value="CurrentServer.SERVER_RIGHT_EVEN"
-                                v-model="firstServer" :disabled="formIsLoading" />
-                            Right
-                        </label>
-                    </fieldset>
-
-                    <button type="button" @click="switchSides" class="primary-button mt-1"
-                        :disabled="formIsLoading">Switch Sides</button>
-                </form>
-                <button type="button" class="primary-button mb-1" :disabled="formIsLoading"
-                    @click="handleStartGame">Start Game</button>
-            </fieldset>
+            <div class="footer-actions">footer actions</div>
         </div>
     </div>
 </template>
@@ -204,7 +213,7 @@ const handleStartGame = async () => {
 
     .main-content {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         min-width: 100vw;
     }
 
@@ -213,7 +222,7 @@ const handleStartGame = async () => {
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(4, 1fr);
         width: 70vw;
-        height: 90vh;
+        height: 70vh;
         background-color: green;
         position: relative;
         border: 4px solid white;
@@ -283,11 +292,13 @@ const handleStartGame = async () => {
     }
 
     .right-top-player {
+        background-color: #D32F2F;
         grid-column: 5 / span 3;
         grid-row: 1 / span 2;
     }
 
     .right-bottom-player {
+        background-color: #D32F2F;
         grid-column: 5 / span 3;
         grid-row: 3 / span 2;
     }
@@ -303,11 +314,13 @@ const handleStartGame = async () => {
     }
 
     .right-top-backline {
+        background-color: #D32F2F;
         grid-column: 8 / span 1;
         grid-row: 1 / span 2;
     }
 
     .right-bottom-backline {
+        background-color: #D32F2F;
         grid-column: 8 / span 1;
         grid-row: 3 / span 2;
     }
@@ -345,6 +358,10 @@ const handleStartGame = async () => {
 
     .shuttle-wrapper {
         padding: 0.5rem;
+    }
+
+    .content-section {
+        display: flex;
     }
 }
 </style>

@@ -328,6 +328,11 @@ components:
         - team_right_score
         - score_at
         - step_num
+        - current_server
+        - left_odd_player_name
+        - left_even_player_name
+        - right_odd_player_name
+        - right_even_player_name
         - created_at
         - updated_at
       properties:
@@ -343,6 +348,16 @@ components:
           type: string
         step_num:
           type: integer
+        current_server:
+          type: string
+        left_odd_player_name:
+          type: string
+        left_even_player_name:
+          type: string
+        right_odd_player_name:
+          type: string
+        right_even_player_name:
+          type: string
         created_at:
           type: string
         updated_at:

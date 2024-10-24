@@ -61,14 +61,19 @@ type GameStartRequestSchemaServingSide string
 
 // GameStep defines model for GameStep.
 type GameStep struct {
-	CreatedAt      string `json:"created_at"`
-	GameId         string `json:"game_id"`
-	Id             string `json:"id"`
-	ScoreAt        string `json:"score_at"`
-	StepNum        int    `json:"step_num"`
-	TeamLeftScore  int    `json:"team_left_score"`
-	TeamRightScore int    `json:"team_right_score"`
-	UpdatedAt      string `json:"updated_at"`
+	CreatedAt           string `json:"created_at"`
+	CurrentServer       string `json:"current_server"`
+	GameId              string `json:"game_id"`
+	Id                  string `json:"id"`
+	LeftEvenPlayerName  string `json:"left_even_player_name"`
+	LeftOddPlayerName   string `json:"left_odd_player_name"`
+	RightEvenPlayerName string `json:"right_even_player_name"`
+	RightOddPlayerName  string `json:"right_odd_player_name"`
+	ScoreAt             string `json:"score_at"`
+	StepNum             int    `json:"step_num"`
+	TeamLeftScore       int    `json:"team_left_score"`
+	TeamRightScore      int    `json:"team_right_score"`
+	UpdatedAt           string `json:"updated_at"`
 }
 
 // Player defines model for Player.

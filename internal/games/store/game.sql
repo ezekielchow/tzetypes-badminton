@@ -23,11 +23,21 @@ INSERT INTO game_steps (
     team_left_score,
     team_right_score,
     score_at,
-    step_num
+    step_num,
+    current_server,
+    left_odd_player_name,
+    left_even_player_name,
+    right_odd_player_name,
+    right_even_player_name
 ) VALUES (
     @game_id::uuid,
     @team_left_score,
     @team_right_score,
     @score_at,
-    @step_num
+    @step_num,
+    @current_server,
+    @left_odd_player_name::text,
+    @left_even_player_name::text,
+    @right_odd_player_name::text,
+    @right_even_player_name::text
 ) RETURNING *;

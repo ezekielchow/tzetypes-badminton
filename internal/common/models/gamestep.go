@@ -8,14 +8,19 @@ import (
 )
 
 type GameStep struct {
-	ID             string
-	GameID         string
-	TeamLeftScore  int
-	TeamRightScore int
-	ScoreAt        time.Time
-	StepNum        int
-	CreatedAt      time.Time
-	UpdatedAt      *time.Time
+	ID                  string
+	GameID              string
+	TeamLeftScore       int
+	TeamRightScore      int
+	ScoreAt             time.Time
+	StepNum             int
+	CurrentServer       string
+	LeftOddPlayerName   *string
+	LeftEvenPlayerName  string
+	RightOddPlayerName  *string
+	RightEvenPlayerName string
+	CreatedAt           time.Time
+	UpdatedAt           *time.Time
 }
 
 func (gs *GameStep) PostgresToModel(fromDb database.GameStep) error {
@@ -37,6 +42,11 @@ func (gs *GameStep) PostgresToModel(fromDb database.GameStep) error {
 	gs.StepNum = int(fromDb.StepNum)
 	gs.CreatedAt = fromDb.CreatedAt.Time
 	gs.UpdatedAt = &fromDb.UpdatedAt.Time
+	gs.CurrentServer = fromDb.CurrentServer
+	gs.LeftEvenPlayerName = fromDb.LeftEvenPlayerName
+	gs.LeftOddPlayerName = fromDb.LeftOddPlayerName
+	gs.RightEvenPlayerName = fromDb.RightEvenPlayerName
+	gs.RightOddPlayerName = fromDb.RightOddPlayerName
 
 	return nil
 }

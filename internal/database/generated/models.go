@@ -30,14 +30,19 @@ type Game struct {
 }
 
 type GameStep struct {
-	ID             pgtype.UUID
-	GameID         pgtype.UUID
-	TeamLeftScore  int32
-	TeamRightScore int32
-	ScoreAt        pgtype.Timestamp
-	StepNum        int32
-	CreatedAt      pgtype.Timestamp
-	UpdatedAt      pgtype.Timestamp
+	ID                  pgtype.UUID
+	GameID              pgtype.UUID
+	TeamLeftScore       int32
+	TeamRightScore      int32
+	ScoreAt             pgtype.Timestamp
+	StepNum             int32
+	CurrentServer       string
+	LeftOddPlayerName   *string
+	LeftEvenPlayerName  string
+	RightOddPlayerName  *string
+	RightEvenPlayerName string
+	CreatedAt           pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
 }
 
 type Player struct {

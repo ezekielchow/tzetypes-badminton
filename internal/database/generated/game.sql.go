@@ -73,22 +73,37 @@ INSERT INTO game_steps (
     team_left_score,
     team_right_score,
     score_at,
-    step_num
+    step_num,
+    current_server,
+    left_odd_player_name,
+    left_even_player_name,
+    right_odd_player_name,
+    right_even_player_name
 ) VALUES (
     $1::uuid,
     $2,
     $3,
     $4,
-    $5
-) RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, created_at, updated_at
+    $5,
+    $6,
+    $7::text,
+    $8::text,
+    $9::text,
+    $10::text
+) RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, created_at, updated_at
 `
 
 type CreateGameStepParams struct {
-	GameID         pgtype.UUID
-	TeamLeftScore  int32
-	TeamRightScore int32
-	ScoreAt        pgtype.Timestamp
-	StepNum        int32
+	GameID              pgtype.UUID
+	TeamLeftScore       int32
+	TeamRightScore      int32
+	ScoreAt             pgtype.Timestamp
+	StepNum             int32
+	CurrentServer       string
+	LeftOddPlayerName   string
+	LeftEvenPlayerName  string
+	RightOddPlayerName  string
+	RightEvenPlayerName string
 }
 
 func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) (GameStep, error) {
@@ -98,6 +113,11 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		arg.TeamRightScore,
 		arg.ScoreAt,
 		arg.StepNum,
+		arg.CurrentServer,
+		arg.LeftOddPlayerName,
+		arg.LeftEvenPlayerName,
+		arg.RightOddPlayerName,
+		arg.RightEvenPlayerName,
 	)
 	var i GameStep
 	err := row.Scan(
@@ -107,6 +127,11 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		&i.TeamRightScore,
 		&i.ScoreAt,
 		&i.StepNum,
+		&i.CurrentServer,
+		&i.LeftOddPlayerName,
+		&i.LeftEvenPlayerName,
+		&i.RightOddPlayerName,
+		&i.RightEvenPlayerName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

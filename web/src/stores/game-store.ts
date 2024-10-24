@@ -1,5 +1,6 @@
-import { type Game, type GameStep, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
 import { MyApi } from "@/services/requests";
+import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";
 
 const initialGameState: Game = {
@@ -15,7 +16,7 @@ const initialGameState: Game = {
   updatedAt: ""
 }
 
-const initialGameSteps: GameStep[] = []
+const initialGameSteps: LocalGameStep[] = []
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -35,7 +36,12 @@ export const useGameStore = defineStore('game', {
         const res = await myApi.startGame(params)
 
         this.currentGameSettings = res.game
-        this.currentGameProgress = res.steps
+        for (let i = 0; i < res.steps.length; i++) {
+          this.currentGameProgress = this.currentGameProgress.concat({
+            ...res.steps[i],
+            isSynced: true
+          })
+        }
 
         return res
 
@@ -47,5 +53,6 @@ export const useGameStore = defineStore('game', {
         return new Error("Network error or unexpected error occurred")
       }
     },
-  }
+  },
+  persist: true
 })

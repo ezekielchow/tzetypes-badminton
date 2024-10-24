@@ -58,11 +58,16 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 	}
 
 	dbGameStep, err := gp.Queries.CreateGameStep(ctx, database.CreateGameStepParams{
-		GameID:         pgGameID,
-		TeamLeftScore:  int32(toCreate.TeamLeftScore),
-		TeamRightScore: int32(toCreate.TeamRightScore),
-		ScoreAt:        pgScoreAt,
-		StepNum:        int32(toCreate.StepNum),
+		GameID:              pgGameID,
+		TeamLeftScore:       int32(toCreate.TeamLeftScore),
+		TeamRightScore:      int32(toCreate.TeamRightScore),
+		ScoreAt:             pgScoreAt,
+		StepNum:             int32(toCreate.StepNum),
+		CurrentServer:       toCreate.CurrentServer,
+		LeftEvenPlayerName:  toCreate.LeftEvenPlayerName,
+		LeftOddPlayerName:   *toCreate.LeftOddPlayerName,
+		RightEvenPlayerName: toCreate.RightEvenPlayerName,
+		RightOddPlayerName:  *toCreate.RightOddPlayerName,
 	})
 	if err != nil {
 		return models.GameStep{}, err

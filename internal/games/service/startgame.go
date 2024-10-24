@@ -44,11 +44,16 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 	}
 
 	gameStep, err := gs.GameStore.CreateGameStep(ctx, &tx, models.GameStep{
-		GameID:         game.ID,
-		TeamLeftScore:  0,
-		TeamRightScore: 0,
-		ScoreAt:        time.Now(),
-		StepNum:        1,
+		GameID:              game.ID,
+		TeamLeftScore:       0,
+		TeamRightScore:      0,
+		ScoreAt:             time.Now(),
+		StepNum:             1,
+		CurrentServer:       string(input.Body.ServingSide),
+		LeftOddPlayerName:   &leftOddPlayerName,
+		LeftEvenPlayerName:  input.Body.LeftEvenPlayerName,
+		RightOddPlayerName:  &rightOddPlayerName,
+		RightEvenPlayerName: input.Body.RightEvenPlayerName,
 	})
 	if err != nil {
 		return nil, err
@@ -74,14 +79,19 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 		},
 		Steps: []oapiprivate.GameStep{
 			{
-				CreatedAt:      gameStep.CreatedAt.String(),
-				GameId:         gameStep.GameID,
-				Id:             gameStep.ID,
-				ScoreAt:        gameStep.ScoreAt.String(),
-				StepNum:        gameStep.StepNum,
-				TeamLeftScore:  gameStep.TeamLeftScore,
-				TeamRightScore: gameStep.TeamRightScore,
-				UpdatedAt:      gameStep.UpdatedAt.String(),
+				CreatedAt:           gameStep.CreatedAt.String(),
+				GameId:              gameStep.GameID,
+				Id:                  gameStep.ID,
+				ScoreAt:             gameStep.ScoreAt.String(),
+				StepNum:             gameStep.StepNum,
+				TeamLeftScore:       gameStep.TeamLeftScore,
+				TeamRightScore:      gameStep.TeamRightScore,
+				CurrentServer:       gameStep.CurrentServer,
+				LeftEvenPlayerName:  game.LeftEvenPlayerName,
+				LeftOddPlayerName:   *game.LeftOddPlayerName,
+				RightEvenPlayerName: game.RightEvenPlayerName,
+				RightOddPlayerName:  *game.RightOddPlayerName,
+				UpdatedAt:           gameStep.UpdatedAt.String(),
 			},
 		},
 	}, nil

@@ -21,9 +21,6 @@ playerStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
 const addPlayer = async (e: MouseEvent) => {
     formIsLoading.value = true
 
-    console.log('did come in ');
-
-
     const res = await playerStore.addPlayer({
         addPlayerRequestSchema: {
             name: playerName.value
