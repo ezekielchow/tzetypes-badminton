@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import shuttlecock from '@/assets/images/shuttlecock.png';
-import { CurrentServer } from '@/enums/game';
+import { CurrentServer, GameTypes } from '@/enums/game';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
@@ -59,26 +59,99 @@ const updateCourtState = () => {
 }
 
 const handleScorePoint = (position: string) => {
+
+    if (gameStore.currentGameSettings.gameType == GameTypes.GAME_TYPE_DOUBLES) {
+        handleDoubleScoring(position)
+        return
+    }
+
+    handleSingleScoring(position)
+}
+
+const handleSingleScoring = (position: string) => {
+
     const lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+    const leftPlayerName = lastProgress.leftEvenPlayerName == "" ? lastProgress.leftOddPlayerName : lastProgress.leftEvenPlayerName
+    const rightPlayerName = lastProgress.rightEvenPlayerName == "" ? lastProgress.rightOddPlayerName : lastProgress.rightEvenPlayerName
+
+    const progress: LocalGameStep = {
+        isSynced: false,
+        id: "",
+        gameId: gameStore.currentGameSettings.id,
+        scoreAt: DateTime.now().toString(),
+        stepNum: gameStore.currentGameProgress.length + 1,
+        currentServer: "" as CurrentServer,
+        leftEvenPlayerName: lastProgress.leftEvenPlayerName,
+        leftOddPlayerName: lastProgress.leftOddPlayerName,
+        rightEvenPlayerName: lastProgress.rightEvenPlayerName,
+        rightOddPlayerName: lastProgress.rightOddPlayerName,
+        teamLeftScore: lastProgress.teamLeftScore,
+        teamRightScore: lastProgress.teamRightScore,
+        syncId: uuidv4(),
+        createdAt: "",
+        updatedAt: "",
+    }
+
+    let isEvenLeader: boolean = false
 
     if (position === "left") {
-        const progress: LocalGameStep = {
-            isSynced: false,
-            id: "",
-            gameId: gameStore.currentGameSettings.id,
-            teamLeftScore: lastProgress.teamLeftScore + 1,
-            teamRightScore: lastProgress.teamRightScore,
-            scoreAt: DateTime.now().toString(),
-            stepNum: gameStore.currentGameProgress.length + 1,
-            currentServer: "" as CurrentServer,
-            leftEvenPlayerName: lastProgress.leftEvenPlayerName,
-            leftOddPlayerName: lastProgress.leftOddPlayerName,
-            rightEvenPlayerName: lastProgress.rightEvenPlayerName,
-            rightOddPlayerName: lastProgress.rightOddPlayerName,
-            syncId: uuidv4(),
-            createdAt: "",
-            updatedAt: "",
+        progress.teamLeftScore = lastProgress.teamLeftScore + 1
+        isEvenLeader = progress.teamLeftScore % 2 == 0
+
+        if (isEvenLeader) {
+            progress.currentServer = CurrentServer.SERVER_LEFT_EVEN
+        } else {
+            progress.currentServer = CurrentServer.SERVER_LEFT_ODD
         }
+    } else {
+        progress.teamRightScore = lastProgress.teamRightScore + 1
+        isEvenLeader = progress.teamRightScore % 2 == 0
+
+        if (isEvenLeader) {
+            progress.currentServer = CurrentServer.SERVER_RIGHT_EVEN
+        } else {
+            progress.currentServer = CurrentServer.SERVER_RIGHT_ODD
+        }
+    }
+
+    if (isEvenLeader) {
+        progress.leftEvenPlayerName = leftPlayerName
+        progress.leftOddPlayerName = ""
+        progress.rightEvenPlayerName = rightPlayerName
+        progress.rightOddPlayerName = ""
+    } else {
+        progress.leftEvenPlayerName = ""
+        progress.leftOddPlayerName = leftPlayerName
+        progress.rightEvenPlayerName = ""
+        progress.rightOddPlayerName = rightPlayerName
+    }
+
+    gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
+}
+
+const handleDoubleScoring = (position: string) => {
+    const lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+
+    const progress: LocalGameStep = {
+        isSynced: false,
+        id: "",
+        gameId: gameStore.currentGameSettings.id,
+        teamLeftScore: lastProgress.teamLeftScore,
+        teamRightScore: lastProgress.teamRightScore,
+        scoreAt: DateTime.now().toString(),
+        stepNum: gameStore.currentGameProgress.length + 1,
+        currentServer: "" as CurrentServer,
+        leftEvenPlayerName: lastProgress.leftEvenPlayerName,
+        leftOddPlayerName: lastProgress.leftOddPlayerName,
+        rightEvenPlayerName: lastProgress.rightEvenPlayerName,
+        rightOddPlayerName: lastProgress.rightOddPlayerName,
+        syncId: uuidv4(),
+        createdAt: "",
+        updatedAt: "",
+    }
+
+    if (position === "left") {
+        progress.teamLeftScore = lastProgress.teamLeftScore + 1
 
         if (lastProgress.currentServer == CurrentServer.SERVER_LEFT_EVEN || lastProgress.currentServer == CurrentServer.SERVER_LEFT_ODD) {
             progress.currentServer = lastProgress.currentServer == CurrentServer.SERVER_LEFT_EVEN ? CurrentServer.SERVER_LEFT_ODD : CurrentServer.SERVER_LEFT_EVEN
@@ -94,25 +167,8 @@ const handleScorePoint = (position: string) => {
             }
         }
 
-        gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
     } else {
-        const progress = {
-            isSynced: false,
-            id: "",
-            gameId: gameStore.currentGameSettings.id,
-            teamLeftScore: lastProgress.teamLeftScore,
-            teamRightScore: lastProgress.teamRightScore + 1,
-            scoreAt: DateTime.now().toString(),
-            stepNum: gameStore.currentGameProgress.length + 1,
-            currentServer: "" as CurrentServer,
-            leftEvenPlayerName: lastProgress.leftEvenPlayerName,
-            leftOddPlayerName: lastProgress.leftOddPlayerName,
-            rightEvenPlayerName: lastProgress.rightEvenPlayerName,
-            rightOddPlayerName: lastProgress.rightOddPlayerName,
-            syncId: uuidv4(),
-            createdAt: "",
-            updatedAt: "",
-        }
+        progress.teamRightScore = lastProgress.teamRightScore + 1
 
         if (lastProgress.currentServer == CurrentServer.SERVER_RIGHT_EVEN || lastProgress.currentServer == CurrentServer.SERVER_RIGHT_ODD) {
             progress.currentServer = lastProgress.currentServer == CurrentServer.SERVER_RIGHT_EVEN ? CurrentServer.SERVER_RIGHT_ODD : CurrentServer.SERVER_RIGHT_EVEN
@@ -127,9 +183,9 @@ const handleScorePoint = (position: string) => {
                 progress.currentServer = CurrentServer.SERVER_RIGHT_EVEN
             }
         }
-
-        gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
     }
+
+    gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
 }
 
 const handlePointsOrientation = (orientation: string) => {
