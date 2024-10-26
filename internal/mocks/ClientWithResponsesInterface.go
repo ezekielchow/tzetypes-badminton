@@ -16,6 +16,80 @@ type ClientWithResponsesInterface struct {
 	mock.Mock
 }
 
+// AddGameStepsWithBodyWithResponse provides a mock function with given fields: ctx, id, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddGameStepsWithBodyWithResponse")
+	}
+
+	var r0 *oapiprivate.AddGameStepsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error)); ok {
+		return rf(ctx, id, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *oapiprivate.AddGameStepsResponse); ok {
+		r0 = rf(ctx, id, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.AddGameStepsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, id, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AddGameStepsWithResponse provides a mock function with given fields: ctx, id, body, reqEditors
+func (_m *ClientWithResponsesInterface) AddGameStepsWithResponse(ctx context.Context, id string, body oapiprivate.AddGameStepsJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddGameStepsWithResponse")
+	}
+
+	var r0 *oapiprivate.AddGameStepsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error)); ok {
+		return rf(ctx, id, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) *oapiprivate.AddGameStepsResponse); ok {
+		r0 = rf(ctx, id, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.AddGameStepsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, id, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // AddPlayerWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
 func (_m *ClientWithResponsesInterface) AddPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddPlayerResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
@@ -120,6 +194,80 @@ func (_m *ClientWithResponsesInterface) DashboardWithResponse(ctx context.Contex
 
 	if rf, ok := ret.Get(1).(func(context.Context, ...oapiprivate.RequestEditorFn) error); ok {
 		r1 = rf(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteGameStepsWithBodyWithResponse provides a mock function with given fields: ctx, gameId, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) DeleteGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.DeleteGameStepsResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteGameStepsWithBodyWithResponse")
+	}
+
+	var r0 *oapiprivate.DeleteGameStepsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*oapiprivate.DeleteGameStepsResponse, error)); ok {
+		return rf(ctx, gameId, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *oapiprivate.DeleteGameStepsResponse); ok {
+		r0 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.DeleteGameStepsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteGameStepsWithResponse provides a mock function with given fields: ctx, gameId, body, reqEditors
+func (_m *ClientWithResponsesInterface) DeleteGameStepsWithResponse(ctx context.Context, gameId string, body oapiprivate.DeleteGameStepsJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.DeleteGameStepsResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteGameStepsWithResponse")
+	}
+
+	var r0 *oapiprivate.DeleteGameStepsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.DeleteGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) (*oapiprivate.DeleteGameStepsResponse, error)); ok {
+		return rf(ctx, gameId, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.DeleteGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) *oapiprivate.DeleteGameStepsResponse); ok {
+		r0 = rf(ctx, gameId, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.DeleteGameStepsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.DeleteGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}

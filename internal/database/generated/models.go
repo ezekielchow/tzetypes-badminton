@@ -41,6 +41,7 @@ type GameStep struct {
 	LeftEvenPlayerName  string
 	RightOddPlayerName  *string
 	RightEvenPlayerName string
+	SyncID              string
 	CreatedAt           pgtype.Timestamp
 	UpdatedAt           pgtype.Timestamp
 }

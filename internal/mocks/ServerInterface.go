@@ -14,6 +14,11 @@ type ServerInterface struct {
 	mock.Mock
 }
 
+// AddGameSteps provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
+	_m.Called(w, r, id)
+}
+
 // AddPlayer provides a mock function with given fields: w, r
 func (_m *ServerInterface) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
@@ -22,6 +27,11 @@ func (_m *ServerInterface) AddPlayer(w http.ResponseWriter, r *http.Request) {
 // Dashboard provides a mock function with given fields: w, r
 func (_m *ServerInterface) Dashboard(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
+}
+
+// DeleteGameSteps provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
 }
 
 // GetLoggedInUser provides a mock function with given fields: w, r

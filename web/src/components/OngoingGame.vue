@@ -4,6 +4,7 @@ import { CurrentServer } from '@/enums/game';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
+import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 const isLandscape = ref(false)
@@ -70,6 +71,7 @@ const handleScorePoint = (position: string) => {
             leftOddPlayerName: lastProgress.leftOddPlayerName,
             rightEvenPlayerName: lastProgress.rightEvenPlayerName,
             rightOddPlayerName: lastProgress.rightOddPlayerName,
+            syncId: uuidv4(),
             createdAt: "",
             updatedAt: "",
         }
@@ -103,6 +105,7 @@ const handleScorePoint = (position: string) => {
             leftOddPlayerName: lastProgress.leftOddPlayerName,
             rightEvenPlayerName: lastProgress.rightEvenPlayerName,
             rightOddPlayerName: lastProgress.rightOddPlayerName,
+            syncId: uuidv4(),
             createdAt: "",
             updatedAt: "",
         }

@@ -19,6 +19,7 @@ type GameStep struct {
 	LeftEvenPlayerName  string
 	RightOddPlayerName  *string
 	RightEvenPlayerName string
+	SyncId              string
 	CreatedAt           time.Time
 	UpdatedAt           *time.Time
 }
@@ -47,6 +48,7 @@ func (gs *GameStep) PostgresToModel(fromDb database.GameStep) error {
 	gs.LeftOddPlayerName = fromDb.LeftOddPlayerName
 	gs.RightEvenPlayerName = fromDb.RightEvenPlayerName
 	gs.RightOddPlayerName = fromDb.RightOddPlayerName
+	gs.SyncId = fromDb.SyncID
 
 	return nil
 }

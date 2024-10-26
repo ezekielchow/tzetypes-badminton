@@ -78,7 +78,8 @@ INSERT INTO game_steps (
     left_odd_player_name,
     left_even_player_name,
     right_odd_player_name,
-    right_even_player_name
+    right_even_player_name,
+    sync_id
 ) VALUES (
     $1::uuid,
     $2,
@@ -86,11 +87,13 @@ INSERT INTO game_steps (
     $4,
     $5,
     $6,
-    $7::text,
+    $7::text,                         
     $8::text,
     $9::text,
-    $10::text
-) RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, created_at, updated_at
+    $10::text,
+    $11
+) ON CONFLICT (game_id, step_num) DO NOTHING 
+RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at
 `
 
 type CreateGameStepParams struct {
@@ -104,6 +107,7 @@ type CreateGameStepParams struct {
 	LeftEvenPlayerName  string
 	RightOddPlayerName  string
 	RightEvenPlayerName string
+	SyncID              string
 }
 
 func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) (GameStep, error) {
@@ -118,6 +122,7 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		arg.LeftEvenPlayerName,
 		arg.RightOddPlayerName,
 		arg.RightEvenPlayerName,
+		arg.SyncID,
 	)
 	var i GameStep
 	err := row.Scan(
@@ -132,8 +137,18 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		&i.LeftEvenPlayerName,
 		&i.RightOddPlayerName,
 		&i.RightEvenPlayerName,
+		&i.SyncID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const deleteGameStep = `-- name: DeleteGameStep :exec
+DELETE FROM game_steps where id = $1::uuid
+`
+
+func (q *Queries) DeleteGameStep(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteGameStep, id)
+	return err
 }

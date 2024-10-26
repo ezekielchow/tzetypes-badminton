@@ -17,6 +17,66 @@ type GameServiceInterface struct {
 	mock.Mock
 }
 
+// AddGameSteps provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) AddGameSteps(ctx context.Context, input oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddGameSteps")
+	}
+
+	var r0 oapiprivate.AddGameStepsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddGameStepsRequestObject) oapiprivate.AddGameStepsResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.AddGameStepsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.AddGameStepsRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteGameSteps provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) DeleteGameSteps(ctx context.Context, input oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteGameSteps")
+	}
+
+	var r0 oapiprivate.DeleteGameStepsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) oapiprivate.DeleteGameStepsResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.DeleteGameStepsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // StartGame provides a mock function with given fields: ctx, input, user
 func (_m *GameServiceInterface) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
 	ret := _m.Called(ctx, input, user)

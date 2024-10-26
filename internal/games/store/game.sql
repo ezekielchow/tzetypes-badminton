@@ -28,7 +28,8 @@ INSERT INTO game_steps (
     left_odd_player_name,
     left_even_player_name,
     right_odd_player_name,
-    right_even_player_name
+    right_even_player_name,
+    sync_id
 ) VALUES (
     @game_id::uuid,
     @team_left_score,
@@ -36,8 +37,13 @@ INSERT INTO game_steps (
     @score_at,
     @step_num,
     @current_server,
-    @left_odd_player_name::text,
+    @left_odd_player_name::text,                         
     @left_even_player_name::text,
     @right_odd_player_name::text,
-    @right_even_player_name::text
-) RETURNING *;
+    @right_even_player_name::text,
+    @sync_id
+) ON CONFLICT (game_id, step_num) DO NOTHING 
+RETURNING *;
+
+-- name: DeleteGameStep :exec
+DELETE FROM game_steps where id = @id::uuid;

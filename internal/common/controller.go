@@ -90,3 +90,11 @@ func (c Controller) StartGame(ctx context.Context, input oapiprivate.StartGameRe
 
 	return c.Services.GameService.StartGame(ctx, input, user)
 }
+
+func (c Controller) AddGameSteps(ctx context.Context, input oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error) {
+	return c.Services.GameService.AddGameSteps(ctx, input)
+}
+
+func (c Controller) DeleteGameSteps(ctx context.Context, input oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error) {
+	return c.Services.GameService.DeleteGameSteps(ctx, input)
+}

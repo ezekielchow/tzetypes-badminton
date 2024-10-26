@@ -173,6 +173,67 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{id}/steps:
+    post:
+      operationId: addGameSteps
+      tags:
+        - game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddGameStepsRequestSchema"
+      responses:
+        "201":
+          description: sync steps successful
+          content:
+            application/json:
+              schema:
+                required:
+                  - game_steps
+                type: object
+                properties:
+                  game_steps:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameStep"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /game/{game_id}/steps:
+    delete:
+      operationId: deleteGameSteps
+      tags:
+        - game
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: delete steps successful
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /game:
     post:
       operationId: start game
@@ -239,6 +300,16 @@ components:
       properties:
         name:
           type: string
+
+    AddGameStepsRequestSchema:
+      type: object
+      required:
+        - steps
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/GameStep"
 
     GameStartRequestSchema:
       type: object
@@ -357,6 +428,8 @@ components:
         right_odd_player_name:
           type: string
         right_even_player_name:
+          type: string
+        sync_id:
           type: string
         created_at:
           type: string

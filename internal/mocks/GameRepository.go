@@ -73,6 +73,24 @@ func (_m *GameRepository) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCrea
 	return r0, r1
 }
 
+// DeleteGameStep provides a mock function with given fields: ctx, tx, id
+func (_m *GameRepository) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error {
+	ret := _m.Called(ctx, tx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteGameStep")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) error); ok {
+		r0 = rf(ctx, tx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewGameRepository creates a new instance of GameRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewGameRepository(t interface {

@@ -270,4 +270,22 @@ export class MyApi extends runtime.BaseAPI {
     const apiResponse = await this.authenticatedRequest(() => this.startGameRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
+
+  private async addGameStepsRequest(requestParameters: runtime.AddGameStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.AddGameSteps201Response>> {
+    const api = new runtime.GameApi(this.getPrivateConf())
+
+    try {
+      return api.addGameStepsRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to add game steps');
+    }
+  }
+
+  async addGameSteps(requestParameters: runtime.AddGameStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.AddGameSteps201Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.addGameStepsRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
 }

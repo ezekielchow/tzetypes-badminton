@@ -23,6 +23,12 @@ type ServerInterface interface {
 	// (POST /game)
 	StartGame(w http.ResponseWriter, r *http.Request)
 
+	// (DELETE /game/{game_id}/steps)
+	DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string)
+
+	// (POST /game/{id}/steps)
+	AddGameSteps(w http.ResponseWriter, r *http.Request, id string)
+
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
 	// List players
@@ -53,6 +59,16 @@ func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 // (POST /game)
 func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (DELETE /game/{game_id}/steps)
+func (_ Unimplemented) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /game/{id}/steps)
+func (_ Unimplemented) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -123,6 +139,62 @@ func (siw *ServerInterfaceWrapper) StartGame(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartGame(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteGameSteps operation middleware
+func (siw *ServerInterfaceWrapper) DeleteGameSteps(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteGameSteps(w, r, gameId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// AddGameSteps operation middleware
+func (siw *ServerInterfaceWrapper) AddGameSteps(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AddGameSteps(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -427,6 +499,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/game", wrapper.StartGame)
 	})
 	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/game/{game_id}/steps", wrapper.DeleteGameSteps)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/game/{id}/steps", wrapper.AddGameSteps)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
 	r.Group(func(r chi.Router) {
@@ -507,6 +585,67 @@ type StartGamedefaultJSONResponse struct {
 }
 
 func (response StartGamedefaultJSONResponse) VisitStartGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type DeleteGameStepsRequestObject struct {
+	GameId string `json:"game_id"`
+	Body   *DeleteGameStepsJSONRequestBody
+}
+
+type DeleteGameStepsResponseObject interface {
+	VisitDeleteGameStepsResponse(w http.ResponseWriter) error
+}
+
+type DeleteGameSteps200Response struct {
+}
+
+func (response DeleteGameSteps200Response) VisitDeleteGameStepsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type DeleteGameStepsdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response DeleteGameStepsdefaultJSONResponse) VisitDeleteGameStepsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type AddGameStepsRequestObject struct {
+	Id   string `json:"id"`
+	Body *AddGameStepsJSONRequestBody
+}
+
+type AddGameStepsResponseObject interface {
+	VisitAddGameStepsResponse(w http.ResponseWriter) error
+}
+
+type AddGameSteps201JSONResponse struct {
+	GameSteps []GameStep `json:"game_steps"`
+}
+
+func (response AddGameSteps201JSONResponse) VisitAddGameStepsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AddGameStepsdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response AddGameStepsdefaultJSONResponse) VisitAddGameStepsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -680,6 +819,12 @@ type StrictServerInterface interface {
 	// (POST /game)
 	StartGame(ctx context.Context, request StartGameRequestObject) (StartGameResponseObject, error)
 
+	// (DELETE /game/{game_id}/steps)
+	DeleteGameSteps(ctx context.Context, request DeleteGameStepsRequestObject) (DeleteGameStepsResponseObject, error)
+
+	// (POST /game/{id}/steps)
+	AddGameSteps(ctx context.Context, request AddGameStepsRequestObject) (AddGameStepsResponseObject, error)
+
 	// (GET /logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
 	// List players
@@ -776,6 +921,72 @@ func (sh *strictHandler) StartGame(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartGameResponseObject); ok {
 		if err := validResponse.VisitStartGameResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteGameSteps operation middleware
+func (sh *strictHandler) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request DeleteGameStepsRequestObject
+
+	request.GameId = gameId
+
+	var body DeleteGameStepsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteGameSteps(ctx, request.(DeleteGameStepsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteGameSteps")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteGameStepsResponseObject); ok {
+		if err := validResponse.VisitDeleteGameStepsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AddGameSteps operation middleware
+func (sh *strictHandler) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
+	var request AddGameStepsRequestObject
+
+	request.Id = id
+
+	var body AddGameStepsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.AddGameSteps(ctx, request.(AddGameStepsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AddGameSteps")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(AddGameStepsResponseObject); ok {
+		if err := validResponse.VisitAddGameStepsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

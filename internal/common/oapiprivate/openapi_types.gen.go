@@ -19,6 +19,11 @@ const (
 	RightEven GameStartRequestSchemaServingSide = "right_even"
 )
 
+// AddGameStepsRequestSchema defines model for AddGameStepsRequestSchema.
+type AddGameStepsRequestSchema struct {
+	Steps []GameStep `json:"steps"`
+}
+
 // AddPlayerRequestSchema defines model for AddPlayerRequestSchema.
 type AddPlayerRequestSchema struct {
 	Name string `json:"name"`
@@ -61,19 +66,20 @@ type GameStartRequestSchemaServingSide string
 
 // GameStep defines model for GameStep.
 type GameStep struct {
-	CreatedAt           string `json:"created_at"`
-	CurrentServer       string `json:"current_server"`
-	GameId              string `json:"game_id"`
-	Id                  string `json:"id"`
-	LeftEvenPlayerName  string `json:"left_even_player_name"`
-	LeftOddPlayerName   string `json:"left_odd_player_name"`
-	RightEvenPlayerName string `json:"right_even_player_name"`
-	RightOddPlayerName  string `json:"right_odd_player_name"`
-	ScoreAt             string `json:"score_at"`
-	StepNum             int    `json:"step_num"`
-	TeamLeftScore       int    `json:"team_left_score"`
-	TeamRightScore      int    `json:"team_right_score"`
-	UpdatedAt           string `json:"updated_at"`
+	CreatedAt           string  `json:"created_at"`
+	CurrentServer       string  `json:"current_server"`
+	GameId              string  `json:"game_id"`
+	Id                  string  `json:"id"`
+	LeftEvenPlayerName  string  `json:"left_even_player_name"`
+	LeftOddPlayerName   string  `json:"left_odd_player_name"`
+	RightEvenPlayerName string  `json:"right_even_player_name"`
+	RightOddPlayerName  string  `json:"right_odd_player_name"`
+	ScoreAt             string  `json:"score_at"`
+	StepNum             int     `json:"step_num"`
+	SyncId              *string `json:"sync_id,omitempty"`
+	TeamLeftScore       int     `json:"team_left_score"`
+	TeamRightScore      int     `json:"team_right_score"`
+	UpdatedAt           string  `json:"updated_at"`
 }
 
 // Player defines model for Player.
@@ -107,6 +113,9 @@ type CurrentUserResponseSchema struct {
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
 
+// DeleteGameStepsJSONBody defines parameters for DeleteGameSteps.
+type DeleteGameStepsJSONBody = []string
+
 // ListPlayersParams defines parameters for ListPlayers.
 type ListPlayersParams struct {
 	// OwnerId The ID of the owner to filter players.
@@ -129,6 +138,12 @@ type UpdatePlayerWithIdJSONBody struct {
 
 // StartGameJSONRequestBody defines body for StartGame for application/json ContentType.
 type StartGameJSONRequestBody = GameStartRequestSchema
+
+// DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
+type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody
+
+// AddGameStepsJSONRequestBody defines body for AddGameSteps for application/json ContentType.
+type AddGameStepsJSONRequestBody = AddGameStepsRequestSchema
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema

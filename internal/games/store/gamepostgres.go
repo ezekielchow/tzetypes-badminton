@@ -68,6 +68,7 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 		LeftOddPlayerName:   *toCreate.LeftOddPlayerName,
 		RightEvenPlayerName: toCreate.RightEvenPlayerName,
 		RightOddPlayerName:  *toCreate.RightOddPlayerName,
+		SyncID:              toCreate.SyncId,
 	})
 	if err != nil {
 		return models.GameStep{}, err
@@ -80,4 +81,19 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 	}
 
 	return gameStep, nil
+}
+
+func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error {
+	pgID := pgtype.UUID{}
+	err := pgID.Scan(id)
+	if err != nil {
+		return err
+	}
+
+	err = gp.Queries.DeleteGameStep(ctx, pgID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

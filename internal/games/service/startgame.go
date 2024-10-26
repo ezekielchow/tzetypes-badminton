@@ -5,6 +5,8 @@ import (
 	"common/oapiprivate"
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
@@ -54,6 +56,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 		LeftEvenPlayerName:  input.Body.LeftEvenPlayerName,
 		RightOddPlayerName:  &rightOddPlayerName,
 		RightEvenPlayerName: input.Body.RightEvenPlayerName,
+		SyncId:              uuid.New().String(),
 	})
 	if err != nil {
 		return nil, err
@@ -92,6 +95,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 				RightEvenPlayerName: game.RightEvenPlayerName,
 				RightOddPlayerName:  *game.RightOddPlayerName,
 				UpdatedAt:           gameStep.UpdatedAt.String(),
+				SyncId:              &gameStep.SyncId,
 			},
 		},
 	}, nil

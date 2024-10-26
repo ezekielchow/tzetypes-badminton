@@ -10,4 +10,3 @@ CREATE TABLE IF NOT EXISTS games(
     created_at timestamp DEFAULT now(),
     updated_at timestamp 
 );
-

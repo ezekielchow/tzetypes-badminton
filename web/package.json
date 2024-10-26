@@ -17,6 +17,7 @@
     "luxon": "^3.5.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^4.1.1",
+    "uuid": "^10.0.0",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
     "vue3-table-lite": "^1.4.0"
@@ -26,6 +27,7 @@
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.14.5",
+    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
     "@vue/eslint-config-prettier": "^9.0.0",
