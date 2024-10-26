@@ -21,6 +21,11 @@ onBeforeUnmount(() => {
 })
 
 const syncGameProgress = async () => {
+  await syncAddPoints()
+  await syncRemovePoints()
+}
+
+const syncAddPoints = async () => {
   const toSync = gameStore.currentGameProgress.filter((step) => {
     return !step.isSynced
   })
@@ -41,6 +46,26 @@ const syncGameProgress = async () => {
   }
 }
 
+const syncRemovePoints = async () => {
+  if (gameStore.stepsToRemove.length < 1) {
+    return
+  }
+
+  const ids = gameStore.stepsToRemove
+
+  const res = await gameStore.deleteGameSteps({
+    gameId: gameStore.currentGameSettings.id,
+    requestBody: ids
+  })
+
+  if (res instanceof Error) {
+    return
+  }
+
+  gameStore.stepsToRemove = gameStore.stepsToRemove.filter((step) => {
+    return !ids.includes(step)
+  })
+}
 
 </script>
 

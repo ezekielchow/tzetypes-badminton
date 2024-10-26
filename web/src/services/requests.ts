@@ -288,4 +288,22 @@ export class MyApi extends runtime.BaseAPI {
     const apiResponse = await this.authenticatedRequest(() => this.addGameStepsRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
+
+  private async deleteGameStepsRequest(requestParameters: runtime.DeleteGameStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    const api = new runtime.GameApi(this.getPrivateConf())
+
+    try {
+      return api.deleteGameStepsRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to delete game steps');
+    }
+  }
+
+  async deleteGameSteps(requestParameters: runtime.DeleteGameStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    const apiResponse = await this.authenticatedRequest(() => this.deleteGameStepsRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
 }

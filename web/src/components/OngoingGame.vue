@@ -134,7 +134,11 @@ const handlePointsOrientation = (orientation: string) => {
 
 const handleUndo = () => {
     const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
-    console.log(toRemove);
+
+    if (toRemove.length > 0) {
+        gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
+    }
+
 }
 
 </script>

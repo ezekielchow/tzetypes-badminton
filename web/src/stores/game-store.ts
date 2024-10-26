@@ -1,4 +1,4 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
 import { MyApi } from "@/services/requests";
 import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";
@@ -23,7 +23,8 @@ export const useGameStore = defineStore('game', {
     backendUrl: "",
     currentGameSettings: initialGameState,
     currentGameProgress: initialGameSteps,
-    isMatchActive: false
+    isMatchActive: false,
+    stepsToRemove: [] as string[]
   }),
   actions: {
     setBackendUrl(backendUrl: string) {
@@ -77,6 +78,22 @@ export const useGameStore = defineStore('game', {
           }
         }
 
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async deleteGameSteps(params: DeleteGameStepsRequest
+    ): Promise<void | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.deleteGameSteps(params)
         return res
 
       } catch (error: any) {
