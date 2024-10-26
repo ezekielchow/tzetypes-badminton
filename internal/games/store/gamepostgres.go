@@ -97,3 +97,21 @@ func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string
 
 	return nil
 }
+
+func (gp GamePostgres) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error {
+	pgID := pgtype.UUID{}
+	err := pgID.Scan(id)
+	if err != nil {
+		return err
+	}
+
+	err = gp.Queries.EndGame(ctx, database.EndGameParams{
+		IsEnded: isEnded,
+		ID:      pgID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

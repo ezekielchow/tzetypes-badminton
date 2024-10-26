@@ -3,7 +3,6 @@
 package mocks
 
 import (
-	oapiprivate "common/oapiprivate"
 	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
@@ -14,54 +13,19 @@ type ServerInterface struct {
 	mock.Mock
 }
 
-// AddGameSteps provides a mock function with given fields: w, r, id
-func (_m *ServerInterface) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
-	_m.Called(w, r, id)
-}
-
-// AddPlayer provides a mock function with given fields: w, r
-func (_m *ServerInterface) AddPlayer(w http.ResponseWriter, r *http.Request) {
+// Login provides a mock function with given fields: w, r
+func (_m *ServerInterface) Login(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
-// Dashboard provides a mock function with given fields: w, r
-func (_m *ServerInterface) Dashboard(w http.ResponseWriter, r *http.Request) {
+// RefreshToken provides a mock function with given fields: w, r
+func (_m *ServerInterface) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 
-// DeleteGameSteps provides a mock function with given fields: w, r, gameId
-func (_m *ServerInterface) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
-	_m.Called(w, r, gameId)
-}
-
-// GetLoggedInUser provides a mock function with given fields: w, r
-func (_m *ServerInterface) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
+// Signup provides a mock function with given fields: w, r
+func (_m *ServerInterface) Signup(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
-}
-
-// GetPlayerWithId provides a mock function with given fields: w, r, id
-func (_m *ServerInterface) GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
-	_m.Called(w, r, id)
-}
-
-// ListPlayers provides a mock function with given fields: w, r, params
-func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
-	_m.Called(w, r, params)
-}
-
-// Logout provides a mock function with given fields: w, r
-func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
-}
-
-// StartGame provides a mock function with given fields: w, r
-func (_m *ServerInterface) StartGame(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
-}
-
-// UpdatePlayerWithId provides a mock function with given fields: w, r, id
-func (_m *ServerInterface) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
-	_m.Called(w, r, id)
 }
 
 // NewServerInterface creates a new instance of ServerInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

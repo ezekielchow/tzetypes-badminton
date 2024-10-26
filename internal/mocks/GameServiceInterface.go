@@ -77,6 +77,36 @@ func (_m *GameServiceInterface) DeleteGameSteps(ctx context.Context, input oapip
 	return r0, r1
 }
 
+// EndGame provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) EndGame(ctx context.Context, input oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGame")
+	}
+
+	var r0 oapiprivate.EndGameResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.EndGameRequestObject) oapiprivate.EndGameResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.EndGameResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.EndGameRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // StartGame provides a mock function with given fields: ctx, input, user
 func (_m *GameServiceInterface) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
 	ret := _m.Called(ctx, input, user)

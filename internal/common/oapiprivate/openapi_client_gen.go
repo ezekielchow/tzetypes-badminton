@@ -97,6 +97,11 @@ type ClientInterface interface {
 
 	StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// EndGameWithBody request with any body
+	EndGameWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EndGame(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteGameStepsWithBody request with any body
 	DeleteGameStepsWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -156,6 +161,30 @@ func (c *Client) StartGameWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewStartGameRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EndGameWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEndGameRequestWithBody(c.Server, gameId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EndGame(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEndGameRequest(c.Server, gameId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -368,6 +397,53 @@ func NewStartGameRequestWithBody(server string, contentType string, body io.Read
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewEndGameRequest calls the generic EndGame builder with application/json body
+func NewEndGameRequest(server string, gameId string, body EndGameJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEndGameRequestWithBody(server, gameId, "application/json", bodyReader)
+}
+
+// NewEndGameRequestWithBody generates requests for EndGame with any type of body
+func NewEndGameRequestWithBody(server string, gameId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "game_id", runtime.ParamLocationPath, gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/game/%s/end", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -786,6 +862,11 @@ type ClientWithResponsesInterface interface {
 
 	StartGameWithResponse(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*StartGameResponse, error)
 
+	// EndGameWithBodyWithResponse request with any body
+	EndGameWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EndGameResponse, error)
+
+	EndGameWithResponse(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*EndGameResponse, error)
+
 	// DeleteGameStepsWithBodyWithResponse request with any body
 	DeleteGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteGameStepsResponse, error)
 
@@ -861,6 +942,28 @@ func (r StartGameResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r StartGameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type EndGameResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r EndGameResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EndGameResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1083,6 +1186,23 @@ func (c *ClientWithResponses) StartGameWithResponse(ctx context.Context, body St
 	return ParseStartGameResponse(rsp)
 }
 
+// EndGameWithBodyWithResponse request with arbitrary body returning *EndGameResponse
+func (c *ClientWithResponses) EndGameWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EndGameResponse, error) {
+	rsp, err := c.EndGameWithBody(ctx, gameId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEndGameResponse(rsp)
+}
+
+func (c *ClientWithResponses) EndGameWithResponse(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*EndGameResponse, error) {
+	rsp, err := c.EndGame(ctx, gameId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEndGameResponse(rsp)
+}
+
 // DeleteGameStepsWithBodyWithResponse request with arbitrary body returning *DeleteGameStepsResponse
 func (c *ClientWithResponses) DeleteGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteGameStepsResponse, error) {
 	rsp, err := c.DeleteGameStepsWithBody(ctx, gameId, contentType, body, reqEditors...)
@@ -1237,6 +1357,32 @@ func ParseStartGameResponse(rsp *http.Response) (*StartGameResponse, error) {
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseEndGameResponse parses an HTTP response from a EndGameWithResponse call
+func ParseEndGameResponse(rsp *http.Response) (*EndGameResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EndGameResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

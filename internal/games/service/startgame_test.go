@@ -58,6 +58,7 @@ func TestStartGame(t *testing.T) {
 		assert.Equal(t, rightEvenPlayerName, resSuccess.Game.RightEvenPlayerName)
 		assert.Equal(t, "", resSuccess.Game.RightOddPlayerName)
 		assert.Equal(t, "", resSuccess.Game.LeftOddPlayerName)
+		assert.Equal(t, false, resSuccess.Game.IsEnded)
 	})
 
 	t.Run("successfully start game dobules", func(t *testing.T) {
@@ -107,5 +108,6 @@ func TestStartGame(t *testing.T) {
 		assert.Equal(t, leftOddPlayerName, resSuccess.Game.LeftOddPlayerName)
 		assert.Equal(t, rightEvenPlayerName, resSuccess.Game.RightEvenPlayerName)
 		assert.Equal(t, rightOddPlayerName, resSuccess.Game.RightOddPlayerName)
+		assert.Equal(t, false, resSuccess.Game.IsEnded)
 	})
 }

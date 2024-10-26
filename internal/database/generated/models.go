@@ -25,6 +25,7 @@ type Game struct {
 	RightEvenPlayerName string
 	GameType            string
 	ServingSide         string
+	IsEnded             bool
 	CreatedAt           pgtype.Timestamp
 	UpdatedAt           pgtype.Timestamp
 }

@@ -40,6 +40,7 @@ type Game struct {
 	CreatedAt           string `json:"created_at"`
 	GameType            string `json:"game_type"`
 	Id                  string `json:"id"`
+	IsEnded             bool   `json:"is_ended"`
 	LeftEvenPlayerName  string `json:"left_even_player_name"`
 	LeftOddPlayerName   string `json:"left_odd_player_name"`
 	RightEvenPlayerName string `json:"right_even_player_name"`
@@ -113,6 +114,11 @@ type CurrentUserResponseSchema struct {
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
 
+// EndGameJSONBody defines parameters for EndGame.
+type EndGameJSONBody struct {
+	IsEnded *bool `json:"isEnded,omitempty"`
+}
+
 // DeleteGameStepsJSONBody defines parameters for DeleteGameSteps.
 type DeleteGameStepsJSONBody = []string
 
@@ -138,6 +144,9 @@ type UpdatePlayerWithIdJSONBody struct {
 
 // StartGameJSONRequestBody defines body for StartGame for application/json ContentType.
 type StartGameJSONRequestBody = GameStartRequestSchema
+
+// EndGameJSONRequestBody defines body for EndGame for application/json ContentType.
+type EndGameJSONRequestBody EndGameJSONBody
 
 // DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
 type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody

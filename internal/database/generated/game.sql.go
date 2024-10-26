@@ -28,7 +28,7 @@ INSERT INTO games (
     $5::text,
     $6::text,
     $7::text
-) RETURNING id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, created_at, updated_at
+) RETURNING id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, is_ended, created_at, updated_at
 `
 
 type CreateGameParams struct {
@@ -61,6 +61,7 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 		&i.RightEvenPlayerName,
 		&i.GameType,
 		&i.ServingSide,
+		&i.IsEnded,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -150,5 +151,20 @@ DELETE FROM game_steps where id = $1::uuid
 
 func (q *Queries) DeleteGameStep(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteGameStep, id)
+	return err
+}
+
+const endGame = `-- name: EndGame :exec
+UPDATE games SET is_ended = $1 
+WHERE id = $2
+`
+
+type EndGameParams struct {
+	IsEnded bool
+	ID      pgtype.UUID
+}
+
+func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
+	_, err := q.db.Exec(ctx, endGame, arg.IsEnded, arg.ID)
 	return err
 }

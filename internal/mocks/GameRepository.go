@@ -91,6 +91,24 @@ func (_m *GameRepository) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id str
 	return r0
 }
 
+// EndGame provides a mock function with given fields: ctx, tx, id, isEnded
+func (_m *GameRepository) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error {
+	ret := _m.Called(ctx, tx, id, isEnded)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGame")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, bool) error); ok {
+		r0 = rf(ctx, tx, id, isEnded)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewGameRepository creates a new instance of GameRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewGameRepository(t interface {

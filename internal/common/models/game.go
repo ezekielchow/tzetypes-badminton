@@ -16,6 +16,7 @@ type Game struct {
 	RightEvenPlayerName string
 	GameType            string
 	ServingSide         string
+	IsEnded             bool
 	CreatedAt           time.Time
 	UpdatedAt           *time.Time
 }
@@ -41,6 +42,7 @@ func (g *Game) PostgresToModel(fromDb database.Game) error {
 	g.ServingSide = fromDb.ServingSide
 	g.CreatedAt = fromDb.CreatedAt.Time
 	g.UpdatedAt = &fromDb.UpdatedAt.Time
+	g.IsEnded = fromDb.IsEnded
 
 	return nil
 }

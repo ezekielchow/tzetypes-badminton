@@ -1,4 +1,4 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
 import { MyApi } from "@/services/requests";
 import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";
@@ -12,6 +12,7 @@ const initialGameState: Game = {
   rightOddPlayerName: "",
   gameType: "",
   servingSide: "",
+  isEnded: false,
   createdAt: "",
   updatedAt: ""
 }
@@ -23,7 +24,6 @@ export const useGameStore = defineStore('game', {
     backendUrl: "",
     currentGameSettings: initialGameState,
     currentGameProgress: initialGameSteps,
-    isMatchActive: false,
     stepsToRemove: [] as string[]
   }),
   actions: {
@@ -37,8 +37,8 @@ export const useGameStore = defineStore('game', {
       try {
         const res = await myApi.startGame(params)
 
-        this.isMatchActive = true
         this.currentGameSettings = res.game
+        this.currentGameProgress = []
         for (let i = 0; i < res.steps.length; i++) {
           this.currentGameProgress = this.currentGameProgress.concat({
             ...res.steps[i],
@@ -94,6 +94,23 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await myApi.deleteGameSteps(params)
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async endGame(params: EndGameOperationRequest
+    ): Promise<void | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.endGame(params)
+        this.currentGameSettings.isEnded = true
         return res
 
       } catch (error: any) {

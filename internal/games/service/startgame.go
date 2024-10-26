@@ -78,6 +78,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 			RightEvenPlayerName: game.RightEvenPlayerName,
 			RightOddPlayerName:  *game.RightOddPlayerName,
 			ServingSide:         game.ServingSide,
+			IsEnded:             game.IsEnded,
 			UpdatedAt:           game.UpdatedAt.String(),
 		},
 		Steps: []oapiprivate.GameStep{

@@ -234,6 +234,34 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{game_id}/end:
+    patch:
+      summary: End game by setting 'isEnded' to 'true'
+      operationId: endGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isEnded:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Game ended successfully
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /game:
     post:
       operationId: start game
@@ -262,7 +290,6 @@ paths:
                       $ref: "#/components/schemas/GameStep"
                   game:
                     $ref: "#/components/schemas/Game"
-
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
@@ -366,6 +393,7 @@ components:
         - right_even_player_name
         - game_type
         - serving_side
+        - is_ended
         - created_at
         - updated_at
       properties:
@@ -385,6 +413,8 @@ components:
           type: string
         serving_side:
           type: string
+        is_ended:
+          type: boolean
         created_at:
           type: string
         updated_at:

@@ -6,7 +6,11 @@ import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
+const errorMessage = ref("")
+const isLoading = ref(false)
 const isLandscape = ref(false)
 const pointsOrientation = ref("equal")
 const currentCourtState = reactive({
@@ -138,7 +142,51 @@ const handleUndo = () => {
     if (toRemove.length > 0) {
         gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
     }
+}
 
+const isNeedsSyncing = () => {
+    const toAdd = gameStore.currentGameProgress.filter((step) => {
+        return !step.isSynced
+    })
+
+    return toAdd.length > 0 || gameStore.stepsToRemove.length > 0
+}
+
+const delaySeconds = async (milliseconds: number) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+const handleEndGame = async () => {
+
+    isLoading.value = true
+
+    let needsSyncing = isNeedsSyncing()
+    while (needsSyncing) {
+        await delaySeconds(2)
+        needsSyncing = isNeedsSyncing()
+    }
+
+    const res = await gameStore.endGame({
+        gameId: gameStore.currentGameSettings.id,
+        endGameRequest: {
+            isEnded: true
+        }
+    })
+
+    if (res instanceof Error) {
+        isLoading.value = false
+        errorMessage.value = res.message
+        return
+    }
+
+    isLoading.value = false
+
+    router.push({
+        name: "game/statistics",
+        params: {
+            id: gameStore.currentGameSettings.id
+        }
+    })
 }
 
 </script>
@@ -239,7 +287,12 @@ const handleUndo = () => {
             </div>
             <div class="footer-actions">
                 <div class="push-end">
-                    <button class="footer-buttons">End Game</button>
+                    <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
+                    <div>
+                        <button class="footer-buttons" @click="handleEndGame()">{{ isLoading ? "Loading.." : "End Game"
+                            }}
+                        </button>
+                    </div>
                     <button class="undo-button footer-buttons" @click="handleUndo()">Undo</button>
                 </div>
             </div>

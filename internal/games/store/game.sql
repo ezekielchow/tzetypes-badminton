@@ -47,3 +47,7 @@ RETURNING *;
 
 -- name: DeleteGameStep :exec
 DELETE FROM game_steps where id = @id::uuid;
+
+-- name: EndGame :exec
+UPDATE games SET is_ended = @is_ended 
+WHERE id = @id;

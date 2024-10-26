@@ -275,6 +275,80 @@ func (_m *ClientWithResponsesInterface) DeleteGameStepsWithResponse(ctx context.
 	return r0, r1
 }
 
+// EndGameWithBodyWithResponse provides a mock function with given fields: ctx, gameId, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) EndGameWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.EndGameResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGameWithBodyWithResponse")
+	}
+
+	var r0 *oapiprivate.EndGameResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*oapiprivate.EndGameResponse, error)); ok {
+		return rf(ctx, gameId, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *oapiprivate.EndGameResponse); ok {
+		r0 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.EndGameResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// EndGameWithResponse provides a mock function with given fields: ctx, gameId, body, reqEditors
+func (_m *ClientWithResponsesInterface) EndGameWithResponse(ctx context.Context, gameId string, body oapiprivate.EndGameJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.EndGameResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGameWithResponse")
+	}
+
+	var r0 *oapiprivate.EndGameResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.EndGameJSONRequestBody, ...oapiprivate.RequestEditorFn) (*oapiprivate.EndGameResponse, error)); ok {
+		return rf(ctx, gameId, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.EndGameJSONRequestBody, ...oapiprivate.RequestEditorFn) *oapiprivate.EndGameResponse); ok {
+		r0 = rf(ctx, gameId, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapiprivate.EndGameResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.EndGameJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLoggedInUserWithResponse provides a mock function with given fields: ctx, reqEditors
 func (_m *ClientWithResponsesInterface) GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.GetLoggedInUserResponse, error) {
 	_va := make([]interface{}, len(reqEditors))

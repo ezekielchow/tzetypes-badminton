@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS games(
     right_even_player_name text NOT NULL,
     game_type text NOT NULL,
     serving_side text NOT NULL,
+    is_ended boolean NOT NULL DEFAULT false,
     created_at timestamp DEFAULT now(),
     updated_at timestamp 
 );

@@ -9,8 +9,12 @@ gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
 let gameProgressInterval: number
 
 gameStore.$subscribe((mutation, state) => {
-  if (!gameProgressInterval && state.isMatchActive) {
-    gameProgressInterval = window.setInterval(syncGameProgress, 3000)
+  if (!gameProgressInterval && state.currentGameSettings.isEnded == false) {
+    gameProgressInterval = window.setInterval(syncGameProgress, 2000)
+  }
+
+  if (gameProgressInterval && state.currentGameSettings.isEnded) {
+    window.clearInterval(gameProgressInterval)
   }
 })
 
