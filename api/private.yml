@@ -173,13 +173,13 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
-  /game/{id}/steps:
+  /game/{game_id}/steps:
     post:
       operationId: addGameSteps
       tags:
         - game
       parameters:
-        - name: id
+        - name: game_id
           in: path
           required: true
           description: The unique identifier of the game
@@ -208,7 +208,6 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
-  /game/{game_id}/steps:
     delete:
       operationId: deleteGameSteps
       tags:

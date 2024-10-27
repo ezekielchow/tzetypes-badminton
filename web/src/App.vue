@@ -39,7 +39,7 @@ const syncAddPoints = async () => {
   }
 
   const res = await gameStore.addGameSteps({
-    id: gameStore.currentGameSettings.id,
+    gameId: gameStore.currentGameSettings.id,
     addGameStepsRequestSchema: {
       steps: toSync
     }

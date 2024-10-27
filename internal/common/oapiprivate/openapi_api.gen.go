@@ -29,8 +29,8 @@ type ServerInterface interface {
 	// (DELETE /game/{game_id}/steps)
 	DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string)
 
-	// (POST /game/{id}/steps)
-	AddGameSteps(w http.ResponseWriter, r *http.Request, id string)
+	// (POST /game/{game_id}/steps)
+	AddGameSteps(w http.ResponseWriter, r *http.Request, gameId string)
 
 	// (GET /logout)
 	Logout(w http.ResponseWriter, r *http.Request)
@@ -76,8 +76,8 @@ func (_ Unimplemented) DeleteGameSteps(w http.ResponseWriter, r *http.Request, g
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /game/{id}/steps)
-func (_ Unimplemented) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
+// (POST /game/{game_id}/steps)
+func (_ Unimplemented) AddGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -219,19 +219,19 @@ func (siw *ServerInterfaceWrapper) AddGameSteps(w http.ResponseWriter, r *http.R
 
 	var err error
 
-	// ------------- Path parameter "id" -------------
-	var id string
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
 		return
 	}
 
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AddGameSteps(w, r, id)
+		siw.Handler.AddGameSteps(w, r, gameId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -542,7 +542,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Delete(options.BaseURL+"/game/{game_id}/steps", wrapper.DeleteGameSteps)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/game/{id}/steps", wrapper.AddGameSteps)
+		r.Post(options.BaseURL+"/game/{game_id}/steps", wrapper.AddGameSteps)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/logout", wrapper.Logout)
@@ -690,8 +690,8 @@ func (response DeleteGameStepsdefaultJSONResponse) VisitDeleteGameStepsResponse(
 }
 
 type AddGameStepsRequestObject struct {
-	Id   string `json:"id"`
-	Body *AddGameStepsJSONRequestBody
+	GameId string `json:"game_id"`
+	Body   *AddGameStepsJSONRequestBody
 }
 
 type AddGameStepsResponseObject interface {
@@ -894,7 +894,7 @@ type StrictServerInterface interface {
 	// (DELETE /game/{game_id}/steps)
 	DeleteGameSteps(ctx context.Context, request DeleteGameStepsRequestObject) (DeleteGameStepsResponseObject, error)
 
-	// (POST /game/{id}/steps)
+	// (POST /game/{game_id}/steps)
 	AddGameSteps(ctx context.Context, request AddGameStepsRequestObject) (AddGameStepsResponseObject, error)
 
 	// (GET /logout)
@@ -1067,10 +1067,10 @@ func (sh *strictHandler) DeleteGameSteps(w http.ResponseWriter, r *http.Request,
 }
 
 // AddGameSteps operation middleware
-func (sh *strictHandler) AddGameSteps(w http.ResponseWriter, r *http.Request, id string) {
+func (sh *strictHandler) AddGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
 	var request AddGameStepsRequestObject
 
-	request.Id = id
+	request.GameId = gameId
 
 	var body AddGameStepsJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {

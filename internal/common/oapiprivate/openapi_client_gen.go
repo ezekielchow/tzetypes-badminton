@@ -108,9 +108,9 @@ type ClientInterface interface {
 	DeleteGameSteps(ctx context.Context, gameId string, body DeleteGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddGameStepsWithBody request with any body
-	AddGameStepsWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddGameStepsWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	AddGameSteps(ctx context.Context, id string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AddGameSteps(ctx context.Context, gameId string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Logout request
 	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -219,8 +219,8 @@ func (c *Client) DeleteGameSteps(ctx context.Context, gameId string, body Delete
 	return c.Client.Do(req)
 }
 
-func (c *Client) AddGameStepsWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddGameStepsRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) AddGameStepsWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddGameStepsRequestWithBody(c.Server, gameId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -231,8 +231,8 @@ func (c *Client) AddGameStepsWithBody(ctx context.Context, id string, contentTyp
 	return c.Client.Do(req)
 }
 
-func (c *Client) AddGameSteps(ctx context.Context, id string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddGameStepsRequest(c.Server, id, body)
+func (c *Client) AddGameSteps(ctx context.Context, gameId string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddGameStepsRequest(c.Server, gameId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -501,23 +501,23 @@ func NewDeleteGameStepsRequestWithBody(server string, gameId string, contentType
 }
 
 // NewAddGameStepsRequest calls the generic AddGameSteps builder with application/json body
-func NewAddGameStepsRequest(server string, id string, body AddGameStepsJSONRequestBody) (*http.Request, error) {
+func NewAddGameStepsRequest(server string, gameId string, body AddGameStepsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewAddGameStepsRequestWithBody(server, id, "application/json", bodyReader)
+	return NewAddGameStepsRequestWithBody(server, gameId, "application/json", bodyReader)
 }
 
 // NewAddGameStepsRequestWithBody generates requests for AddGameSteps with any type of body
-func NewAddGameStepsRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+func NewAddGameStepsRequestWithBody(server string, gameId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "game_id", runtime.ParamLocationPath, gameId)
 	if err != nil {
 		return nil, err
 	}
@@ -873,9 +873,9 @@ type ClientWithResponsesInterface interface {
 	DeleteGameStepsWithResponse(ctx context.Context, gameId string, body DeleteGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteGameStepsResponse, error)
 
 	// AddGameStepsWithBodyWithResponse request with any body
-	AddGameStepsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error)
+	AddGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error)
 
-	AddGameStepsWithResponse(ctx context.Context, id string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error)
+	AddGameStepsWithResponse(ctx context.Context, gameId string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error)
 
 	// LogoutWithResponse request
 	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
@@ -1221,16 +1221,16 @@ func (c *ClientWithResponses) DeleteGameStepsWithResponse(ctx context.Context, g
 }
 
 // AddGameStepsWithBodyWithResponse request with arbitrary body returning *AddGameStepsResponse
-func (c *ClientWithResponses) AddGameStepsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error) {
-	rsp, err := c.AddGameStepsWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) AddGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error) {
+	rsp, err := c.AddGameStepsWithBody(ctx, gameId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseAddGameStepsResponse(rsp)
 }
 
-func (c *ClientWithResponses) AddGameStepsWithResponse(ctx context.Context, id string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error) {
-	rsp, err := c.AddGameSteps(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) AddGameStepsWithResponse(ctx context.Context, gameId string, body AddGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error) {
+	rsp, err := c.AddGameSteps(ctx, gameId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,6 @@ import (
 	"common/models"
 	"common/oapiprivate"
 	"context"
-	"log"
 	"time"
 )
 
@@ -23,10 +22,8 @@ func (gs GameService) AddGameSteps(ctx context.Context, input oapiprivate.AddGam
 			return nil, err
 		}
 
-		log.Println("AAAAAAA", *step.SyncId)
-
 		created, err := gs.GameStore.CreateGameStep(ctx, &tx, models.GameStep{
-			GameID:              input.Id,
+			GameID:              input.GameId,
 			TeamLeftScore:       step.TeamLeftScore,
 			TeamRightScore:      step.TeamRightScore,
 			ScoreAt:             scoreTime,

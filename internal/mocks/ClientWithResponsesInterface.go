@@ -16,14 +16,14 @@ type ClientWithResponsesInterface struct {
 	mock.Mock
 }
 
-// AddGameStepsWithBodyWithResponse provides a mock function with given fields: ctx, id, contentType, body, reqEditors
-func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
+// AddGameStepsWithBodyWithResponse provides a mock function with given fields: ctx, gameId, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx, id, contentType, body)
+	_ca = append(_ca, ctx, gameId, contentType, body)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -34,10 +34,10 @@ func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx con
 	var r0 *oapiprivate.AddGameStepsResponse
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error)); ok {
-		return rf(ctx, id, contentType, body, reqEditors...)
+		return rf(ctx, gameId, contentType, body, reqEditors...)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *oapiprivate.AddGameStepsResponse); ok {
-		r0 = rf(ctx, id, contentType, body, reqEditors...)
+		r0 = rf(ctx, gameId, contentType, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oapiprivate.AddGameStepsResponse)
@@ -45,7 +45,7 @@ func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx con
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
-		r1 = rf(ctx, id, contentType, body, reqEditors...)
+		r1 = rf(ctx, gameId, contentType, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -53,14 +53,14 @@ func (_m *ClientWithResponsesInterface) AddGameStepsWithBodyWithResponse(ctx con
 	return r0, r1
 }
 
-// AddGameStepsWithResponse provides a mock function with given fields: ctx, id, body, reqEditors
-func (_m *ClientWithResponsesInterface) AddGameStepsWithResponse(ctx context.Context, id string, body oapiprivate.AddGameStepsJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
+// AddGameStepsWithResponse provides a mock function with given fields: ctx, gameId, body, reqEditors
+func (_m *ClientWithResponsesInterface) AddGameStepsWithResponse(ctx context.Context, gameId string, body oapiprivate.AddGameStepsJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx, id, body)
+	_ca = append(_ca, ctx, gameId, body)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -71,10 +71,10 @@ func (_m *ClientWithResponsesInterface) AddGameStepsWithResponse(ctx context.Con
 	var r0 *oapiprivate.AddGameStepsResponse
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) (*oapiprivate.AddGameStepsResponse, error)); ok {
-		return rf(ctx, id, body, reqEditors...)
+		return rf(ctx, gameId, body, reqEditors...)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) *oapiprivate.AddGameStepsResponse); ok {
-		r0 = rf(ctx, id, body, reqEditors...)
+		r0 = rf(ctx, gameId, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oapiprivate.AddGameStepsResponse)
@@ -82,7 +82,7 @@ func (_m *ClientWithResponsesInterface) AddGameStepsWithResponse(ctx context.Con
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.AddGameStepsJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
-		r1 = rf(ctx, id, body, reqEditors...)
+		r1 = rf(ctx, gameId, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}
