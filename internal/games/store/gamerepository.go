@@ -12,4 +12,6 @@ type GameRepository interface {
 	CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate models.GameStep) (models.GameStep, error)
 	DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error
 	EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error
+	GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error)
+	GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error)
 }

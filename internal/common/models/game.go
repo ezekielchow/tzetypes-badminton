@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/oapiprivate"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -45,4 +46,20 @@ func (g *Game) PostgresToModel(fromDb database.Game) error {
 	g.IsEnded = fromDb.IsEnded
 
 	return nil
+}
+
+func (g *Game) ModelToAPI() oapiprivate.Game {
+	return oapiprivate.Game{
+		ClubId:              g.ClubID,
+		CreatedAt:           g.CreatedAt.String(),
+		GameType:            g.GameType,
+		Id:                  g.ID,
+		LeftEvenPlayerName:  g.LeftEvenPlayerName,
+		LeftOddPlayerName:   *g.LeftOddPlayerName,
+		RightEvenPlayerName: g.RightEvenPlayerName,
+		RightOddPlayerName:  *g.RightOddPlayerName,
+		ServingSide:         g.ServingSide,
+		IsEnded:             g.IsEnded,
+		UpdatedAt:           g.UpdatedAt.String(),
+	}
 }

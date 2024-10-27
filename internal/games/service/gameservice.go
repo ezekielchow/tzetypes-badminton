@@ -15,6 +15,7 @@ type GameServiceInterface interface {
 	AddGameSteps(ctx context.Context, input oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error)
 	DeleteGameSteps(ctx context.Context, input oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error)
 	EndGame(ctx context.Context, input oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error)
+	GetGame(ctx context.Context, input oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error)
 }
 
 type GameService struct {

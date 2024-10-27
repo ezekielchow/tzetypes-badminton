@@ -1,4 +1,5 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type StartGame201Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type StartGameRequest } from "@/repositories/clients/private";
+import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
 import { MyApi } from "@/services/requests";
 import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";

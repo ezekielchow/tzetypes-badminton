@@ -51,3 +51,9 @@ DELETE FROM game_steps where id = @id::uuid;
 -- name: EndGame :exec
 UPDATE games SET is_ended = @is_ended 
 WHERE id = @id;
+
+-- name: GetGameWithID :one
+SELECT * FROM games WHERE id = @id::uuid limit 1;
+
+-- name: GetGameStepsWithGameID :many
+SELECT * FROM game_steps WHERE game_id = @game_id::uuid;

@@ -27,10 +27,10 @@ create-migration: ## Create migration file; Usage: make create-migration table_n
 gen-mocks:  ## Generate mocks to help in testing
 	docker run -v ./internal:/src -w /src vektra/mockery --all
 
-web-build:
+web-build: ## Build Frontend
 	cd ./web && bun run build
 
 pre-commit: lint openapi openapi-js sqlc-gen gen-mocks test web-build ## Make sure all code is ok before commiting
 
-lint: 
+lint: ## Lint golang
 	docker run --rm -v ./internal:/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w /app golangci/golangci-lint:v1.61.0 golangci-lint run -v ./...

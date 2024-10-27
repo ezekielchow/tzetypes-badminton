@@ -109,6 +109,64 @@ func (_m *GameRepository) EndGame(ctx context.Context, tx *pgx.Tx, id string, is
 	return r0
 }
 
+// GetGame provides a mock function with given fields: ctx, tx, id
+func (_m *GameRepository) GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error) {
+	ret := _m.Called(ctx, tx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGame")
+	}
+
+	var r0 models.Game
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) (models.Game, error)); ok {
+		return rf(ctx, tx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) models.Game); ok {
+		r0 = rf(ctx, tx, id)
+	} else {
+		r0 = ret.Get(0).(models.Game)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameSteps provides a mock function with given fields: ctx, tx, gameID
+func (_m *GameRepository) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error) {
+	ret := _m.Called(ctx, tx, gameID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameSteps")
+	}
+
+	var r0 []models.GameStep
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) ([]models.GameStep, error)); ok {
+		return rf(ctx, tx, gameID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) []models.GameStep); ok {
+		r0 = rf(ctx, tx, gameID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.GameStep)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, gameID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewGameRepository creates a new instance of GameRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewGameRepository(t interface {

@@ -68,36 +68,9 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 	}
 
 	return oapiprivate.StartGame201JSONResponse{
-		Game: oapiprivate.Game{
-			ClubId:              game.ClubID,
-			CreatedAt:           game.CreatedAt.String(),
-			GameType:            game.GameType,
-			Id:                  game.ID,
-			LeftEvenPlayerName:  game.LeftEvenPlayerName,
-			LeftOddPlayerName:   *game.LeftOddPlayerName,
-			RightEvenPlayerName: game.RightEvenPlayerName,
-			RightOddPlayerName:  *game.RightOddPlayerName,
-			ServingSide:         game.ServingSide,
-			IsEnded:             game.IsEnded,
-			UpdatedAt:           game.UpdatedAt.String(),
-		},
+		Game: game.ModelToAPI(),
 		Steps: []oapiprivate.GameStep{
-			{
-				CreatedAt:           gameStep.CreatedAt.String(),
-				GameId:              gameStep.GameID,
-				Id:                  gameStep.ID,
-				ScoreAt:             gameStep.ScoreAt.String(),
-				StepNum:             gameStep.StepNum,
-				TeamLeftScore:       gameStep.TeamLeftScore,
-				TeamRightScore:      gameStep.TeamRightScore,
-				CurrentServer:       gameStep.CurrentServer,
-				LeftEvenPlayerName:  game.LeftEvenPlayerName,
-				LeftOddPlayerName:   *game.LeftOddPlayerName,
-				RightEvenPlayerName: game.RightEvenPlayerName,
-				RightOddPlayerName:  *game.RightOddPlayerName,
-				UpdatedAt:           gameStep.UpdatedAt.String(),
-				SyncId:              &gameStep.SyncId,
-			},
+			gameStep.ModelToAPI(),
 		},
 	}, nil
 }

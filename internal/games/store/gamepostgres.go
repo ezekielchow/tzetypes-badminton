@@ -2,6 +2,7 @@ package games
 
 import (
 	"common/models"
+	"common/utils"
 	"context"
 	database "tzetypes-badminton/database/generated"
 
@@ -14,8 +15,7 @@ type GamePostgres struct {
 }
 
 func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate models.Game) (models.Game, error) {
-	pgClubID := pgtype.UUID{}
-	err := pgClubID.Scan(toCreate.ClubID)
+	pgClubID, err := utils.StringToPgId(toCreate.ClubID)
 	if err != nil {
 		return models.Game{}, err
 	}
@@ -45,8 +45,7 @@ func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate mode
 
 func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate models.GameStep) (models.GameStep, error) {
 
-	pgGameID := pgtype.UUID{}
-	err := pgGameID.Scan(toCreate.GameID)
+	pgGameID, err := utils.StringToPgId(toCreate.GameID)
 	if err != nil {
 		return models.GameStep{}, err
 	}
@@ -84,8 +83,7 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 }
 
 func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error {
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(id)
+	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return err
 	}
@@ -99,8 +97,7 @@ func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string
 }
 
 func (gp GamePostgres) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error {
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(id)
+	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return err
 	}
@@ -114,4 +111,50 @@ func (gp GamePostgres) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnd
 	}
 
 	return nil
+}
+
+func (gp GamePostgres) GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error) {
+
+	pgID, err := utils.StringToPgId(id)
+	if err != nil {
+		return models.Game{}, nil
+	}
+
+	res, err := gp.Queries.GetGameWithID(ctx, pgID)
+	if err != nil {
+		return models.Game{}, nil
+	}
+
+	game := models.Game{}
+	err = game.PostgresToModel(res)
+	if err != nil {
+		return models.Game{}, nil
+	}
+
+	return game, nil
+}
+
+func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error) {
+	pgGameID, err := utils.StringToPgId(gameID)
+	if err != nil {
+		return []models.GameStep{}, nil
+	}
+
+	res, err := gp.Queries.GetGameStepsWithGameID(ctx, pgGameID)
+	if err != nil {
+		return []models.GameStep{}, nil
+	}
+
+	steps := []models.GameStep{}
+	for _, dbGameStep := range res {
+		step := models.GameStep{}
+		err = step.PostgresToModel(dbGameStep)
+		if err != nil {
+			return []models.GameStep{}, nil
+		}
+
+		steps = append(steps, step)
+	}
+
+	return steps, nil
 }

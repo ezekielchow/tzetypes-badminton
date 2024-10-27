@@ -261,9 +261,42 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{game_id}:
+    get:
+      summary: Get game and steps given id
+      operationId: getGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Get game successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - steps
+                  - game
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameStep"
+                  game:
+                    $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /game:
     post:
-      operationId: start game
+      operationId: startGame
       tags:
         - game
       requestBody:

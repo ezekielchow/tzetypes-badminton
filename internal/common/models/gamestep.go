@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/oapiprivate"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -51,4 +52,23 @@ func (gs *GameStep) PostgresToModel(fromDb database.GameStep) error {
 	gs.SyncId = fromDb.SyncID
 
 	return nil
+}
+
+func (gs *GameStep) ModelToAPI() oapiprivate.GameStep {
+	return oapiprivate.GameStep{
+		CreatedAt:           gs.CreatedAt.String(),
+		GameId:              gs.GameID,
+		Id:                  gs.ID,
+		ScoreAt:             gs.ScoreAt.String(),
+		StepNum:             gs.StepNum,
+		TeamLeftScore:       gs.TeamLeftScore,
+		TeamRightScore:      gs.TeamRightScore,
+		CurrentServer:       gs.CurrentServer,
+		LeftEvenPlayerName:  gs.LeftEvenPlayerName,
+		LeftOddPlayerName:   *gs.LeftOddPlayerName,
+		RightEvenPlayerName: gs.RightEvenPlayerName,
+		RightOddPlayerName:  *gs.RightOddPlayerName,
+		UpdatedAt:           gs.UpdatedAt.String(),
+		SyncId:              &gs.SyncId,
+	}
 }

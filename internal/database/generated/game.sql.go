@@ -168,3 +168,65 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 	_, err := q.db.Exec(ctx, endGame, arg.IsEnded, arg.ID)
 	return err
 }
+
+const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
+SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at FROM game_steps WHERE game_id = $1::uuid
+`
+
+func (q *Queries) GetGameStepsWithGameID(ctx context.Context, gameID pgtype.UUID) ([]GameStep, error) {
+	rows, err := q.db.Query(ctx, getGameStepsWithGameID, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameStep
+	for rows.Next() {
+		var i GameStep
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.TeamLeftScore,
+			&i.TeamRightScore,
+			&i.ScoreAt,
+			&i.StepNum,
+			&i.CurrentServer,
+			&i.LeftOddPlayerName,
+			&i.LeftEvenPlayerName,
+			&i.RightOddPlayerName,
+			&i.RightEvenPlayerName,
+			&i.SyncID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameWithID = `-- name: GetGameWithID :one
+SELECT id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, is_ended, created_at, updated_at FROM games WHERE id = $1::uuid limit 1
+`
+
+func (q *Queries) GetGameWithID(ctx context.Context, id pgtype.UUID) (Game, error) {
+	row := q.db.QueryRow(ctx, getGameWithID, id)
+	var i Game
+	err := row.Scan(
+		&i.ID,
+		&i.ClubID,
+		&i.LeftOddPlayerName,
+		&i.LeftEvenPlayerName,
+		&i.RightOddPlayerName,
+		&i.RightEvenPlayerName,
+		&i.GameType,
+		&i.ServingSide,
+		&i.IsEnded,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
