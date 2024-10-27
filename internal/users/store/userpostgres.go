@@ -2,11 +2,11 @@ package users
 
 import (
 	"common/models"
+	"common/utils"
 	"context"
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type UserPostgres struct {
@@ -60,8 +60,7 @@ func (up UserPostgres) FindUserWithID(ctx context.Context, tx *pgx.Tx, id string
 		queries = queries.WithTx(*tx)
 	}
 
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(id)
+	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return models.User{}, err
 	}

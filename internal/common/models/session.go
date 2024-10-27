@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/utils"
 	"os"
 	"strconv"
 	"time"
@@ -58,20 +59,17 @@ func (session *Session) ModelToPostgres(model Session) (database.Session, error)
 
 	s := database.Session{}
 
-	id := pgtype.UUID{}
-	err := id.Scan(model.ID)
+	id, err := utils.StringToPgId(model.ID)
 	if err != nil {
 		return s, err
 	}
 
-	userID := pgtype.UUID{}
-	err = userID.Scan(model.UserID)
+	userID, err := utils.StringToPgId(model.UserID)
 	if err != nil {
 		return s, err
 	}
 
-	sessionToken := pgtype.UUID{}
-	err = sessionToken.Scan(model.SessionToken)
+	sessionToken, err := utils.StringToPgId(model.SessionToken)
 	if err != nil {
 		return s, err
 	}
@@ -82,8 +80,7 @@ func (session *Session) ModelToPostgres(model Session) (database.Session, error)
 		return s, err
 	}
 
-	refreshToken := pgtype.UUID{}
-	err = refreshToken.Scan(model.RefreshToken)
+	refreshToken, err := utils.StringToPgId(model.RefreshToken)
 	if err != nil {
 		return s, err
 	}

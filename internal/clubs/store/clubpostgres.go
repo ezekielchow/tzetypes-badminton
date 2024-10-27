@@ -7,7 +7,6 @@ import (
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ClubPostgres struct {
@@ -16,8 +15,7 @@ type ClubPostgres struct {
 
 func (cp ClubPostgres) CreateClub(ctx context.Context, tx *pgx.Tx, toCreate models.Club) (models.Club, error) {
 
-	pgOwnerID := pgtype.UUID{}
-	err := pgOwnerID.Scan(toCreate.OwnerID)
+	pgOwnerID, err := utils.StringToPgId(toCreate.OwnerID)
 	if err != nil {
 		return models.Club{}, err
 	}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/utils"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -40,14 +41,12 @@ func (p *Player) ModelToPostgres(model Player) (database.Player, error) {
 
 	dbPlayer := database.Player{}
 
-	id := pgtype.UUID{}
-	err := id.Scan(model.ID)
+	id, err := utils.StringToPgId(model.ID)
 	if err != nil {
 		return dbPlayer, err
 	}
 
-	userID := pgtype.UUID{}
-	err = userID.Scan(model.UserID)
+	userID, err := utils.StringToPgId(model.UserID)
 	if err != nil {
 		return dbPlayer, err
 	}

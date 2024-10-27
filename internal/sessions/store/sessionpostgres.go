@@ -2,6 +2,7 @@ package sessions
 
 import (
 	"common/models"
+	"common/utils"
 	"context"
 	"time"
 	database "tzetypes-badminton/database/generated"
@@ -20,8 +21,7 @@ func (sp SessionPostgres) CreateSession(ctx context.Context, tx *pgx.Tx, userID 
 		queries = queries.WithTx(*tx)
 	}
 
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(userID)
+	pgID, err := utils.StringToPgId(userID)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -63,8 +63,7 @@ func (sp SessionPostgres) FindSessionWithSessionID(ctx context.Context, tx *pgx.
 		queries = queries.WithTx(*tx)
 	}
 
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(sessionID)
+	pgID, err := utils.StringToPgId(sessionID)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -89,8 +88,7 @@ func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, t
 		queries = queries.WithTx(*tx)
 	}
 
-	refreshTokenPG := pgtype.UUID{}
-	err := refreshTokenPG.Scan(refreshToken)
+	refreshTokenPG, err := utils.StringToPgId(refreshToken)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -115,8 +113,7 @@ func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, tx 
 		queries = queries.WithTx(*tx)
 	}
 
-	refreshTokenPG := pgtype.UUID{}
-	err := refreshTokenPG.Scan(refreshToken)
+	refreshTokenPG, err := utils.StringToPgId(refreshToken)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -150,8 +147,7 @@ func (sp SessionPostgres) DeleteSession(ctx context.Context, tx *pgx.Tx, session
 		queries = queries.WithTx(*tx)
 	}
 
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(sessionID)
+	pgID, err := utils.StringToPgId(sessionID)
 	if err != nil {
 		return err
 	}

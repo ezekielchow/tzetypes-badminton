@@ -2,6 +2,7 @@ package players
 
 import (
 	"common/models"
+	"common/utils"
 	"context"
 	"time"
 	database "tzetypes-badminton/database/generated"
@@ -29,8 +30,7 @@ func (pp PlayerPostgres) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCreate 
 		queries = queries.WithTx(*tx)
 	}
 
-	pgUserID := pgtype.UUID{}
-	err := pgUserID.Scan(toCreate.UserID)
+	pgUserID, err := utils.StringToPgId(toCreate.UserID)
 	if err != nil {
 		return models.Player{}, err
 	}
@@ -59,8 +59,8 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *s
 	var pgOwnerID pgtype.UUID
 
 	if ownerID != nil {
-		pgOwnerID = pgtype.UUID{}
-		err := pgOwnerID.Scan(*ownerID)
+		id, err := utils.StringToPgId(*ownerID)
+		pgOwnerID = id
 		if err != nil {
 			return []models.Player{}, 0, err
 		}
@@ -137,8 +137,7 @@ func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.P
 }
 
 func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate models.Player) (models.Player, error) {
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(toUpdate.ID)
+	pgID, err := utils.StringToPgId(toUpdate.ID)
 	if err != nil {
 		return models.Player{}, err
 	}
@@ -154,6 +153,9 @@ func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate 
 		Name:      toUpdate.Name,
 		UpdatedAt: pgUpdated,
 	})
+	if err != nil {
+		return models.Player{}, err
+	}
 
 	player := models.Player{}
 	err = player.PostgresToModel(dbPlayer)
@@ -165,8 +167,7 @@ func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate 
 }
 
 func (pp PlayerPostgres) GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id string) (models.Player, error) {
-	pgID := pgtype.UUID{}
-	err := pgID.Scan(id)
+	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return models.Player{}, err
 	}
