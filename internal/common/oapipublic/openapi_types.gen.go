@@ -12,6 +12,39 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Game defines model for Game.
+type Game struct {
+	ClubId              string `json:"club_id"`
+	CreatedAt           string `json:"created_at"`
+	GameType            string `json:"game_type"`
+	Id                  string `json:"id"`
+	IsEnded             bool   `json:"is_ended"`
+	LeftEvenPlayerName  string `json:"left_even_player_name"`
+	LeftOddPlayerName   string `json:"left_odd_player_name"`
+	RightEvenPlayerName string `json:"right_even_player_name"`
+	RightOddPlayerName  string `json:"right_odd_player_name"`
+	ServingSide         string `json:"serving_side"`
+	UpdatedAt           string `json:"updated_at"`
+}
+
+// GameStep defines model for GameStep.
+type GameStep struct {
+	CreatedAt           string  `json:"created_at"`
+	CurrentServer       string  `json:"current_server"`
+	GameId              string  `json:"game_id"`
+	Id                  string  `json:"id"`
+	LeftEvenPlayerName  string  `json:"left_even_player_name"`
+	LeftOddPlayerName   string  `json:"left_odd_player_name"`
+	RightEvenPlayerName string  `json:"right_even_player_name"`
+	RightOddPlayerName  string  `json:"right_odd_player_name"`
+	ScoreAt             string  `json:"score_at"`
+	StepNum             int     `json:"step_num"`
+	SyncId              *string `json:"sync_id,omitempty"`
+	TeamLeftScore       int     `json:"team_left_score"`
+	TeamRightScore      int     `json:"team_right_score"`
+	UpdatedAt           string  `json:"updated_at"`
+}
+
 // LoginRequestSchema defines model for LoginRequestSchema.
 type LoginRequestSchema struct {
 	Email    openapi_types.Email `json:"email"`

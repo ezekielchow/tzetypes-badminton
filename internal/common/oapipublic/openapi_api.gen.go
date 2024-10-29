@@ -10,11 +10,15 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 )
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get game and steps given id
+	// (GET /game/{game_id})
+	GetGame(w http.ResponseWriter, r *http.Request, gameId string)
 
 	// (POST /login)
 	Login(w http.ResponseWriter, r *http.Request)
@@ -29,6 +33,12 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// Get game and steps given id
+// (GET /game/{game_id})
+func (_ Unimplemented) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // (POST /login)
 func (_ Unimplemented) Login(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +63,32 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// GetGame operation middleware
+func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetGame(w, r, gameId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
 
 // Login operation middleware
 func (siw *ServerInterfaceWrapper) Login(w http.ResponseWriter, r *http.Request) {
@@ -213,6 +249,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/game/{game_id}", wrapper.GetGame)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/login", wrapper.Login)
 	})
 	r.Group(func(r chi.Router) {
@@ -226,6 +265,38 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 }
 
 type ErrorResponseSchemaJSONResponse Error
+
+type GetGameRequestObject struct {
+	GameId string `json:"game_id"`
+}
+
+type GetGameResponseObject interface {
+	VisitGetGameResponse(w http.ResponseWriter) error
+}
+
+type GetGame200JSONResponse struct {
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
+func (response GetGame200JSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetGamedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetGamedefaultJSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
 
 type LoginRequestObject struct {
 	Body *LoginJSONRequestBody
@@ -314,6 +385,9 @@ func (response SignupdefaultJSONResponse) VisitSignupResponse(w http.ResponseWri
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// Get game and steps given id
+	// (GET /game/{game_id})
+	GetGame(ctx context.Context, request GetGameRequestObject) (GetGameResponseObject, error)
 
 	// (POST /login)
 	Login(ctx context.Context, request LoginRequestObject) (LoginResponseObject, error)
@@ -352,6 +426,32 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// GetGame operation middleware
+func (sh *strictHandler) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request GetGameRequestObject
+
+	request.GameId = gameId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetGame(ctx, request.(GetGameRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetGame")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetGameResponseObject); ok {
+		if err := validResponse.VisitGetGameResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // Login operation middleware

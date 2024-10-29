@@ -3,6 +3,7 @@ package games
 import (
 	"common/models"
 	"common/oapiprivate"
+	"common/oapipublic"
 	"context"
 	games "games/store"
 	clubs "tzetypes-badminton/clubs/store"
@@ -15,7 +16,7 @@ type GameServiceInterface interface {
 	AddGameSteps(ctx context.Context, input oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error)
 	DeleteGameSteps(ctx context.Context, input oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error)
 	EndGame(ctx context.Context, input oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error)
-	GetGame(ctx context.Context, input oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error)
+	GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error)
 }
 
 type GameService struct {

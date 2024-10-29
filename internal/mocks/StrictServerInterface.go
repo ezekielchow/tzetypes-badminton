@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	oapipublic "common/oapipublic"
+	oapiprivate "common/oapiprivate"
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -14,28 +14,28 @@ type StrictServerInterface struct {
 	mock.Mock
 }
 
-// Login provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) Login(ctx context.Context, request oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
+// AddGameSteps provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) AddGameSteps(ctx context.Context, request oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Login")
+		panic("no return value specified for AddGameSteps")
 	}
 
-	var r0 oapipublic.LoginResponseObject
+	var r0 oapiprivate.AddGameStepsResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddGameStepsRequestObject) (oapiprivate.AddGameStepsResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.LoginRequestObject) oapipublic.LoginResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddGameStepsRequestObject) oapiprivate.AddGameStepsResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapipublic.LoginResponseObject)
+			r0 = ret.Get(0).(oapiprivate.AddGameStepsResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.LoginRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.AddGameStepsRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
@@ -44,28 +44,28 @@ func (_m *StrictServerInterface) Login(ctx context.Context, request oapipublic.L
 	return r0, r1
 }
 
-// RefreshToken provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) RefreshToken(ctx context.Context, request oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error) {
+// AddPlayer provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) AddPlayer(ctx context.Context, request oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RefreshToken")
+		panic("no return value specified for AddPlayer")
 	}
 
-	var r0 oapipublic.RefreshTokenResponseObject
+	var r0 oapiprivate.AddPlayerResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.RefreshTokenRequestObject) oapipublic.RefreshTokenResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.AddPlayerRequestObject) oapiprivate.AddPlayerResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapipublic.RefreshTokenResponseObject)
+			r0 = ret.Get(0).(oapiprivate.AddPlayerResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.RefreshTokenRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.AddPlayerRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
@@ -74,28 +74,268 @@ func (_m *StrictServerInterface) RefreshToken(ctx context.Context, request oapip
 	return r0, r1
 }
 
-// Signup provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) Signup(ctx context.Context, request oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
+// Dashboard provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) Dashboard(ctx context.Context, request oapiprivate.DashboardRequestObject) (oapiprivate.DashboardResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Signup")
+		panic("no return value specified for Dashboard")
 	}
 
-	var r0 oapipublic.SignupResponseObject
+	var r0 oapiprivate.DashboardResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DashboardRequestObject) (oapiprivate.DashboardResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) oapipublic.SignupResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DashboardRequestObject) oapiprivate.DashboardResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapipublic.SignupResponseObject)
+			r0 = ret.Get(0).(oapiprivate.DashboardResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.DashboardRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteGameSteps provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) DeleteGameSteps(ctx context.Context, request oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteGameSteps")
+	}
+
+	var r0 oapiprivate.DeleteGameStepsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) oapiprivate.DeleteGameStepsResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.DeleteGameStepsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.DeleteGameStepsRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// EndGame provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) EndGame(ctx context.Context, request oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGame")
+	}
+
+	var r0 oapiprivate.EndGameResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.EndGameRequestObject) oapiprivate.EndGameResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.EndGameResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.EndGameRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetLoggedInUser provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) GetLoggedInUser(ctx context.Context, request oapiprivate.GetLoggedInUserRequestObject) (oapiprivate.GetLoggedInUserResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLoggedInUser")
+	}
+
+	var r0 oapiprivate.GetLoggedInUserResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject) (oapiprivate.GetLoggedInUserResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject) oapiprivate.GetLoggedInUserResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetLoggedInUserResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetLoggedInUserRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPlayerWithId provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) GetPlayerWithId(ctx context.Context, request oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPlayerWithId")
+	}
+
+	var r0 oapiprivate.GetPlayerWithIdResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) oapiprivate.GetPlayerWithIdResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetPlayerWithIdResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetPlayerWithIdRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListPlayers provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) ListPlayers(ctx context.Context, request oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPlayers")
+	}
+
+	var r0 oapiprivate.ListPlayersResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.ListPlayersRequestObject) (oapiprivate.ListPlayersResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.ListPlayersRequestObject) oapiprivate.ListPlayersResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.ListPlayersResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.ListPlayersRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Logout provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) Logout(ctx context.Context, request oapiprivate.LogoutRequestObject) (oapiprivate.LogoutResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Logout")
+	}
+
+	var r0 oapiprivate.LogoutResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.LogoutRequestObject) (oapiprivate.LogoutResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.LogoutRequestObject) oapiprivate.LogoutResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.LogoutResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.LogoutRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// StartGame provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) StartGame(ctx context.Context, request oapiprivate.StartGameRequestObject) (oapiprivate.StartGameResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StartGame")
+	}
+
+	var r0 oapiprivate.StartGameResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.StartGameRequestObject) (oapiprivate.StartGameResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.StartGameRequestObject) oapiprivate.StartGameResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.StartGameResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.StartGameRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdatePlayerWithId provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) UpdatePlayerWithId(ctx context.Context, request oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePlayerWithId")
+	}
+
+	var r0 oapiprivate.UpdatePlayerWithIdResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) (oapiprivate.UpdatePlayerWithIdResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) oapiprivate.UpdatePlayerWithIdResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.UpdatePlayerWithIdResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.UpdatePlayerWithIdRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
