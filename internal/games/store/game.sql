@@ -56,4 +56,5 @@ WHERE id = @id;
 SELECT * FROM games WHERE id = @id::uuid limit 1;
 
 -- name: GetGameStepsWithGameID :many
-SELECT * FROM game_steps WHERE game_id = @game_id::uuid;
+SELECT * FROM game_steps WHERE game_id = @game_id::uuid
+ORDER BY step_num ASC;

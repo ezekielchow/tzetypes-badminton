@@ -383,8 +383,9 @@ type GetGameResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		Game  Game       `json:"game"`
-		Steps []GameStep `json:"steps"`
+		Game       Game            `json:"game"`
+		Statistics *GameStatistics `json:"statistics,omitempty"`
+		Steps      []GameStep      `json:"steps"`
 	}
 	JSONDefault *ErrorResponseSchema
 }
@@ -541,8 +542,9 @@ func ParseGetGameResponse(rsp *http.Response) (*GetGameResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Game  Game       `json:"game"`
-			Steps []GameStep `json:"steps"`
+			Game       Game            `json:"game"`
+			Statistics *GameStatistics `json:"statistics,omitempty"`
+			Steps      []GameStep      `json:"steps"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err

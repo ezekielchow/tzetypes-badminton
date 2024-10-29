@@ -27,6 +27,11 @@ type Game struct {
 	UpdatedAt           string `json:"updated_at"`
 }
 
+// GameStatistics defines model for GameStatistics.
+type GameStatistics struct {
+	TotalGameTime string `json:"total_game_time"`
+}
+
 // GameStep defines model for GameStep.
 type GameStep struct {
 	CreatedAt           string  `json:"created_at"`

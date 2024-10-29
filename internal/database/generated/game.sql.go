@@ -171,6 +171,7 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 
 const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
 SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at FROM game_steps WHERE game_id = $1::uuid
+ORDER BY step_num ASC
 `
 
 func (q *Queries) GetGameStepsWithGameID(ctx context.Context, gameID pgtype.UUID) ([]GameStep, error) {

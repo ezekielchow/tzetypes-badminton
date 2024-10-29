@@ -5,14 +5,18 @@ import {
   UsersApi as PrivateUsersApi
 } from '@/repositories/clients/private';
 import {
+  GameApi,
   Configuration as PublicConf,
   UsersApi as PublicUsersApi,
+  type GetGame200Response,
+  type GetGameRequest,
   type LoginRequest,
   type LoginResponseSchema
 } from '@/repositories/clients/public';
 
 
 import * as runtime from '@/repositories/clients/private';
+
 import type { StartGame201Response } from '@/repositories/clients/private/models/StartGame201Response';
 
 export class MyApi extends runtime.BaseAPI {
@@ -323,6 +327,24 @@ export class MyApi extends runtime.BaseAPI {
 
   async endGame(requestParameters: runtime.EndGameOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
     const apiResponse = await this.authenticatedRequest(() => this.endGameRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async getGameRequest(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGame200Response>> {
+    const api = new GameApi(this.getPublicConf())
+
+    try {
+      return api.getGameRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get game');
+    }
+  }
+
+  async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGame200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.getGameRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
 }

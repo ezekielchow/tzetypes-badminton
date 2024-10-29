@@ -52,5 +52,8 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 			UpdatedAt:           game.UpdatedAt.String(),
 		},
 		Steps: apiSteps,
+		Statistics: &oapipublic.GameStatistics{
+			TotalGameTime: game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
+		},
 	}, nil
 }

@@ -1,5 +1,6 @@
 import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type StartGameRequest } from "@/repositories/clients/private";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
+import type { GetGame200Response, GetGameRequest } from "@/repositories/clients/public";
 import { MyApi } from "@/services/requests";
 import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";
@@ -112,6 +113,22 @@ export const useGameStore = defineStore('game', {
       try {
         const res = await myApi.endGame(params)
         this.currentGameSettings.isEnded = true
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getGameStatistics(params: GetGameRequest
+    ): Promise<GetGame200Response | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.getGame(params)
         return res
 
       } catch (error: any) {

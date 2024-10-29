@@ -95,6 +95,8 @@ paths:
                       $ref: "#/components/schemas/GameStep"
                   game:
                     $ref: "#/components/schemas/Game"
+                  statistics:
+                    $ref: "#/components/schemas/GameStatistics"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 components:
@@ -154,6 +156,14 @@ components:
         - message
       properties:
         message:
+          type: string
+
+    GameStatistics:
+      type: object
+      required:
+        - total_game_time
+      properties:
+        total_game_time:
           type: string
 
     Game:

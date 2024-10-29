@@ -2,6 +2,7 @@ package models
 
 import (
 	"common/oapiprivate"
+	"fmt"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -62,4 +63,13 @@ func (g *Game) ModelToAPI() oapiprivate.Game {
 		IsEnded:             g.IsEnded,
 		UpdatedAt:           g.UpdatedAt.String(),
 	}
+}
+
+func (g Game) GetGameLength(lastScoreAt time.Time) string {
+	duration := lastScoreAt.Sub(g.CreatedAt)
+
+	hours := int(duration.Hours())
+	minutes := int(duration.Minutes()) % 60
+
+	return fmt.Sprintf("%02d:%02d", hours, minutes)
 }
