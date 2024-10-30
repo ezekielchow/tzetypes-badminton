@@ -1,9 +1,36 @@
 package games
 
 import (
+	"common/models"
 	"common/oapipublic"
 	"context"
+	"fmt"
+	"math"
+	"strings"
 )
+
+func updateStreak(currentTeam models.TeamSide, previousServer string, streakPoints int, leftConsecutivePoints int, rightConsecutivePoints int) (updatedStreakPoints int, updatedLeftConsecutivePoints int, updatedRightConsecutivePoints int) {
+
+	serverCompareString := "right"
+	if currentTeam == models.TeamSideRight {
+		serverCompareString = "left"
+	}
+
+	if strings.Contains(previousServer, serverCompareString) {
+		streakPoints = 0
+	}
+
+	streakPoints += 1
+	updatedStreakPoints = streakPoints
+
+	if currentTeam == models.TeamSideLeft && updatedStreakPoints > leftConsecutivePoints {
+		updatedLeftConsecutivePoints = updatedStreakPoints
+	} else if currentTeam == models.TeamSideRight && updatedStreakPoints > rightConsecutivePoints {
+		updatedRightConsecutivePoints = updatedStreakPoints
+	}
+
+	return updatedStreakPoints, updatedLeftConsecutivePoints, updatedRightConsecutivePoints
+}
 
 func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 
@@ -17,8 +44,13 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		return nil, err
 	}
 
+	leftConsecutivePoints := 0
+	rightConsecutivePoints := 0
+
+	var longestPoint, shortestPoint, totalSeconds int
+	streakPoints := 0
 	apiSteps := []oapipublic.GameStep{}
-	for _, step := range gameSteps {
+	for i, step := range gameSteps {
 		apiSteps = append(apiSteps, oapipublic.GameStep{
 			CreatedAt:           step.CreatedAt.String(),
 			GameId:              step.GameID,
@@ -35,7 +67,39 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 			UpdatedAt:           step.UpdatedAt.String(),
 			SyncId:              &step.SyncId,
 		})
+
+		if i > 0 {
+			previous := gameSteps[i-1]
+			// get streaks
+			if step.TeamLeftScore > previous.TeamLeftScore {
+				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideLeft, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
+			} else {
+				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideRight, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
+			}
+
+			// getscorediff
+			timeDiff := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
+			totalSeconds += timeDiff
+
+			if timeDiff > longestPoint {
+				longestPoint = timeDiff
+			}
+			if timeDiff < shortestPoint || shortestPoint == 0 {
+				shortestPoint = timeDiff
+			}
+		}
 	}
+
+	longestStreakPoints := leftConsecutivePoints
+	longestStreakTeam := models.TeamSideLeft
+	if rightConsecutivePoints > leftConsecutivePoints {
+		longestStreakPoints = rightConsecutivePoints
+		longestStreakTeam = models.TeamSideRight
+	} else if rightConsecutivePoints == leftConsecutivePoints {
+		longestStreakTeam = "same"
+	}
+
+	averageSeconds := totalSeconds / len(apiSteps)
 
 	return oapipublic.GetGame200JSONResponse{
 		Game: oapipublic.Game{
@@ -53,7 +117,14 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		},
 		Steps: apiSteps,
 		Statistics: &oapipublic.GameStatistics{
-			TotalGameTime: game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
+			TotalGameTime:          game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
+			LongestStreakPoints:    longestStreakPoints,
+			LongestStreakTeam:      longestStreakTeam,
+			RightConsecutivePoints: rightConsecutivePoints,
+			LeftConsecutivePoints:  leftConsecutivePoints,
+			LongestPoint:           fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(longestPoint)/60), longestPoint%60),
+			ShortestPoint:          fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(shortestPoint)/60), shortestPoint%60),
+			AveragePerPoints:       fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(averageSeconds)/60), averageSeconds%60),
 		},
 	}, nil
 }

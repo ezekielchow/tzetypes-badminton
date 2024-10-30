@@ -71,5 +71,5 @@ func (g Game) GetGameLength(lastScoreAt time.Time) string {
 	hours := int(duration.Hours())
 	minutes := int(duration.Minutes()) % 60
 
-	return fmt.Sprintf("%02d:%02d", hours, minutes)
+	return fmt.Sprintf("%02d hours %02d minutes", hours, minutes)
 }

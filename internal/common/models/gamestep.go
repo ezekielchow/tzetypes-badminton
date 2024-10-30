@@ -8,6 +8,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type TeamSide string
+
+const (
+	TeamSideLeft  TeamSide = "team_side_left"
+	TeamSideRight TeamSide = "team_side_right"
+)
+
 type GameStep struct {
 	ID                  string
 	GameID              string
