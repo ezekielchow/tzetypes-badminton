@@ -96,7 +96,7 @@ paths:
                   game:
                     $ref: "#/components/schemas/Game"
                   statistics:
-                    $ref: "#/components/schemas/GameStatistics"
+                    $ref: "#/components/schemas/GameStatistic"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 components:
@@ -158,12 +158,27 @@ components:
         message:
           type: string
 
-    GameStatistics:
+    GameStatistic:
       type: object
       required:
         - total_game_time
+        - left_consecutive_points
+        - right_consecutive_points
+        - longest_point
+        - shortest_point
+        - average_per_point
       properties:
         total_game_time:
+          type: string
+        left_consecutive_points:
+          type: string
+        right_consecutive_points:
+          type: string
+        longest_point:
+          type: string
+        shortest_point:
+          type: string
+        average_per_point:
           type: string
 
     Game:

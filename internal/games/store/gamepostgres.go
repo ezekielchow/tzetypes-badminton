@@ -158,3 +158,31 @@ func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID stri
 
 	return steps, nil
 }
+
+func (gp GamePostgres) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error) {
+	pgGameID, err := utils.StringToPgId(gameID)
+	if err != nil {
+		return models.GameStatistic{}, nil
+	}
+
+	dbRes, err := gp.Queries.CreateGameStatistic(ctx, database.CreateGameStatisticParams{
+		GameID:                        pgGameID,
+		TotalGameTimeSeconds:          int32(toCreate.TotalGameTimeSeconds),
+		RightConsecutivePointsSeconds: int32(toCreate.RightConsecutivePointsSeconds),
+		LeftConsecutivePointsSeconds:  int32(toCreate.LeftConsecutivePointsSeconds),
+		LongestPointSeconds:           int32(toCreate.LongestPointSeconds),
+		ShortestPointSeconds:          int32(toCreate.ShortestPointSeconds),
+		AverageTimePerPointSeconds:    int32(toCreate.AverageTimePerPointSeconds),
+	})
+	if err != nil {
+		return models.GameStatistic{}, nil
+	}
+
+	statistic := models.GameStatistic{}
+	err = statistic.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameStatistic{}, nil
+	}
+
+	return statistic, nil
+}

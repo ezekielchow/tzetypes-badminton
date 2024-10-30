@@ -27,9 +27,14 @@ type Game struct {
 	UpdatedAt           string `json:"updated_at"`
 }
 
-// GameStatistics defines model for GameStatistics.
-type GameStatistics struct {
-	TotalGameTime string `json:"total_game_time"`
+// GameStatistic defines model for GameStatistic.
+type GameStatistic struct {
+	AveragePerPoint        string `json:"average_per_point"`
+	LeftConsecutivePoints  string `json:"left_consecutive_points"`
+	LongestPoint           string `json:"longest_point"`
+	RightConsecutivePoints string `json:"right_consecutive_points"`
+	ShortestPoint          string `json:"shortest_point"`
+	TotalGameTime          string `json:"total_game_time"`
 }
 
 // GameStep defines model for GameStep.

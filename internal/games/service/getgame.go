@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -90,15 +91,6 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		}
 	}
 
-	longestStreakPoints := leftConsecutivePoints
-	longestStreakTeam := models.TeamSideLeft
-	if rightConsecutivePoints > leftConsecutivePoints {
-		longestStreakPoints = rightConsecutivePoints
-		longestStreakTeam = models.TeamSideRight
-	} else if rightConsecutivePoints == leftConsecutivePoints {
-		longestStreakTeam = "same"
-	}
-
 	averageSeconds := totalSeconds / len(apiSteps)
 
 	return oapipublic.GetGame200JSONResponse{
@@ -118,13 +110,11 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		Steps: apiSteps,
 		Statistics: &oapipublic.GameStatistics{
 			TotalGameTime:          game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
-			LongestStreakPoints:    longestStreakPoints,
-			LongestStreakTeam:      longestStreakTeam,
-			RightConsecutivePoints: rightConsecutivePoints,
-			LeftConsecutivePoints:  leftConsecutivePoints,
-			LongestPoint:           fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(longestPoint)/60), longestPoint%60),
-			ShortestPoint:          fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(shortestPoint)/60), shortestPoint%60),
-			AveragePerPoints:       fmt.Sprintf("%02.fm %02.fs", math.Floor(float64(averageSeconds)/60), averageSeconds%60),
+			RightConsecutivePoints: strconv.Itoa(rightConsecutivePoints),
+			LeftConsecutivePoints:  strconv.Itoa(leftConsecutivePoints),
+			LongestPoint:           fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(longestPoint)/60), longestPoint%60),
+			ShortestPoint:          fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(shortestPoint)/60), shortestPoint%60),
+			AveragePerPoint:        fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(averageSeconds)/60), averageSeconds%60),
 		},
 	}, nil
 }

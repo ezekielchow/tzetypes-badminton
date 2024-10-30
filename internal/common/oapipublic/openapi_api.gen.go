@@ -275,9 +275,9 @@ type GetGameResponseObject interface {
 }
 
 type GetGame200JSONResponse struct {
-	Game       Game            `json:"game"`
-	Statistics *GameStatistics `json:"statistics,omitempty"`
-	Steps      []GameStep      `json:"steps"`
+	Game       Game           `json:"game"`
+	Statistics *GameStatistic `json:"statistics,omitempty"`
+	Steps      []GameStep     `json:"steps"`
 }
 
 func (response GetGame200JSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {

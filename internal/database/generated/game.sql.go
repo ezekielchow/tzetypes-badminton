@@ -68,6 +68,62 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 	return i, err
 }
 
+const createGameStatistic = `-- name: CreateGameStatistic :one
+INSERT INTO game_statistics(
+    game_id,
+    total_game_time_seconds, 
+    right_consecutive_points_seconds,
+    left_consecutive_points_seconds,
+    longest_point_seconds,
+    shortest_point_seconds,
+    average_time_per_point_seconds
+) VALUES (
+    $1::uuid,
+    $2::int,
+    $3::int,
+    $4::int,
+    $5::int,
+    $6::int,
+    $7::int
+) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points_seconds, left_consecutive_points_seconds, longest_point_seconds, shortest_point_seconds, average_time_per_point_seconds, created_at, updated_at
+`
+
+type CreateGameStatisticParams struct {
+	GameID                        pgtype.UUID
+	TotalGameTimeSeconds          int32
+	RightConsecutivePointsSeconds int32
+	LeftConsecutivePointsSeconds  int32
+	LongestPointSeconds           int32
+	ShortestPointSeconds          int32
+	AverageTimePerPointSeconds    int32
+}
+
+func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatisticParams) (GameStatistic, error) {
+	row := q.db.QueryRow(ctx, createGameStatistic,
+		arg.GameID,
+		arg.TotalGameTimeSeconds,
+		arg.RightConsecutivePointsSeconds,
+		arg.LeftConsecutivePointsSeconds,
+		arg.LongestPointSeconds,
+		arg.ShortestPointSeconds,
+		arg.AverageTimePerPointSeconds,
+	)
+	var i GameStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.TotalGameTimeSeconds,
+		&i.RightConsecutivePointsSeconds,
+		&i.LeftConsecutivePointsSeconds,
+		&i.LongestPointSeconds,
+		&i.ShortestPointSeconds,
+		&i.AverageTimePerPointSeconds,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createGameStep = `-- name: CreateGameStep :one
 INSERT INTO game_steps (
     game_id,
@@ -167,6 +223,28 @@ type EndGameParams struct {
 func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 	_, err := q.db.Exec(ctx, endGame, arg.IsEnded, arg.ID)
 	return err
+}
+
+const getGameStatisticsWithGameID = `-- name: GetGameStatisticsWithGameID :one
+SELECT id, game_id, total_game_time_seconds, right_consecutive_points_seconds, left_consecutive_points_seconds, longest_point_seconds, shortest_point_seconds, average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
+`
+
+func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype.UUID) (GameStatistic, error) {
+	row := q.db.QueryRow(ctx, getGameStatisticsWithGameID, gameID)
+	var i GameStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.TotalGameTimeSeconds,
+		&i.RightConsecutivePointsSeconds,
+		&i.LeftConsecutivePointsSeconds,
+		&i.LongestPointSeconds,
+		&i.ShortestPointSeconds,
+		&i.AverageTimePerPointSeconds,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
