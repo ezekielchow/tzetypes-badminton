@@ -4,18 +4,18 @@ FROM golang:1.22.5 AS builder
 # Set the working directory
 WORKDIR /app
 
-COPY go.work ./
-COPY go.mod go.sum ./
-COPY users/go.mod users/go.sum users/
-COPY players/go.mod players/go.sum players/
-COPY common/go.mod common/go.sum common/
-COPY sessions/go.mod sessions/go.sum sessions/
-COPY games/go.mod games/go.sum games/
+COPY internal/go.work ./
+COPY internal/go.mod internal/go.sum ./
+COPY internal/users/go.mod internal/users/go.sum users/
+COPY internal/players/go.mod internal/players/go.sum players/
+COPY internal/common/go.mod internal/common/go.sum common/
+COPY internal/sessions/go.mod internal/sessions/go.sum sessions/
+COPY internal/games/go.mod internal/games/go.sum games/
 
 RUN go work sync
 
 # Copy the rest of the application source code
-COPY . .
+COPY ./internal .
 
 # Build the application
 RUN go build -o myapp .

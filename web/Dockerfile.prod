@@ -5,11 +5,11 @@ FROM oven/bun:1 as builder
 WORKDIR /app
 
 # Copy package.json and package-lock.json files and install dependencies
-COPY package*.json ./
+COPY web/package*.json ./
 RUN bun install
 
 # Copy the rest of the application source code
-COPY . .
+COPY web .
 
 # Build the application
 RUN bun run build
