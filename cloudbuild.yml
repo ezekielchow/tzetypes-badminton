@@ -11,12 +11,13 @@ steps:
         ".",
       ]
     secretEnv:
-      - "DB_URI"
-      - "CORS_ALLOWED_ORIGINS"
-      - "SESSION_LIFESPAN_MINUTES"
-      - "REFRESH_LIFESPAN_MINUTES"
-      - "IS_HTTPS"
-
+      [
+        "DB_URI",
+        "CORS_ALLOWED_ORIGINS",
+        "SESSION_LIFESPAN_MINUTES",
+        "REFRESH_LIFESPAN_MINUTES",
+        "IS_HTTPS",
+      ]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/badminton-api"]
 
@@ -46,8 +47,7 @@ steps:
         "gcr.io/$PROJECT_ID/badminton-frontend",
         ".",
       ]
-    secretEnv:
-      - "VITE_BACKEND_URL=${_API_URL}"
+    secretEnv: ["VITE_BACKEND_URL=${_API_URL}"]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/badminton-frontend"]
 
