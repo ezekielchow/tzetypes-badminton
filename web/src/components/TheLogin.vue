@@ -3,12 +3,12 @@
     <form @submit.prevent="submitLogin">
       <div class="input-group">
         <label for="email">Email</label>
-        <input type="email" id="email" v-model="email" required />
+        <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
       </div>
 
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" required />
+        <input type="password" id="password" v-model="password" name="password" autocomplete="password" required />
       </div>
 
       <div class="actions">

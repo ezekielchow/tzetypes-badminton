@@ -108,7 +108,7 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 			UpdatedAt:           game.UpdatedAt.String(),
 		},
 		Steps: apiSteps,
-		Statistics: &oapipublic.GameStatistics{
+		Statistics: &oapipublic.GameStatistic{
 			TotalGameTime:          game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
 			RightConsecutivePoints: strconv.Itoa(rightConsecutivePoints),
 			LeftConsecutivePoints:  strconv.Itoa(leftConsecutivePoints),
