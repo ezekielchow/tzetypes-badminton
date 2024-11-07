@@ -76,17 +76,17 @@ images:
 
 availableSecrets:
   secretManager:
-    - versionName: "projects/badminton-stats-441017/secrets/db-uri/versions/latest"
+    - versionName: "projects/709018077748/secrets/db-uri/versions/latest"
       env: "DB_URI"
-    - versionName: "projects/badminton-stats-441017/secrets/cors-origin/versions/latest"
+    - versionName: "projects/709018077748/secrets/cors-origin/versions/latest"
       env: "CORS_ALLOWED_ORIGINS"
-    - versionName: "projects/badminton-stats-441017/secrets/session-lifespan-minutes/versions/latest"
+    - versionName: "projects/709018077748/secrets/session-lifespan-minutes/versions/latest"
       env: "SESSION_LIFESPAN_MINUTES"
-    - versionName: "projects/badminton-stats-441017/secrets/refresh-lifespan-minutes/versions/latest"
+    - versionName: "projects/709018077748/secrets/refresh-lifespan-minutes/versions/latest"
       env: "REFRESH_LIFESPAN_MINUTES"
-    - versionName: "projects/badminton-stats-441017/secrets/is-https/versions/latest"
+    - versionName: "projects/709018077748/secrets/is-https/versions/latest"
       env: "IS_HTTPS"
-    - versionName: "projects/badminton-stats-441017/secrets/vite-backend-url/versions/latest"
+    - versionName: "projects/709018077748/secrets/vite-backend-url/versions/latest"
       env: "VITE_BACKEND_URL"
 
 substitutions:
