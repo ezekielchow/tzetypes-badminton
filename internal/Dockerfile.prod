@@ -1,10 +1,11 @@
 # Stage 1: Build the Go application
-FROM golang:1.22.5 as builder
+FROM golang:1.22.5 AS builder
 
 # Set the working directory
 WORKDIR /app
 
 COPY go.work ./
+COPY go.mod go.sum ./
 COPY users/go.mod users/go.sum users/
 COPY players/go.mod players/go.sum players/
 COPY common/go.mod common/go.sum common/
