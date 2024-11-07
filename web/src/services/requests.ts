@@ -13,7 +13,6 @@ import {
 
 
 import * as runtime from '@/repositories/clients/private';
-import type { StartGame201Response } from '@/repositories/clients/private/models/StartGame201Response';
 
 export class MyApi extends runtime.BaseAPI {
 
@@ -254,7 +253,7 @@ export class MyApi extends runtime.BaseAPI {
     return await apiResponse.value();
   }
 
-  private async startGameRequest(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StartGame201Response>> {
+  private async startGameRequest(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.StartGame201Response>> {
     const api = new runtime.GameApi(this.getPrivateConf())
 
     try {
@@ -267,7 +266,7 @@ export class MyApi extends runtime.BaseAPI {
     }
   }
 
-  async startGame(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StartGame201Response> {
+  async startGame(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.StartGame201Response> {
     const apiResponse = await this.authenticatedRequest(() => this.startGameRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }

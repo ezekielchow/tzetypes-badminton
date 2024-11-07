@@ -4,12 +4,42 @@ import (
 	"common/models"
 	"common/oapiprivate"
 	"context"
+	"errors"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 )
 
+const (
+	PlayersNameEmpty = "please fill in players name"
+)
+
+func returnStartGameError(err error) oapiprivate.StartGamedefaultJSONResponse {
+	return oapiprivate.StartGamedefaultJSONResponse{
+		Body:       oapiprivate.Error{Message: err.Error()},
+		StatusCode: http.StatusBadRequest,
+	}
+}
+
+func validateStartGame(input oapiprivate.StartGameRequestObject) error {
+	if input.Body.GameType == oapiprivate.Singles && (len(input.Body.LeftEvenPlayerName) < 1 || len(input.Body.RightEvenPlayerName) < 1) {
+		return errors.New(PlayersNameEmpty)
+	}
+
+	if input.Body.GameType == oapiprivate.Doubles && (len(input.Body.LeftEvenPlayerName) < 1 || len(*input.Body.LeftOddPlayerName) < 1 || len(input.Body.RightEvenPlayerName) < 1 || len(*input.Body.RightOddPlayerName) < 1) {
+		return errors.New(PlayersNameEmpty)
+	}
+
+	return nil
+}
+
 func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
+
+	err := validateStartGame(input)
+	if err != nil {
+		return returnStartGameError(err), nil
+	}
 
 	tx, err := gs.PgxPool.Begin(ctx)
 	if err != nil {
@@ -68,9 +98,11 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 	}
 
 	return oapiprivate.StartGame201JSONResponse{
-		Game: game.ModelToAPI(),
-		Steps: []oapiprivate.GameStep{
-			gameStep.ModelToAPI(),
+		StartGame201ResponseSchemaJSONResponse: oapiprivate.StartGame201ResponseSchemaJSONResponse{
+			Game: game.ModelToAPI(),
+			Steps: []oapiprivate.GameStep{
+				gameStep.ModelToAPI(),
+			},
 		},
 	}, nil
 }

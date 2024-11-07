@@ -977,11 +977,8 @@ func (r DashboardResponse) StatusCode() int {
 type StartGameResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *struct {
-		Game  Game       `json:"game"`
-		Steps []GameStep `json:"steps"`
-	}
-	JSONDefault *ErrorResponseSchema
+	JSON201      *StartGame201ResponseSchema
+	JSONDefault  *ErrorResponseSchema
 }
 
 // Status returns HTTPResponse.Status
@@ -1003,11 +1000,8 @@ func (r StartGameResponse) StatusCode() int {
 type GetGameResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Game  Game       `json:"game"`
-		Steps []GameStep `json:"steps"`
-	}
-	JSONDefault *ErrorResponseSchema
+	JSON200      *GetGame200ResponseSchema
+	JSONDefault  *ErrorResponseSchema
 }
 
 // Status returns HTTPResponse.Status
@@ -1435,10 +1429,7 @@ func ParseStartGameResponse(rsp *http.Response) (*StartGameResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest struct {
-			Game  Game       `json:"game"`
-			Steps []GameStep `json:"steps"`
-		}
+		var dest StartGame201ResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -1471,10 +1462,7 @@ func ParseGetGameResponse(rsp *http.Response) (*GetGameResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Game  Game       `json:"game"`
-			Steps []GameStep `json:"steps"`
-		}
+		var dest GetGame200ResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
