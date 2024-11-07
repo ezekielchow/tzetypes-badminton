@@ -70,7 +70,7 @@ images:
   - "gcr.io/$PROJECT_ID/badminton-api"
   - "gcr.io/$PROJECT_ID/badminton-frontend"
 
-secrets:
+availableSecrets:
   - secretManager: "projects/$PROJECT_ID/secrets/db-uri/versions/latest"
     env: "DB_URI"
   - secretManager: "projects/$PROJECT_ID/secrets/cors-origin/versions/latest"
