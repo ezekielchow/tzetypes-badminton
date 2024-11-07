@@ -7,7 +7,7 @@ steps:
         "-f",
         "./internal/Dockerfile.prod",
         "-t",
-        "gcr.io/badminton-stats-441017/badminton-api",
+        "gcr.io/709018077748/badminton-api",
         ".",
       ]
     secretEnv:
@@ -18,7 +18,7 @@ steps:
       - "IS_HTTPS"
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/badminton-stats-441017/badminton-api"]
+    args: ["push", "gcr.io/709018077748/badminton-api"]
 
   # Deploy Go app to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -28,7 +28,7 @@ steps:
       - "deploy"
       - "badminton-api-service"
       - "--image"
-      - "gcr.io/badminton-stats-441017/badminton-api"
+      - "gcr.io/709018077748/badminton-api"
       - "--region"
       - "asia-south1"
       - "--platform"
@@ -43,14 +43,14 @@ steps:
         "-f",
         "./web/Dockerfile.prod",
         "-t",
-        "gcr.io/badminton-stats-441017/badminton-frontend",
+        "gcr.io/709018077748/badminton-frontend",
         ".",
       ]
     secretEnv:
       - "VITE_BACKEND_URL"
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/badminton-stats-441017/badminton-frontend"]
+    args: ["push", "gcr.io/709018077748/badminton-frontend"]
 
   # Deploy Vue app to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -60,7 +60,7 @@ steps:
       - "deploy"
       - "badminton-frontend-service"
       - "--image"
-      - "gcr.io/badminton-stats-441017/badminton-frontend"
+      - "gcr.io/709018077748/badminton-frontend"
       - "--region"
       - "asia-south1"
       - "--platform"
@@ -68,19 +68,19 @@ steps:
       - "--allow-unauthenticated"
 
 images:
-  - "gcr.io/badminton-stats-441017/badminton-api"
-  - "gcr.io/badminton-stats-441017/badminton-frontend"
+  - "gcr.io/709018077748/badminton-api"
+  - "gcr.io/709018077748/badminton-frontend"
 
 availableSecrets:
-  - secretManager: "projects/badminton-stats-441017/secrets/db-uri/versions/latest"
+  - secretManager: "projects/709018077748/secrets/db-uri/versions/latest"
     env: "DB_URI"
-  - secretManager: "projects/badminton-stats-441017/secrets/cors-origin/versions/latest"
+  - secretManager: "projects/709018077748/secrets/cors-origin/versions/latest"
     env: "CORS_ALLOWED_ORIGINS"
-  - secretManager: "projects/badminton-stats-441017/secrets/session-lifespan-minutes/versions/latest"
+  - secretManager: "projects/709018077748/secrets/session-lifespan-minutes/versions/latest"
     env: "SESSION_LIFESPAN_MINUTES"
-  - secretManager: "projects/badminton-stats-441017/secrets/refresh-lifespan-minutes/versions/latest"
+  - secretManager: "projects/709018077748/secrets/refresh-lifespan-minutes/versions/latest"
     env: "REFRESH_LIFESPAN_MINUTES"
-  - secretManager: "projects/badminton-stats-441017/secrets/is-https/versions/latest"
+  - secretManager: "projects/709018077748/secrets/is-https/versions/latest"
     env: "IS_HTTPS"
 
 substitutions:
