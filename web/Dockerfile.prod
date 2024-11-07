@@ -1,20 +1,27 @@
-# Base image with Bun pre-installed
-FROM oven/bun:1
+# Stage 1: Build the Vue app
+FROM oven/bun:1 as builder
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and bun.lockb into the container
-COPY package.json bun.lockb ./
-
-# Install dependencies
+# Copy package.json and package-lock.json files and install dependencies
+COPY package*.json ./
 RUN bun install
 
-# Copy all application files
+# Copy the rest of the application source code
 COPY . .
 
-# Build the Vue 3 application
+# Build the application
 RUN bun run build
 
-# Run a basic command to keep the container alive for inspection
-CMD ["sleep", "infinity"]
+# Stage 2: Serve the static files with Nginx
+FROM nginx:alpine
+
+# Copy the built files from the builder stage to the nginx html directory
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]

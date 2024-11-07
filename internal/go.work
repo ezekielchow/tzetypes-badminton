@@ -2,10 +2,10 @@ go 1.22.5
 
 use (
 	.
-	./users
 	./common
-	./sessions
+	./games
 	./mocks
 	./players
-	./games
+	./sessions
+	./users
 )
