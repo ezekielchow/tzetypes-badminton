@@ -5,7 +5,7 @@ steps:
       [
         "build",
         "-f",
-        "./internal/Dockerfile.prod",
+        "internal/Dockerfile.prod",
         "-t",
         "gcr.io/709018077748/badminton-api",
         ".",
@@ -41,7 +41,7 @@ steps:
       [
         "build",
         "-f",
-        "./web/Dockerfile.prod",
+        "web/Dockerfile.prod",
         "-t",
         "gcr.io/709018077748/badminton-frontend",
         ".",
