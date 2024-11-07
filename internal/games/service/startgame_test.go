@@ -5,6 +5,7 @@ import (
 	"common/oapiprivate"
 	"common/utils"
 	"context"
+	"net/http"
 	"testing"
 
 	"github.com/google/uuid"
@@ -109,5 +110,129 @@ func TestStartGame(t *testing.T) {
 		assert.Equal(t, rightEvenPlayerName, resSuccess.Game.RightEvenPlayerName)
 		assert.Equal(t, rightOddPlayerName, resSuccess.Game.RightOddPlayerName)
 		assert.Equal(t, false, resSuccess.Game.IsEnded)
+	})
+
+	t.Run("validation failing for singles", func(t *testing.T) {
+
+		ctx := context.Background()
+
+		userID := uuid.New()
+
+		_, err := gameService.ClubStore.CreateClub(ctx, nil, models.Club{
+			OwnerID: userID.String(),
+			Name:    utils.NewString(10),
+		})
+		if err != nil {
+			t.Fatalf("unable to create club:%s", err)
+		}
+
+		testCases := []struct {
+			leftEvenPlayerName  string
+			rightEvenPlayerName string
+		}{
+			{
+				leftEvenPlayerName:  "",
+				rightEvenPlayerName: utils.NewString(10),
+			},
+			{
+				leftEvenPlayerName:  utils.NewString(10),
+				rightEvenPlayerName: "",
+			},
+			{
+				leftEvenPlayerName:  "",
+				rightEvenPlayerName: "",
+			},
+		}
+
+		for _, tc := range testCases {
+			res, err := gameService.StartGame(ctx, oapiprivate.StartGameRequestObject{
+				Body: &oapiprivate.StartGameJSONRequestBody{
+					GameType:            oapiprivate.Singles,
+					LeftEvenPlayerName:  tc.leftEvenPlayerName,
+					RightEvenPlayerName: tc.rightEvenPlayerName,
+					ServingSide:         oapiprivate.LeftEven,
+				},
+			}, models.User{
+				ID: userID.String(),
+			})
+			if err != nil {
+				t.Fatalf("failed to start game:%s", err)
+			}
+
+			resSuccess, ok := res.(oapiprivate.StartGamedefaultJSONResponse)
+			if !ok {
+				t.Fatalf("failed to convert response:%s", err)
+			}
+
+			assert.Equal(t, http.StatusBadRequest, resSuccess.StatusCode)
+			assert.Equal(t, PlayersNameEmpty, resSuccess.Body.Message)
+		}
+	})
+
+	t.Run("validation failing for doubles", func(t *testing.T) {
+
+		ctx := context.Background()
+
+		userID := uuid.New()
+
+		_, err := gameService.ClubStore.CreateClub(ctx, nil, models.Club{
+			OwnerID: userID.String(),
+			Name:    utils.NewString(10),
+		})
+		if err != nil {
+			t.Fatalf("unable to create club:%s", err)
+		}
+
+		testCases := []struct {
+			leftEvenPlayerName  string
+			leftOddPlayerName   string
+			rightEvenPlayerName string
+			rightOddPlayerName  string
+		}{
+			{
+				leftEvenPlayerName:  utils.NewString(10),
+				leftOddPlayerName:   "",
+				rightEvenPlayerName: utils.NewString(10),
+				rightOddPlayerName:  utils.NewString(10),
+			},
+			{
+				leftEvenPlayerName:  utils.NewString(10),
+				leftOddPlayerName:   utils.NewString(10),
+				rightEvenPlayerName: utils.NewString(10),
+				rightOddPlayerName:  "",
+			},
+			{
+				leftEvenPlayerName:  utils.NewString(10),
+				leftOddPlayerName:   "",
+				rightEvenPlayerName: utils.NewString(10),
+				rightOddPlayerName:  "",
+			},
+		}
+
+		for _, tc := range testCases {
+			res, err := gameService.StartGame(ctx, oapiprivate.StartGameRequestObject{
+				Body: &oapiprivate.StartGameJSONRequestBody{
+					GameType:            oapiprivate.Doubles,
+					LeftEvenPlayerName:  tc.leftEvenPlayerName,
+					LeftOddPlayerName:   &tc.leftOddPlayerName,
+					RightEvenPlayerName: tc.rightEvenPlayerName,
+					RightOddPlayerName:  &tc.rightOddPlayerName,
+					ServingSide:         oapiprivate.LeftEven,
+				},
+			}, models.User{
+				ID: userID.String(),
+			})
+			if err != nil {
+				t.Fatalf("failed to start game:%s", err)
+			}
+
+			resSuccess, ok := res.(oapiprivate.StartGamedefaultJSONResponse)
+			if !ok {
+				t.Fatalf("failed to convert response:%s", err)
+			}
+
+			assert.Equal(t, http.StatusBadRequest, resSuccess.StatusCode)
+			assert.Equal(t, PlayersNameEmpty, resSuccess.Body.Message)
+		}
 	})
 }

@@ -23,7 +23,9 @@ func (gs GameService) GetGame(ctx context.Context, input oapiprivate.GetGameRequ
 	}
 
 	return oapiprivate.GetGame200JSONResponse{
-		Game:  game.ModelToAPI(),
-		Steps: apiSteps,
+		GetGame200ResponseSchemaJSONResponse: oapiprivate.GetGame200ResponseSchemaJSONResponse{
+			Game:  game.ModelToAPI(),
+			Steps: apiSteps,
+		},
 	}, nil
 }

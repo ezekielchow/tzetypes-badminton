@@ -173,6 +173,23 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game:
+    post:
+      operationId: startGame
+      tags:
+        - game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameStartRequestSchema"
+      responses:
+        "201":
+          $ref: "#/components/responses/StartGame201ResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /game/{game_id}/steps:
     post:
       operationId: addGameSteps
@@ -276,52 +293,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Get game successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - steps
-                  - game
-                properties:
-                  steps:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/GameStep"
-                  game:
-                    $ref: "#/components/schemas/Game"
-        default:
-          $ref: "#/components/responses/ErrorResponseSchema"
-
-  /game:
-    post:
-      operationId: startGame
-      tags:
-        - game
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GameStartRequestSchema"
-      responses:
-        "201":
-          description: game start successful
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - steps
-                  - game
-                properties:
-                  steps:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/GameStep"
-                  game:
-                    $ref: "#/components/schemas/Game"
+          $ref: "#/components/responses/GetGame200ResponseSchema"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
@@ -539,3 +511,35 @@ components:
             properties:
               user:
                 $ref: "#/components/schemas/User"
+    StartGame201ResponseSchema:
+      description: start game 201 response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - steps
+              - game
+            properties:
+              steps:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameStep"
+              game:
+                $ref: "#/components/schemas/Game"
+    GetGame200ResponseSchema:
+      description: get game 200 response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - steps
+              - game
+            properties:
+              steps:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameStep"
+              game:
+                $ref: "#/components/schemas/Game"

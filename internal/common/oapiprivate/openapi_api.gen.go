@@ -612,6 +612,16 @@ type CurrentUserResponseSchemaJSONResponse struct {
 
 type ErrorResponseSchemaJSONResponse Error
 
+type GetGame200ResponseSchemaJSONResponse struct {
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
+type StartGame201ResponseSchemaJSONResponse struct {
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
 type DashboardRequestObject struct {
 }
 
@@ -648,8 +658,7 @@ type StartGameResponseObject interface {
 }
 
 type StartGame201JSONResponse struct {
-	Game  Game       `json:"game"`
-	Steps []GameStep `json:"steps"`
+	StartGame201ResponseSchemaJSONResponse
 }
 
 func (response StartGame201JSONResponse) VisitStartGameResponse(w http.ResponseWriter) error {
@@ -680,8 +689,7 @@ type GetGameResponseObject interface {
 }
 
 type GetGame200JSONResponse struct {
-	Game  Game       `json:"game"`
-	Steps []GameStep `json:"steps"`
+	GetGame200ResponseSchemaJSONResponse
 }
 
 func (response GetGame200JSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
