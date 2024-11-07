@@ -89,3 +89,6 @@ availableSecrets:
 
 substitutions:
   _API_URL: "https://your-production-api-url.com" # Default production API URL
+
+options:
+  logging: GCS_ONLY
