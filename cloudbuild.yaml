@@ -91,7 +91,4 @@ substitutions:
   _API_URL: "https://your-production-api-url.com" # Default production API URL
 
 options:
-  logging: CLOUD_LOGGING_ONLY # This option will log only to Cloud Logging
-  build:
-    options:
-      default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
+  logging: CLOUD_LOGGING_ONLY
