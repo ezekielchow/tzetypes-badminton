@@ -30,7 +30,7 @@ WORKDIR /app
 COPY --from=builder /app/dist /app
 
 # Set PORT environment variable for Cloud Run
-ENV PORT 8080
+ENV PORT=8080
 
 # Expose the port for Cloud Run
 EXPOSE 8080
