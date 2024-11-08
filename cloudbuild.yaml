@@ -41,7 +41,7 @@ steps:
       - "--set-secrets"
       - "APP_PORT=projects/709018077748/secrets/app-port:latest"
 
-  # Build Vue app, using the secret directly as an environment variable
+  # Build Vue app, passing `VITE_BACKEND_URL` as an environment variable
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -51,8 +51,6 @@ steps:
         "-t",
         "gcr.io/badminton-stats-441017/badminton-frontend",
         ".",
-        "--build-arg",
-        "VITE_BACKEND_URL=$VITE_BACKEND_URL",
       ]
     secretEnv: ["VITE_BACKEND_URL"]
 
