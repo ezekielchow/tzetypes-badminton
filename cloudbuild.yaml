@@ -1,3 +1,6 @@
+substitutions:
+  _VITE_BACKEND_URL: "https://your-backend-url.com" # Define your backend URL or other variables here
+
 steps:
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"
@@ -51,6 +54,8 @@ steps:
         "-t",
         "gcr.io/badminton-stats-441017/badminton-frontend",
         ".",
+        "--build-arg",
+        "VITE_BACKEND_URL=$_VITE_BACKEND_URL",
       ]
 
   - name: "gcr.io/cloud-builders/docker"
@@ -72,7 +77,6 @@ steps:
       - "--allow-unauthenticated"
       - "--set-secrets"
       - "VITE_BACKEND_URL=projects/709018077748/secrets/vite-backend-url:latest"
-
 images:
   [
     "gcr.io/badminton-stats-441017/badminton-api",

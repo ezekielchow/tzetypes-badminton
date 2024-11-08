@@ -11,6 +11,9 @@ WORKDIR /app
 COPY ./web/package.json ./web/bun.lockb* ./
 RUN bun install
 
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 # Copy the rest of the application files and build the Vue app
 COPY ./web .
 RUN bun run build-only  # or `bun run build`
