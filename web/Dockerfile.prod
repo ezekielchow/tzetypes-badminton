@@ -1,5 +1,9 @@
-# Use Bun as the base image for simplicity if available, or install it on a base like Debian.
+# Use Bun as the base image and add `procps` package
 FROM oven/bun:latest AS builder
+
+# Install `procps` for the `ps` command support
+USER root
+RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -14,6 +18,10 @@ RUN bun run build
 
 # Stage 2: Production container with Bun serving static files
 FROM oven/bun:latest
+
+# Install `procps` in the final stage as well if Bun requires `ps` at runtime
+USER root
+RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
