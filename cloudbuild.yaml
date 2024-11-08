@@ -10,19 +10,11 @@ steps:
         "gcr.io/badminton-stats-441017/badminton-api",
         ".",
       ]
-    secretEnv:
-      [
-        "DB_URI",
-        "CORS_ALLOWED_ORIGINS",
-        "SESSION_LIFESPAN_MINUTES",
-        "REFRESH_LIFESPAN_MINUTES",
-        "IS_HTTPS",
-      ]
 
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/badminton-stats-441017/badminton-api"]
 
-  # Deploy Go app to Cloud Run
+  # Deploy Go app to Cloud Run with secrets
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
     args:
@@ -36,8 +28,16 @@ steps:
       - "--platform"
       - "managed"
       - "--no-allow-unauthenticated"
-      - "--set-env-vars"
-      - "DB_URI=${DB_URI},CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS},SESSION_LIFESPAN_MINUTES=${SESSION_LIFESPAN_MINUTES},REFRESH_LIFESPAN_MINUTES=${REFRESH_LIFESPAN_MINUTES},IS_HTTPS=${IS_HTTPS}"
+      - "--set-secrets"
+      - "DB_URI=projects/709018077748/secrets/db-uri:latest"
+      - "--set-secrets"
+      - "CORS_ALLOWED_ORIGINS=projects/709018077748/secrets/cors-origin:latest"
+      - "--set-secrets"
+      - "SESSION_LIFESPAN_MINUTES=projects/709018077748/secrets/session-lifespan-minutes:latest"
+      - "--set-secrets"
+      - "REFRESH_LIFESPAN_MINUTES=projects/709018077748/secrets/refresh-lifespan-minutes:latest"
+      - "--set-secrets"
+      - "IS_HTTPS=projects/709018077748/secrets/is-https:latest"
 
   # Build Vue app
   - name: "gcr.io/cloud-builders/docker"
@@ -50,12 +50,11 @@ steps:
         "gcr.io/badminton-stats-441017/badminton-frontend",
         ".",
       ]
-    secretEnv: ["VITE_BACKEND_URL"]
 
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/badminton-stats-441017/badminton-frontend"]
 
-  # Deploy Vue app to Cloud Run
+  # Deploy Vue app to Cloud Run with secrets
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
     args:
@@ -69,32 +68,14 @@ steps:
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
-      - "--set-env-vars"
-      - "VITE_BACKEND_URL=${VITE_BACKEND_URL}"
+      - "--set-secrets"
+      - "VITE_BACKEND_URL=projects/709018077748/secrets/vite-backend-url:latest"
 
 images:
   [
     "gcr.io/badminton-stats-441017/badminton-api",
     "gcr.io/badminton-stats-441017/badminton-frontend",
   ]
-
-availableSecrets:
-  secretManager:
-    - versionName: "projects/709018077748/secrets/db-uri/versions/latest"
-      env: "DB_URI"
-    - versionName: "projects/709018077748/secrets/cors-origin/versions/latest"
-      env: "CORS_ALLOWED_ORIGINS"
-    - versionName: "projects/709018077748/secrets/session-lifespan-minutes/versions/latest"
-      env: "SESSION_LIFESPAN_MINUTES"
-    - versionName: "projects/709018077748/secrets/refresh-lifespan-minutes/versions/latest"
-      env: "REFRESH_LIFESPAN_MINUTES"
-    - versionName: "projects/709018077748/secrets/is-https/versions/latest"
-      env: "IS_HTTPS"
-    - versionName: "projects/709018077748/secrets/vite-backend-url/versions/latest"
-      env: "VITE_BACKEND_URL"
-
-substitutions:
-  _API_URL: "https://your-production-api-url.com" # Default production API URL
 
 options:
   logging: CLOUD_LOGGING_ONLY
