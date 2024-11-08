@@ -1,6 +1,5 @@
-# Use Bun as the base image and add `procps` package
+# Stage 1: Build the Vue app using Bun
 FROM oven/bun:latest AS builder
-
 # Install `procps` for the `ps` command support
 USER root
 RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
@@ -14,26 +13,16 @@ RUN bun install
 
 # Copy the rest of the application files and build the Vue app
 COPY ./web .
-RUN bun run build-only
+RUN bun run build-only  # or `bun run build`
 
-# Stage 2: Production container with Bun serving static files
-FROM oven/bun:latest
+# Stage 2: Serve the built files with NGINX
+FROM nginx:alpine
 
-# Install `procps` in the final stage as well if Bun requires `ps` at runtime
-USER root
-RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
+# Copy the built files from the builder stage to NGINX's html directory
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Set working directory
-WORKDIR /app
-
-# Copy the built files from the builder stage
-COPY --from=builder /app/dist /app
-
-# Set PORT environment variable for Cloud Run
-ENV PORT=8080
-
-# Expose the port for Cloud Run
+# Expose the port NGINX will serve on
 EXPOSE 8080
 
-# Use Bun to serve the static files on the specified port
-CMD ["bun", "run", "serve", "-s", "/app", "-p", "8080"]
+# Run NGINX
+CMD ["nginx", "-g", "daemon off;"]
