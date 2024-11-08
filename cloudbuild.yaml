@@ -41,7 +41,7 @@ steps:
       - "--set-secrets"
       - "APP_PORT=projects/709018077748/secrets/app-port:latest"
 
-  # Build Vue app
+  # Build Vue app, using the secret directly as an environment variable
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -54,6 +54,7 @@ steps:
         "--build-arg",
         "VITE_BACKEND_URL=$VITE_BACKEND_URL",
       ]
+    secretEnv: ["VITE_BACKEND_URL"]
 
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/badminton-stats-441017/badminton-frontend"]
@@ -74,6 +75,7 @@ steps:
       - "--allow-unauthenticated"
       - "--set-secrets"
       - "VITE_BACKEND_URL=projects/709018077748/secrets/vite-backend-url:latest"
+
 images:
   [
     "gcr.io/badminton-stats-441017/badminton-api",
@@ -82,3 +84,8 @@ images:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+availableSecrets:
+  secretManager:
+    - versionName: "projects/709018077748/secrets/vite-backend-url/versions/latest"
+      env: "VITE_BACKEND_URL"
