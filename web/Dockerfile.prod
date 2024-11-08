@@ -14,7 +14,7 @@ RUN bun install
 
 # Copy the rest of the application files and build the Vue app
 COPY ./web .
-RUN bun run build
+RUN bun run build-only
 
 # Stage 2: Production container with Bun serving static files
 FROM oven/bun:latest
