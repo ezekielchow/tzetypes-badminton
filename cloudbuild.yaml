@@ -38,6 +38,8 @@ steps:
       - "REFRESH_LIFESPAN_MINUTES=projects/709018077748/secrets/refresh-lifespan-minutes:latest"
       - "--set-secrets"
       - "IS_HTTPS=projects/709018077748/secrets/is-https:latest"
+      - "--set-secrets"
+      - "APP_PORT=projects/709018077748/secrets/app-port:latest"
 
   # Build Vue app
   - name: "gcr.io/cloud-builders/docker"
