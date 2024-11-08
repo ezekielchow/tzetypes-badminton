@@ -10,7 +10,6 @@ import (
 	"database/sql"
 	games "games/service"
 	gamestore "games/store"
-	"log"
 	"net/http"
 	"os"
 	playerservice "players/service"
@@ -93,10 +92,6 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 
 func main() {
 	ctx := context.Background()
-
-	for _, env := range os.Environ() {
-		log.Println(env)
-	}
 
 	dbURI := os.Getenv("DB_URI")
 	if len(dbURI) < 1 {
