@@ -1,27 +1,31 @@
-# Stage 1: Build the Vue app
-FROM oven/bun:1 as builder
+# Use Bun as the base image for simplicity if available, or install it on a base like Debian.
+FROM oven/bun:latest AS builder
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json files and install dependencies
-COPY web/package*.json ./
+# Copy the package and lock files, then install dependencies
+COPY ./web/package.json ./web/bun.lockb* ./
 RUN bun install
 
-# Copy the rest of the application source code
-COPY web .
-
-# Build the application
+# Copy the rest of the application files and build the Vue app
+COPY ./web .
 RUN bun run build
 
-# Stage 2: Serve the static files with Nginx
-FROM nginx:alpine
+# Stage 2: Production container with Bun serving static files
+FROM oven/bun:latest
 
-# Copy the built files from the builder stage to the nginx html directory
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Set working directory
+WORKDIR /app
 
-# Expose port 80
-EXPOSE 80
+# Copy the built files from the builder stage
+COPY --from=builder /app/dist /app
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Set PORT environment variable for Cloud Run
+ENV PORT 8080
+
+# Expose the port for Cloud Run
+EXPOSE 8080
+
+# Use Bun to serve the static files on the specified port
+CMD ["bun", "run", "serve", "-s", "/app", "-p", "8080"]
