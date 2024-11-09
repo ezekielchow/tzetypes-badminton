@@ -77,7 +77,7 @@ steps:
       [
         "build",
         "--build-arg",
-        "VITE_PROXY_URL=${VITE_PROXY_URL}",
+        "VITE_PROXY_URL",
         "-f",
         "web/Dockerfile.prod",
         "-t",
