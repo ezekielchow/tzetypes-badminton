@@ -76,7 +76,8 @@ steps:
     args:
       [
         "build",
-        "--build-arg=VITE_PROXY_URL=${VITE_PROXY_URL}",
+        "--build-arg",
+        "VITE_PROXY_URL=${VITE_PROXY_URL}",
         "-f",
         "web/Dockerfile.prod",
         "-t",
@@ -102,8 +103,6 @@ steps:
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
-      - "--set-secrets"
-      - "VITE_PROXY_URL=projects/754749631741/secrets/vite-proxy-url:latest"
 
 images:
   [
