@@ -7,12 +7,12 @@ steps:
         "-f",
         "internal/Dockerfile.prod",
         "-t",
-        "gcr.io/badminton-stats-441017/badminton-api",
+        "gcr.io/badminton-stats-3e3e/badminton-api",
         ".",
       ]
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/badminton-stats-441017/badminton-api"]
+    args: ["push", "gcr.io/badminton-stats-3e3e/badminton-api"]
 
   # Deploy Go app to Cloud Run with secrets
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -22,24 +22,24 @@ steps:
       - "deploy"
       - "badminton-api-service"
       - "--image"
-      - "gcr.io/badminton-stats-441017/badminton-api"
+      - "gcr.io/badminton-stats-3e3e/badminton-api"
       - "--region"
       - "asia-south1"
       - "--platform"
       - "managed"
       - "--no-allow-unauthenticated"
       - "--set-secrets"
-      - "DB_URI=projects/709018077748/secrets/db-uri:latest"
+      - "DB_URI=projects/754749631741/secrets/db-uri:latest"
       - "--set-secrets"
-      - "CORS_ALLOWED_ORIGINS=projects/709018077748/secrets/cors-origin:latest"
+      - "CORS_ALLOWED_ORIGINS=projects/754749631741/secrets/cors-origin:latest"
       - "--set-secrets"
-      - "SESSION_LIFESPAN_MINUTES=projects/709018077748/secrets/session-lifespan-minutes:latest"
+      - "SESSION_LIFESPAN_MINUTES=projects/754749631741/secrets/session-lifespan-minutes:latest"
       - "--set-secrets"
-      - "REFRESH_LIFESPAN_MINUTES=projects/709018077748/secrets/refresh-lifespan-minutes:latest"
+      - "REFRESH_LIFESPAN_MINUTES=projects/754749631741/secrets/refresh-lifespan-minutes:latest"
       - "--set-secrets"
-      - "IS_HTTPS=projects/709018077748/secrets/is-https:latest"
+      - "IS_HTTPS=projects/754749631741/secrets/is-https:latest"
       - "--set-secrets"
-      - "APP_PORT=projects/709018077748/secrets/app-port:latest"
+      - "APP_PORT=projects/754749631741/secrets/app-port:latest"
 
   # Build Vue app, passing `VITE_BACKEND_URL` as an environment variable
   - name: "gcr.io/cloud-builders/docker"
@@ -49,13 +49,13 @@ steps:
         "-f",
         "web/Dockerfile.prod",
         "-t",
-        "gcr.io/badminton-stats-441017/badminton-frontend",
+        "gcr.io/badminton-stats-3e3e/badminton-frontend",
         ".",
       ]
     secretEnv: ["VITE_BACKEND_URL"]
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/badminton-stats-441017/badminton-frontend"]
+    args: ["push", "gcr.io/badminton-stats-3e3e/badminton-frontend"]
 
   # Deploy Vue app to Cloud Run with secrets
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -65,19 +65,19 @@ steps:
       - "deploy"
       - "badminton-frontend-service"
       - "--image"
-      - "gcr.io/badminton-stats-441017/badminton-frontend"
+      - "gcr.io/badminton-stats-3e3e/badminton-frontend"
       - "--region"
       - "asia-south1"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
       - "--set-secrets"
-      - "VITE_BACKEND_URL=projects/709018077748/secrets/vite-backend-url:latest"
+      - "VITE_BACKEND_URL=projects/754749631741/secrets/vite-backend-url:latest"
 
 images:
   [
-    "gcr.io/badminton-stats-441017/badminton-api",
-    "gcr.io/badminton-stats-441017/badminton-frontend",
+    "gcr.io/badminton-stats-3e3e/badminton-api",
+    "gcr.io/badminton-stats-3e3e/badminton-frontend",
   ]
 
 options:
@@ -85,5 +85,5 @@ options:
 
 availableSecrets:
   secretManager:
-    - versionName: "projects/709018077748/secrets/vite-backend-url/versions/latest"
+    - versionName: "projects/754749631741/secrets/vite-backend-url/versions/latest"
       env: "VITE_BACKEND_URL"
