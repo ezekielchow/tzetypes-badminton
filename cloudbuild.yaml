@@ -28,7 +28,7 @@ steps:
       - "managed"
       - "--allow-unauthenticated"
       - "--set-secrets"
-      - "BACKEND_URL=projects/754749631741/secrets/backend-url:latest" # Replace with your actual backend URL
+      - "GCP_PROXY_BACKEND_URL=projects/754749631741/secrets/backend-url:latest"
       - "--set-secrets"
       - "PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
 
@@ -110,6 +110,7 @@ images:
   [
     "gcr.io/badminton-stats-3e3e/badminton-api",
     "gcr.io/badminton-stats-3e3e/badminton-frontend",
+    "gcr.io/badminton-stats-3e3e/gcp-proxy",
   ]
 
 options:

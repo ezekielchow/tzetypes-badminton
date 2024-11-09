@@ -12,9 +12,9 @@ var allowedCors string
 
 func init() {
 	// Set the backend URL from an environment variable
-	backendURL = os.Getenv("BACKEND_URL")
+	backendURL = os.Getenv("GCP_PROXY_BACKEND_URL")
 	if backendURL == "" {
-		log.Fatal("BACKEND_URL environment variable not set")
+		log.Fatal("GCP_PROXY_BACKEND_URL environment variable not set")
 	}
 
 	allowedCors = os.Getenv("PROXY_ALLOW_ORIGINS")
