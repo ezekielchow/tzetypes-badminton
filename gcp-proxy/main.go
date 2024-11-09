@@ -34,6 +34,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", allowedCors) // Replace with your actual frontend URL
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	// Construct the backend URL with the requested path
 	url := backendURL + r.URL.Path[len("/proxy/"):]
