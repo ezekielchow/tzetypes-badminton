@@ -30,7 +30,7 @@ steps:
       - "--set-secrets"
       - "GCP_PROXY_BACKEND_URL=projects/754749631741/secrets/backend-url:latest"
       - "--set-secrets"
-      - "PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
+      - "GCP_PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
 
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"

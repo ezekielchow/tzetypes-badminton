@@ -17,9 +17,9 @@ func init() {
 		log.Fatal("GCP_PROXY_BACKEND_URL environment variable not set")
 	}
 
-	allowedCors = os.Getenv("PROXY_ALLOW_ORIGINS")
+	allowedCors = os.Getenv("GCP_PROXY_ALLOW_ORIGINS")
 	if allowedCors == "" {
-		log.Fatal("PROXY_ALLOW_ORIGINS environment variable not set")
+		log.Fatal("GCP_PROXY_ALLOW_ORIGINS environment variable not set")
 	}
 }
 
