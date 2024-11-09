@@ -17,9 +17,9 @@ func init() {
 		log.Fatal("BACKEND_URL environment variable not set")
 	}
 
-	allowedCors = os.Getenv("CORS_ALLOWED_ORIGINS")
+	allowedCors = os.Getenv("PROXY_ALLOW_ORIGINS")
 	if allowedCors == "" {
-		log.Fatal("CORS_ALLOWED_ORIGINS environment variable not set")
+		log.Fatal("PROXY_ALLOW_ORIGINS environment variable not set")
 	}
 }
 

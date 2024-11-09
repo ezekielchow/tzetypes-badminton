@@ -30,7 +30,7 @@ steps:
       - "--set-env-vars"
       - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions/latest" # Replace with your actual backend URL
       - "--set-env-vars"
-      - "CORS_ALLOWED_ORIGINS=projects/754749631741/secrets/cors-origin:latest"
+      - "PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
 
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"
@@ -64,7 +64,7 @@ steps:
       - "--set-secrets"
       - "DB_URI=projects/754749631741/secrets/db-uri:latest"
       - "--set-secrets"
-      - "CORS_ALLOWED_ORIGINS=projects/754749631741/secrets/cors-origin:latest"
+      - "BACKEND_ALLOW_ORIGINS=projects/754749631741/secrets/backend-allow-origins:latest"
       - "--set-secrets"
       - "SESSION_LIFESPAN_MINUTES=projects/754749631741/secrets/session-lifespan-minutes:latest"
       - "--set-secrets"
