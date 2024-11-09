@@ -6,6 +6,8 @@ COPY web/package*.json ./
 
 RUN npm install
 
+ARG VITE_PROXY_URL
+
 COPY ./web .
 
 RUN npm run build
