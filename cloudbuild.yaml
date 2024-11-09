@@ -1,4 +1,35 @@
 steps:
+  # Build Proxy service
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-f",
+        "gcp-proxy/Dockerfile.prod",
+        "-t",
+        "gcr.io/badminton-stats-3e3e/gcp-proxy",
+        ".",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/badminton-stats-3e3e/gcp-proxy"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "gcp-proxy"
+      - "--image"
+      - "gcr.io/badminton-stats-3e3e/gcp-proxy"
+      - "--region"
+      - "asia-south1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--set-env-vars"
+      - "BACKEND_URL=projects/754749631741/secrets/vite-backend-url:latest" # Replace with your actual backend URL
+
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"
     args:
