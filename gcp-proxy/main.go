@@ -32,8 +32,8 @@ func main() {
 
 func handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", allowedCors) // Replace with your actual frontend URL
-	w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Content-Type,X-CSRF-Token")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
 
 	// Construct the backend URL with the requested path
 	url := backendURL + r.URL.Path[len("/proxy/"):]
@@ -41,7 +41,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Get an identity token for the backend
 	token, err := getIdentityToken()
 	if err != nil {
-		log.Println(err)
+		log.Println("Failed to get identity token", err)
 		http.Error(w, "Failed to get identity token", http.StatusInternalServerError)
 		return
 	}
@@ -49,7 +49,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Forward the request to the backend
 	proxyReq, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
-		log.Println(err)
+		log.Println("Failed to create request", err)
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
 		return
 	}
@@ -61,7 +61,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	resp, err := client.Do(proxyReq)
 	if err != nil {
-		log.Println(err)
+		log.Println("Failed to forward request", err)
 		http.Error(w, "Failed to forward request", http.StatusInternalServerError)
 		return
 	}
