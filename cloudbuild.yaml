@@ -27,9 +27,9 @@ steps:
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
-      - "--set-env-vars"
-      - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions/latest" # Replace with your actual backend URL
-      - "--set-env-vars"
+      - "--set-secrets"
+      - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions:latest" # Replace with your actual backend URL
+      - "--set-secrets"
       - "PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
 
   # Build Go app
