@@ -117,5 +117,3 @@ availableSecrets:
   secretManager:
     - versionName: "projects/754749631741/secrets/vite-proxy-url/versions/latest"
       env: "VITE_PROXY_URL"
-
-serviceAccount: "projects/754749631741/serviceAccounts/god-999@badminton-stats-3e3e.iam.gserviceaccount.com"
