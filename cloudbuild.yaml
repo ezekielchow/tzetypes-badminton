@@ -28,7 +28,7 @@ steps:
       - "managed"
       - "--allow-unauthenticated"
       - "--set-secrets"
-      - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions:latest" # Replace with your actual backend URL
+      - "BACKEND_URL=projects/754749631741/secrets/backend-url:latest" # Replace with your actual backend URL
       - "--set-secrets"
       - "PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
 
