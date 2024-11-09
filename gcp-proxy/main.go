@@ -31,6 +31,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Get an identity token for the backend
 	token, err := getIdentityToken()
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to get identity token", http.StatusInternalServerError)
 		return
 	}
@@ -38,6 +39,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Forward the request to the backend
 	proxyReq, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
 		return
 	}
@@ -49,6 +51,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	resp, err := client.Do(proxyReq)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to forward request", http.StatusInternalServerError)
 		return
 	}
