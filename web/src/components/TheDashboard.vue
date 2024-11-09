@@ -6,7 +6,7 @@ const errorMessage = ref('')
 const userEmail = ref('')
 
 const userStore = useUserStore()
-userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const submitLogout = async () => {
     const res = await userStore.logout()

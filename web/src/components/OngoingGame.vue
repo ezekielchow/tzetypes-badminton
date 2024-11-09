@@ -24,7 +24,7 @@ const currentCourtState = reactive({
 })
 
 const gameStore = useGameStore()
-gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 gameStore.$subscribe(() => {
     updateCourtState()

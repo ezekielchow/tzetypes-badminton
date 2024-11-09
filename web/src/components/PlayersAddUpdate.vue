@@ -16,7 +16,7 @@ const playerName = ref("")
 const route = useRoute()
 
 const playerStore = usePlayerStore()
-playerStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+playerStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const addPlayer = async (e: MouseEvent) => {
     formIsLoading.value = true

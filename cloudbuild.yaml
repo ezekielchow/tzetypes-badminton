@@ -28,7 +28,7 @@ steps:
       - "managed"
       - "--allow-unauthenticated"
       - "--set-env-vars"
-      - "BACKEND_URL=projects/754749631741/secrets/vite-backend-url:latest" # Replace with your actual backend URL
+      - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions/latest" # Replace with your actual backend URL
 
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"
@@ -72,7 +72,6 @@ steps:
       - "--set-secrets"
       - "APP_PORT=projects/754749631741/secrets/app-port:latest"
 
-  # Build Vue app, passing `VITE_BACKEND_URL` as an environment variable
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -83,7 +82,7 @@ steps:
         "gcr.io/badminton-stats-3e3e/badminton-frontend",
         ".",
       ]
-    secretEnv: ["VITE_BACKEND_URL"]
+    secretEnv: ["VITE_PROXY_URL"]
 
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/badminton-stats-3e3e/badminton-frontend"]
@@ -103,7 +102,7 @@ steps:
       - "managed"
       - "--allow-unauthenticated"
       - "--set-secrets"
-      - "VITE_BACKEND_URL=projects/754749631741/secrets/vite-backend-url:latest"
+      - "VITE_PROXY_URL=projects/754749631741/secrets/vite-proxy-url:latest"
 
 images:
   [
@@ -116,7 +115,7 @@ options:
 
 availableSecrets:
   secretManager:
-    - versionName: "projects/754749631741/secrets/vite-backend-url/versions/latest"
-      env: "VITE_BACKEND_URL"
+    - versionName: "projects/754749631741/secrets/vite-proxy-url/versions/latest"
+      env: "VITE_PROXY_URL"
 
 serviceAccount: "projects/754749631741/serviceAccounts/god-999@badminton-stats-3e3e.iam.gserviceaccount.com"

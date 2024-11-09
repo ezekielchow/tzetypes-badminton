@@ -13,10 +13,10 @@ const errorMessage = ref('')
 const nameSearch = ref('')
 
 const playerStore = usePlayerStore()
-playerStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+playerStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const userStore = useUserStore()
-userStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const table = reactive({
     isLoading: false,

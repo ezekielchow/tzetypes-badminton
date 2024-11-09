@@ -44,7 +44,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	// Copy original headers and add authorization
 	copyHeaders(proxyReq.Header, r.Header)
-	proxyReq.Header.Set("Authorization", "Bearer "+token)
+	proxyReq.Header.Set("X-Serverless-Authorization", "Bearer "+token)
 
 	client := &http.Client{}
 	resp, err := client.Do(proxyReq)

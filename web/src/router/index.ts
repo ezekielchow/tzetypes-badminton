@@ -74,7 +74,7 @@ router.beforeEach(async (to, from, next) => {
 
   // first time browsing
   if (!isAuthenticated) {
-    const api = new MyApi(import.meta.env.VITE_BACKEND_URL)
+    const api = new MyApi(import.meta.env.VITE_PROXY_URL)
 
     try {
       await api.refreshToken()
