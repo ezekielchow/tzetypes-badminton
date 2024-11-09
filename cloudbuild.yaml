@@ -73,14 +73,15 @@ steps:
       - "APP_PORT=projects/754749631741/secrets/app-port:latest"
 
   - name: "gcr.io/cloud-builders/docker"
-    args:
-      [
+    args: [
         "build",
         "-f",
         "web/Dockerfile.prod",
         "-t",
         "gcr.io/badminton-stats-3e3e/badminton-frontend",
         ".",
+        "--set-env-vars",
+        "VITE_PROXY_URL=projects/754749631741/secrets/vite-proxy-url/versions/latest", # Replace with your actual backend URL
       ]
     secretEnv: ["VITE_PROXY_URL"]
 
