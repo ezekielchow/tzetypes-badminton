@@ -29,6 +29,8 @@ steps:
       - "--allow-unauthenticated"
       - "--set-env-vars"
       - "BACKEND_URL=projects/754749631741/secrets/backend-url/versions/latest" # Replace with your actual backend URL
+      - "--set-env-vars"
+      - "CORS_ALLOWED_ORIGINS=projects/754749631741/secrets/cors-origin:latest"
 
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"

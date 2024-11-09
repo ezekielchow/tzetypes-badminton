@@ -8,12 +8,18 @@ import (
 )
 
 var backendURL string
+var allowedCors string
 
 func init() {
 	// Set the backend URL from an environment variable
 	backendURL = os.Getenv("BACKEND_URL")
 	if backendURL == "" {
 		log.Fatal("BACKEND_URL environment variable not set")
+	}
+
+	allowedCors = os.Getenv("CORS_ALLOWED_ORIGINS")
+	if allowedCors == "" {
+		log.Fatal("CORS_ALLOWED_ORIGINS environment variable not set")
 	}
 }
 
@@ -25,6 +31,10 @@ func main() {
 }
 
 func handleProxy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", allowedCors) // Replace with your actual frontend URL
+	w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Content-Type,X-CSRF-Token")
+
 	// Construct the backend URL with the requested path
 	url := backendURL + r.URL.Path[len("/proxy/"):]
 
