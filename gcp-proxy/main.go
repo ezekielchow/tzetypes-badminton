@@ -37,7 +37,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	// Construct the backend URL with the requested path
-	url := backendURL + "/" + r.URL.Path[len("/proxy/"):]
+	url := backendURL + "/" + r.URL.Path[len("/proxy/"):] + "?" + r.URL.RawQuery
 
 	// Get an identity token for the backend
 	token, err := getIdentityToken()

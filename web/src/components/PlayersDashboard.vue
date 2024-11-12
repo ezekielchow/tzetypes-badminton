@@ -98,7 +98,6 @@ const tableLoadingFinish = (elements: HTMLCollection[]) => {
     router.push({
         name: 'players',
         query: { offset: table.offset, limit: table.pageSize, order: table.order, sort: table.sort },
-        force: true
     });
 
     Array.prototype.forEach.call(elements, function (element: HTMLButtonElement) {
