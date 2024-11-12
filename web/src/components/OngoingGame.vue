@@ -4,6 +4,7 @@ import { CurrentServer, GameTypes } from '@/enums/game';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
+import Swal from 'sweetalert2';
 import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -193,11 +194,25 @@ const handlePointsOrientation = (orientation: string) => {
 }
 
 const handleUndo = () => {
-    const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
+    Swal.fire({
+        title: 'Confirm undo?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        customClass: {
+            actions: 'my-actions',
+            cancelButton: 'order-1 right-gap',
+            confirmButton: 'order-2',
+            denyButton: 'order-3',
+        },
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
 
-    if (toRemove.length > 0) {
-        gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
-    }
+            if (toRemove.length > 0) {
+                gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
+            }
+        }
+    })
 }
 
 const isNeedsSyncing = () => {
@@ -214,33 +229,47 @@ const delaySeconds = async (milliseconds: number) => {
 
 const handleEndGame = async () => {
 
-    isLoading.value = true
+    Swal.fire({
+        title: 'Confirm end game?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        customClass: {
+            actions: 'my-actions',
+            cancelButton: 'order-1 right-gap',
+            confirmButton: 'order-2',
+            denyButton: 'order-3',
+        },
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            isLoading.value = true
 
-    let needsSyncing = isNeedsSyncing()
-    while (needsSyncing) {
-        await delaySeconds(2)
-        needsSyncing = isNeedsSyncing()
-    }
+            let needsSyncing = isNeedsSyncing()
+            while (needsSyncing) {
+                await delaySeconds(2)
+                needsSyncing = isNeedsSyncing()
+            }
 
-    const res = await gameStore.endGame({
-        gameId: gameStore.currentGameSettings.id,
-        endGameRequest: {
-            isEnded: true
-        }
-    })
+            const res = await gameStore.endGame({
+                gameId: gameStore.currentGameSettings.id,
+                endGameRequest: {
+                    isEnded: true
+                }
+            })
 
-    if (res instanceof Error) {
-        isLoading.value = false
-        errorMessage.value = res.message
-        return
-    }
+            if (res instanceof Error) {
+                isLoading.value = false
+                errorMessage.value = res.message
+                return
+            }
 
-    isLoading.value = false
+            isLoading.value = false
 
-    router.push({
-        name: "game/statistics",
-        params: {
-            id: gameStore.currentGameSettings.id
+            router.push({
+                name: "game/statistics",
+                params: {
+                    id: gameStore.currentGameSettings.id
+                }
+            })
         }
     })
 }
@@ -587,6 +616,7 @@ const handleEndGame = async () => {
 
     .push-end {
         display: flex;
+        margin-right: 2rem;
     }
 
     .undo-button {
