@@ -17,7 +17,7 @@ const rightEvenPlayer = ref("")
 const rightOddPlayer = ref("")
 const formIsLoading = ref(false)
 const gameStore = useGameStore()
-gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const errorMessage = ref("")
 

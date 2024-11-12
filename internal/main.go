@@ -93,7 +93,10 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 func main() {
 	ctx := context.Background()
 
-	dbURI := "postgresql://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+	dbURI := os.Getenv("DB_URI")
+	if len(dbURI) < 1 {
+		dbURI = "postgresql://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+	}
 
 	db := database.Database{}
 

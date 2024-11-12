@@ -1,0 +1,41 @@
+# Stage 1: Build the Go application
+FROM golang:1.22.5 AS builder
+
+ENV CGO_ENABLED=0
+
+# Set the working directory
+WORKDIR /app
+
+COPY internal/go.work ./
+COPY internal/go.mod internal/go.sum ./
+COPY internal/users/go.mod internal/users/go.sum users/
+COPY internal/players/go.mod internal/players/go.sum players/
+COPY internal/common/go.mod internal/common/go.sum common/
+COPY internal/sessions/go.mod internal/sessions/go.sum sessions/
+COPY internal/games/go.mod internal/games/go.sum games/
+
+RUN go work sync
+
+# Copy the rest of the application source code
+COPY ./internal .
+
+# Build the application
+RUN go build -o myapp .
+
+# Stage 2: Create a minimal image for running the application
+FROM debian:bullseye-slim
+
+RUN apt-get update && apt-get install -y libc6
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built application from the builder stage
+COPY --from=builder /app/myapp .
+COPY ./internal/database/migrations /app/database/migrations
+
+# Expose port 8080 (the default port for Cloud Run)
+EXPOSE 8080
+
+# Command to run the application
+CMD ["/app/myapp"]

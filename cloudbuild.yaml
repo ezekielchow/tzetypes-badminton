@@ -1,0 +1,122 @@
+steps:
+  # Build Proxy service
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-f",
+        "gcp-proxy/Dockerfile.prod",
+        "-t",
+        "gcr.io/badminton-stats-3e3e/gcp-proxy",
+        ".",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/badminton-stats-3e3e/gcp-proxy"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "gcp-proxy"
+      - "--image"
+      - "gcr.io/badminton-stats-3e3e/gcp-proxy"
+      - "--region"
+      - "asia-south1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--set-secrets"
+      - "GCP_PROXY_BACKEND_URL=projects/754749631741/secrets/backend-url:latest"
+      - "--set-secrets"
+      - "GCP_PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
+
+  # Build Go app
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-f",
+        "internal/Dockerfile.prod",
+        "-t",
+        "gcr.io/badminton-stats-3e3e/badminton-api",
+        ".",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/badminton-stats-3e3e/badminton-api"]
+
+  # Deploy Go app to Cloud Run with secrets
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "badminton-api-service"
+      - "--image"
+      - "gcr.io/badminton-stats-3e3e/badminton-api"
+      - "--region"
+      - "asia-south1"
+      - "--platform"
+      - "managed"
+      - "--no-allow-unauthenticated"
+      - "--set-secrets"
+      - "DB_URI=projects/754749631741/secrets/db-uri:latest"
+      - "--set-secrets"
+      - "BACKEND_ALLOW_ORIGINS=projects/754749631741/secrets/backend-allow-origins:latest"
+      - "--set-secrets"
+      - "SESSION_LIFESPAN_MINUTES=projects/754749631741/secrets/session-lifespan-minutes:latest"
+      - "--set-secrets"
+      - "REFRESH_LIFESPAN_MINUTES=projects/754749631741/secrets/refresh-lifespan-minutes:latest"
+      - "--set-secrets"
+      - "IS_HTTPS=projects/754749631741/secrets/is-https:latest"
+      - "--set-secrets"
+      - "APP_PORT=projects/754749631741/secrets/app-port:latest"
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--build-arg",
+        "VITE_PROXY_URL",
+        "-f",
+        "web/Dockerfile.prod",
+        "-t",
+        "gcr.io/badminton-stats-3e3e/badminton-frontend",
+        ".",
+      ]
+    secretEnv: ["VITE_PROXY_URL"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/badminton-stats-3e3e/badminton-frontend"]
+
+  # Deploy Vue app to Cloud Run with secrets
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "badminton-frontend-service"
+      - "--image"
+      - "gcr.io/badminton-stats-3e3e/badminton-frontend"
+      - "--region"
+      - "asia-south1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+
+images:
+  [
+    "gcr.io/badminton-stats-3e3e/badminton-api",
+    "gcr.io/badminton-stats-3e3e/badminton-frontend",
+    "gcr.io/badminton-stats-3e3e/gcp-proxy",
+  ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+availableSecrets:
+  secretManager:
+    - versionName: "projects/754749631741/secrets/vite-proxy-url/versions/latest"
+      env: "VITE_PROXY_URL"
