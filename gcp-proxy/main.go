@@ -55,8 +55,6 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("eh?", r.Method, url, r.Body)
-
 	// Copy original headers and add authorization
 	copyHeaders(proxyReq.Header, r.Header)
 	proxyReq.Header.Set("X-Serverless-Authorization", "Bearer "+token)
@@ -71,6 +69,8 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	// Copy response back to the client
+	responseHeaders := w.Header()
+	copyHeaders(responseHeaders, resp.Header)
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
 }

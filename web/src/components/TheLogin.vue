@@ -35,7 +35,6 @@ const router = useRouter()
 const submitLogin = async () => {
 
   const userStore = useUserStore()
-  console.log('ehgh?', import.meta.env.VITE_PROXY_URL);
 
   userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
   const res = await userStore.login(email.value, password.value)
