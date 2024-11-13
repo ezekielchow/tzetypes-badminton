@@ -70,7 +70,6 @@ export class MyApi extends runtime.BaseAPI {
           console.error('Token refresh failed: ', refreshError);
 
           // Logout and redirect to the sign-in page on failure
-          this.logoutRequest()
           this.deleteSession();
           throw new Error('Session expired. Please log in again.'); // Optionally rethrow to indicate the session issue
         }

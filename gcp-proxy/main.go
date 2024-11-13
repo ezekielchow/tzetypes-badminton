@@ -69,11 +69,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	copyHeaders(proxyReq.Header, r.Header)
 
-	log.Println("eh?", os.Getenv("IS_HTTPS"))
-
 	if os.Getenv("IS_HTTPS") == "true" {
-		log.Println("came in here")
-
 		// Get an identity token for the backend
 		token, err := getIdentityToken()
 		if err != nil {
