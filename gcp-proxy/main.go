@@ -39,14 +39,6 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 	// Construct the backend URL with the requested path
 	url := backendURL + "/" + r.URL.Path[len("/proxy/"):] + "?" + r.URL.RawQuery
 
-	// Get an identity token for the backend
-	token, err := getIdentityToken()
-	if err != nil {
-		log.Println("Failed to get identity token", err)
-		http.Error(w, "Failed to get identity token", http.StatusInternalServerError)
-		return
-	}
-
 	// Forward the request to the backend
 	proxyReq, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
@@ -55,9 +47,22 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Copy original headers and add authorization
 	copyHeaders(proxyReq.Header, r.Header)
-	proxyReq.Header.Set("X-Serverless-Authorization", "Bearer "+token)
+
+	if os.Getenv("IS_HTTPS") == "true" {
+		// Get an identity token for the backend
+		token, err := getIdentityToken()
+		if err != nil {
+			log.Println("Failed to get identity token", err)
+			http.Error(w, "Failed to get identity token", http.StatusInternalServerError)
+			return
+		}
+
+		// Copy original headers and add authorization
+		proxyReq.Header.Set("X-Serverless-Authorization", "Bearer "+token)
+	}
+
+	log.Println(proxyReq.Body)
 
 	client := &http.Client{}
 	resp, err := client.Do(proxyReq)

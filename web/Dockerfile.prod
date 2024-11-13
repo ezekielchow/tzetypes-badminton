@@ -4,14 +4,14 @@ WORKDIR /app
 
 COPY web/package*.json ./
 
-RUN npm install
+RUN yarn install
 
 ARG VITE_PROXY_URL
 ENV VITE_PROXY_URL=${VITE_PROXY_URL}
 
 COPY ./web .
 
-RUN npm run build
+RUN yarn run build
 
 FROM nginx:alpine AS production-stage
 WORKDIR /app
