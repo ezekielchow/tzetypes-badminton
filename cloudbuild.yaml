@@ -32,7 +32,7 @@ steps:
       - "--set-secrets"
       - "GCP_PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/proxy-allow-origins:latest"
       - "--set-secrets"
-      - "GCP_PROXY_ALLOW_ORIGINS=projects/754749631741/secrets/is-https:latest"
+      - "IS_HTTPS=projects/754749631741/secrets/is-https:latest"
 
   # Build Go app
   - name: "gcr.io/cloud-builders/docker"
