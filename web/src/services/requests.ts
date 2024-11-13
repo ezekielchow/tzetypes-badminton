@@ -13,6 +13,7 @@ import {
 
 
 import * as runtime from '@/repositories/clients/private';
+import { resetStores } from './store';
 
 export class MyApi extends runtime.BaseAPI {
 
@@ -152,6 +153,8 @@ export class MyApi extends runtime.BaseAPI {
   deleteSession(): void {
     // Clear session storage or any other storage that holds your authentication tokens
     sessionStorage.removeItem('session_token');
+
+    resetStores()
 
     // Redirect the user to the sign-in page
     window.location.href = this.signInPageUrl;
