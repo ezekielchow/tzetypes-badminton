@@ -107,7 +107,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 // getIdentityToken fetches an identity token from the metadata server
 func getIdentityToken() (string, error) {
 	// Request the token from the metadata server
-	identityURL := "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=" + backendURL
+	identityURL := "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=" + backendURL
 	req, err := http.NewRequest("GET", identityURL, nil)
 	if err != nil {
 		return "", err
