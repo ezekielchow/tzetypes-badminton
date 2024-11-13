@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+
+	"github.com/rs/cors"
 )
 
 var backendURL string
@@ -24,10 +27,28 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/proxy/", handleProxy)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/proxy/", handleProxy)
+
 	port := "8080"
 	log.Printf("Proxy service running on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+	allowedOrigins := strings.Split(os.Getenv("GCP_PROXY_ALLOW_ORIGINS"), ";")
+	if len(allowedOrigins) == 0 {
+		return
+	}
+
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
+	handler := corsMiddleware.Handler(mux)
+
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
 func handleProxy(w http.ResponseWriter, r *http.Request) {
