@@ -32,8 +32,10 @@ type GameStatistic struct {
 	AveragePerPoint        string `json:"average_per_point"`
 	LeftConsecutivePoints  string `json:"left_consecutive_points"`
 	LongestPoint           string `json:"longest_point"`
+	LongestPointTeam       string `json:"longest_point_team"`
 	RightConsecutivePoints string `json:"right_consecutive_points"`
 	ShortestPoint          string `json:"shortest_point"`
+	ShortestPointTeam      string `json:"shortest_point_team"`
 	TotalGameTime          string `json:"total_game_time"`
 }
 

@@ -72,10 +72,12 @@ const createGameStatistic = `-- name: CreateGameStatistic :one
 INSERT INTO game_statistics(
     game_id,
     total_game_time_seconds, 
-    right_consecutive_points_seconds,
-    left_consecutive_points_seconds,
+    right_consecutive_points,
+    left_consecutive_points,
     longest_point_seconds,
+    longest_point_team,
     shortest_point_seconds,
+    shortest_point_team,
     average_time_per_point_seconds
 ) VALUES (
     $1::uuid,
@@ -83,29 +85,35 @@ INSERT INTO game_statistics(
     $3::int,
     $4::int,
     $5::int,
-    $6::int,
-    $7::int
-) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points_seconds, left_consecutive_points_seconds, longest_point_seconds, shortest_point_seconds, average_time_per_point_seconds, created_at, updated_at
+    $6::text,
+    $7::int,
+    $8::text,
+    $9::int
+) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, longest_point_seconds, longest_point_team, shortest_point_seconds, shortest_point_team, average_time_per_point_seconds, created_at, updated_at
 `
 
 type CreateGameStatisticParams struct {
-	GameID                        pgtype.UUID
-	TotalGameTimeSeconds          int32
-	RightConsecutivePointsSeconds int32
-	LeftConsecutivePointsSeconds  int32
-	LongestPointSeconds           int32
-	ShortestPointSeconds          int32
-	AverageTimePerPointSeconds    int32
+	GameID                     pgtype.UUID
+	TotalGameTimeSeconds       int32
+	RightConsecutivePoints     int32
+	LeftConsecutivePoints      int32
+	LongestPointSeconds        int32
+	LongestPointTeam           string
+	ShortestPointSeconds       int32
+	ShortestPointTeam          string
+	AverageTimePerPointSeconds int32
 }
 
 func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatisticParams) (GameStatistic, error) {
 	row := q.db.QueryRow(ctx, createGameStatistic,
 		arg.GameID,
 		arg.TotalGameTimeSeconds,
-		arg.RightConsecutivePointsSeconds,
-		arg.LeftConsecutivePointsSeconds,
+		arg.RightConsecutivePoints,
+		arg.LeftConsecutivePoints,
 		arg.LongestPointSeconds,
+		arg.LongestPointTeam,
 		arg.ShortestPointSeconds,
+		arg.ShortestPointTeam,
 		arg.AverageTimePerPointSeconds,
 	)
 	var i GameStatistic
@@ -113,10 +121,12 @@ func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatist
 		&i.ID,
 		&i.GameID,
 		&i.TotalGameTimeSeconds,
-		&i.RightConsecutivePointsSeconds,
-		&i.LeftConsecutivePointsSeconds,
+		&i.RightConsecutivePoints,
+		&i.LeftConsecutivePoints,
 		&i.LongestPointSeconds,
+		&i.LongestPointTeam,
 		&i.ShortestPointSeconds,
+		&i.ShortestPointTeam,
 		&i.AverageTimePerPointSeconds,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -226,7 +236,7 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 }
 
 const getGameStatisticsWithGameID = `-- name: GetGameStatisticsWithGameID :one
-SELECT id, game_id, total_game_time_seconds, right_consecutive_points_seconds, left_consecutive_points_seconds, longest_point_seconds, shortest_point_seconds, average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
+SELECT id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, longest_point_seconds, longest_point_team, shortest_point_seconds, shortest_point_team, average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
 `
 
 func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype.UUID) (GameStatistic, error) {
@@ -236,10 +246,12 @@ func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype
 		&i.ID,
 		&i.GameID,
 		&i.TotalGameTimeSeconds,
-		&i.RightConsecutivePointsSeconds,
-		&i.LeftConsecutivePointsSeconds,
+		&i.RightConsecutivePoints,
+		&i.LeftConsecutivePoints,
 		&i.LongestPointSeconds,
+		&i.LongestPointTeam,
 		&i.ShortestPointSeconds,
+		&i.ShortestPointTeam,
 		&i.AverageTimePerPointSeconds,
 		&i.CreatedAt,
 		&i.UpdatedAt,

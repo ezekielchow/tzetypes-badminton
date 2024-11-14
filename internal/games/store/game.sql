@@ -66,17 +66,21 @@ SELECT * FROM game_statistics WHERE game_id = @game_id::uuid LIMIT 1;
 INSERT INTO game_statistics(
     game_id,
     total_game_time_seconds, 
-    right_consecutive_points_seconds,
-    left_consecutive_points_seconds,
+    right_consecutive_points,
+    left_consecutive_points,
     longest_point_seconds,
+    longest_point_team,
     shortest_point_seconds,
+    shortest_point_team,
     average_time_per_point_seconds
 ) VALUES (
     @game_id::uuid,
     @total_game_time_seconds::int,
-    @right_consecutive_points_seconds::int,
-    @left_consecutive_points_seconds::int,
+    @right_consecutive_points::int,
+    @left_consecutive_points::int,
     @longest_point_seconds::int,
+    @longest_point_team::text,
     @shortest_point_seconds::int,
+    @shortest_point_team::text,
     @average_time_per_point_seconds::int
 ) RETURNING *;

@@ -65,11 +65,15 @@ func (g *Game) ModelToAPI() oapiprivate.Game {
 	}
 }
 
-func (g Game) GetGameLength(lastScoreAt time.Time) string {
+func (g Game) GetGameLength(lastScoreAt time.Time) int {
 	duration := lastScoreAt.Sub(g.CreatedAt)
 
-	hours := int(duration.Hours())
-	minutes := int(duration.Minutes()) % 60
+	return int(duration.Seconds())
+}
+
+func GetGameLengthFormatted(seconds int) string {
+	hours := seconds / 3600
+	minutes := (seconds % 3600) / 60
 
 	return fmt.Sprintf("%02d hours %02d minutes", hours, minutes)
 }

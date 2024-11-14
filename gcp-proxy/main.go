@@ -82,8 +82,6 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		proxyReq.Header.Set("X-Serverless-Authorization", "Bearer "+token)
 	}
 
-	log.Println(proxyReq.Body)
-
 	client := &http.Client{}
 	resp, err := client.Do(proxyReq)
 	if err != nil {

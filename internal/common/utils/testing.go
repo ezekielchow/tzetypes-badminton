@@ -58,8 +58,6 @@ func InitDockerTest() (*dockertest.Pool, *dockertest.Resource, string) {
 	hostAndPort := resource.GetHostPort("5432/tcp")
 	databaseUrl := fmt.Sprintf("postgres://badminton_user:postgres12345@%s/test_badminton?sslmode=disable", hostAndPort)
 
-	log.Println("Connecting to database on url: ", databaseUrl)
-
 	if err := resource.Expire(30); err != nil { // Tell docker to hard kill the container in 30 seconds
 		log.Fatalf("Resource couldnt expire: %s", err)
 	}

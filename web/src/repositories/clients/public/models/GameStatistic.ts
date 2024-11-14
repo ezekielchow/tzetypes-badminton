@@ -48,7 +48,19 @@ export interface GameStatistic {
      * @type {string}
      * @memberof GameStatistic
      */
+    longestPointTeam: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GameStatistic
+     */
     shortestPoint: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GameStatistic
+     */
+    shortestPointTeam: string;
     /**
      * 
      * @type {string}
@@ -65,7 +77,9 @@ export function instanceOfGameStatistic(value: object): value is GameStatistic {
     if (!('leftConsecutivePoints' in value) || value['leftConsecutivePoints'] === undefined) return false;
     if (!('rightConsecutivePoints' in value) || value['rightConsecutivePoints'] === undefined) return false;
     if (!('longestPoint' in value) || value['longestPoint'] === undefined) return false;
+    if (!('longestPointTeam' in value) || value['longestPointTeam'] === undefined) return false;
     if (!('shortestPoint' in value) || value['shortestPoint'] === undefined) return false;
+    if (!('shortestPointTeam' in value) || value['shortestPointTeam'] === undefined) return false;
     if (!('averagePerPoint' in value) || value['averagePerPoint'] === undefined) return false;
     return true;
 }
@@ -84,7 +98,9 @@ export function GameStatisticFromJSONTyped(json: any, ignoreDiscriminator: boole
         'leftConsecutivePoints': json['left_consecutive_points'],
         'rightConsecutivePoints': json['right_consecutive_points'],
         'longestPoint': json['longest_point'],
+        'longestPointTeam': json['longest_point_team'],
         'shortestPoint': json['shortest_point'],
+        'shortestPointTeam': json['shortest_point_team'],
         'averagePerPoint': json['average_per_point'],
     };
 }
@@ -99,7 +115,9 @@ export function GameStatisticToJSON(value?: GameStatistic | null): any {
         'left_consecutive_points': value['leftConsecutivePoints'],
         'right_consecutive_points': value['rightConsecutivePoints'],
         'longest_point': value['longestPoint'],
+        'longest_point_team': value['longestPointTeam'],
         'shortest_point': value['shortestPoint'],
+        'shortest_point_team': value['shortestPointTeam'],
         'average_per_point': value['averagePerPoint'],
     };
 }

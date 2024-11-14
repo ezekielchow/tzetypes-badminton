@@ -17,12 +17,18 @@ func updateStreak(currentTeam models.TeamSide, previousServer string, streakPoin
 		serverCompareString = "left"
 	}
 
+	// Reset streak points if the server side has changed
 	if strings.Contains(previousServer, serverCompareString) {
 		streakPoints = 0
 	}
 
+	// Increment the streak points for the current team
 	streakPoints += 1
 	updatedStreakPoints = streakPoints
+
+	// Update consecutive points if the current streak is the highest for that team
+	updatedLeftConsecutivePoints = leftConsecutivePoints
+	updatedRightConsecutivePoints = rightConsecutivePoints
 
 	if currentTeam == models.TeamSideLeft && updatedStreakPoints > leftConsecutivePoints {
 		updatedLeftConsecutivePoints = updatedStreakPoints
@@ -48,7 +54,8 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 	leftConsecutivePoints := 0
 	rightConsecutivePoints := 0
 
-	var longestPoint, shortestPoint, totalSeconds int
+	var longestPointSeconds, shortestPointSeconds, totalSeconds int
+	var longestPointTeam, shortestPointTeam string
 	streakPoints := 0
 	apiSteps := []oapipublic.GameStep{}
 	for i, step := range gameSteps {
@@ -82,16 +89,41 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 			timeDiff := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
 			totalSeconds += timeDiff
 
-			if timeDiff > longestPoint {
-				longestPoint = timeDiff
+			if timeDiff > longestPointSeconds {
+				longestPointSeconds = timeDiff
+				if step.TeamLeftScore > previous.TeamLeftScore {
+					longestPointTeam = string(models.TeamSideLeft)
+				} else {
+					longestPointTeam = string(models.TeamSideRight)
+				}
 			}
-			if timeDiff < shortestPoint || shortestPoint == 0 {
-				shortestPoint = timeDiff
+			if timeDiff < shortestPointSeconds || shortestPointSeconds == 0 {
+				shortestPointSeconds = timeDiff
+				if step.TeamLeftScore > previous.TeamLeftScore {
+					shortestPointTeam = string(models.TeamSideLeft)
+				} else {
+					shortestPointTeam = string(models.TeamSideRight)
+				}
 			}
 		}
 	}
 
 	averageSeconds := totalSeconds / len(apiSteps)
+	totalGameTimeSeconds := game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt)
+
+	_, err = gs.GameStore.CreateStatistic(ctx, nil, game.ID, models.GameStatistic{
+		TotalGameTimeSeconds:       totalGameTimeSeconds,
+		RightConsecutivePoints:     rightConsecutivePoints,
+		LeftConsecutivePoints:      leftConsecutivePoints,
+		LongestPointSeconds:        longestPointSeconds,
+		LongestPointTeam:           longestPointTeam,
+		ShortestPointSeconds:       shortestPointSeconds,
+		ShortestPointTeam:          shortestPointTeam,
+		AverageTimePerPointSeconds: averageSeconds,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return oapipublic.GetGame200JSONResponse{
 		Game: oapipublic.Game{
@@ -109,12 +141,14 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		},
 		Steps: apiSteps,
 		Statistics: &oapipublic.GameStatistic{
-			TotalGameTime:          game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt),
+			TotalGameTime:          models.GetGameLengthFormatted(totalGameTimeSeconds),
 			RightConsecutivePoints: strconv.Itoa(rightConsecutivePoints),
 			LeftConsecutivePoints:  strconv.Itoa(leftConsecutivePoints),
-			LongestPoint:           fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(longestPoint)/60), longestPoint%60),
-			ShortestPoint:          fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(shortestPoint)/60), shortestPoint%60),
-			AveragePerPoint:        fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(averageSeconds)/60), averageSeconds%60),
+			LongestPoint:           fmt.Sprintf("%02.fm %ds", math.Floor(float64(longestPointSeconds)/60), longestPointSeconds%60),
+			LongestPointTeam:       longestPointTeam,
+			ShortestPoint:          fmt.Sprintf("%02.fm %ds", math.Floor(float64(shortestPointSeconds)/60), shortestPointSeconds%60),
+			ShortestPointTeam:      shortestPointTeam,
+			AveragePerPoint:        fmt.Sprintf("%02.fm %ds", math.Floor(float64(shortestPointSeconds)/60), averageSeconds%60),
 		},
 	}, nil
 }

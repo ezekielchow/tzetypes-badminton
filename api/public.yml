@@ -165,7 +165,9 @@ components:
         - left_consecutive_points
         - right_consecutive_points
         - longest_point
+        - longest_point_team
         - shortest_point
+        - shortest_point_team
         - average_per_point
       properties:
         total_game_time:
@@ -176,7 +178,11 @@ components:
           type: string
         longest_point:
           type: string
+        longest_point_team:
+          type: string
         shortest_point:
+          type: string
+        shortest_point_team:
           type: string
         average_per_point:
           type: string
