@@ -143,8 +143,8 @@ export class GameApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/game/{game_id}/steps`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
-            method: 'DELETE',
+            path: `/game/{game_id}/steps/delete`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
             body: requestParameters['requestBody'],

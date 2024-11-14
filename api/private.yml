@@ -225,7 +225,8 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
-    delete:
+  /game/{game_id}/steps/delete:
+    post:
       operationId: deleteGameSteps
       tags:
         - game

@@ -160,11 +160,11 @@ type StartGameJSONRequestBody = GameStartRequestSchema
 // EndGameJSONRequestBody defines body for EndGame for application/json ContentType.
 type EndGameJSONRequestBody EndGameJSONBody
 
-// DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
-type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody
-
 // AddGameStepsJSONRequestBody defines body for AddGameSteps for application/json ContentType.
 type AddGameStepsJSONRequestBody = AddGameStepsRequestSchema
+
+// DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
+type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema
