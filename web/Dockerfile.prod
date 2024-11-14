@@ -11,7 +11,7 @@ ENV VITE_PROXY_URL=${VITE_PROXY_URL}
 
 COPY ./web .
 
-RUN yarn run build
+RUN yarn run build-only
 
 FROM nginx:alpine AS production-stage
 WORKDIR /app
