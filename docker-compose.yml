@@ -60,7 +60,6 @@ services:
     container_name: tzetypes-badminton-db
     volumes:
     - tzetypes-badminton-pg-data:/var/lib/postgresql/data
-    - ./db:/docker-entrypoint-initdb.d/
 
 volumes:
   tzetypes-badminton-pg-data:
