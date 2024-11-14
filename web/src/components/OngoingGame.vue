@@ -206,6 +206,13 @@ const handleUndo = () => {
         },
     }).then(async (result) => {
         if (result.isConfirmed) {
+            let lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+
+            while (lastProgress.id == "") {
+                await delaySeconds(0.5)
+                lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+            }
+
             const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
 
             if (toRemove.length > 0) {
@@ -229,6 +236,8 @@ const delaySeconds = async (milliseconds: number) => {
 
 const handleEndGame = async () => {
 
+    isLoading.value = true
+
     Swal.fire({
         title: 'Confirm end game?',
         showCancelButton: true,
@@ -241,11 +250,10 @@ const handleEndGame = async () => {
         },
     }).then(async (result) => {
         if (result.isConfirmed) {
-            isLoading.value = true
 
             let needsSyncing = isNeedsSyncing()
             while (needsSyncing) {
-                await delaySeconds(2)
+                await delaySeconds(1)
                 needsSyncing = isNeedsSyncing()
             }
 
@@ -264,14 +272,19 @@ const handleEndGame = async () => {
 
             isLoading.value = false
 
+            const gameId = gameStore.currentGameSettings.id
+            localStorage.removeItem("game")
+
             router.push({
                 name: "game/statistics",
                 params: {
-                    id: gameStore.currentGameSettings.id
+                    id: gameId
                 }
             })
         }
     })
+
+    isLoading.value = false
 }
 
 </script>
@@ -374,11 +387,12 @@ const handleEndGame = async () => {
                 <div class="push-end">
                     <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
                     <div>
-                        <button class="footer-buttons" @click="handleEndGame()">{{ isLoading ? "Loading.." : "End Game"
+                        <button class="footer-buttons" @click="handleEndGame()" :disabled="isLoading">{{ isLoading ?
+                            "Loading.." : "End Game"
                             }}
                         </button>
                     </div>
-                    <button class="undo-button footer-buttons" @click="handleUndo()">Undo</button>
+                    <button class="undo-button footer-buttons" @click="handleUndo()" :disabled="isLoading">Undo</button>
                 </div>
             </div>
         </div>

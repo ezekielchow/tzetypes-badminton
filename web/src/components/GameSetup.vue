@@ -74,6 +74,9 @@ const handleStartGame = async () => {
         return
     }
 
+    // to make sure a new game is always started
+    localStorage.removeItem("game")
+
     router.push({
         name: 'game/playing',
         params: { id: res.game.id }

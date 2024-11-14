@@ -151,7 +151,8 @@ export class MyApi extends runtime.BaseAPI {
    */
   deleteSession(): void {
     // Clear session storage or any other storage that holds your authentication tokens
-    sessionStorage.removeItem('session_token');
+    sessionStorage.clear()
+    localStorage.clear()
 
     resetStores()
 
