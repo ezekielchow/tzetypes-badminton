@@ -50,7 +50,7 @@ func (response Login200JSONResponse) VisitLoginResponse(w http.ResponseWriter) e
 		HttpOnly: true,
 		Secure:   isSecure, // Set to true in production for HTTPS
 		Path:     "/",
-		SameSite: http.SameSiteStrictMode, // Prevent CSRF
+		SameSite: http.SameSiteNoneMode, // Prevent CSRF
 	})
 
 	// Set content type and status code

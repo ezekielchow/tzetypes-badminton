@@ -27,7 +27,7 @@ func (response Logout204Response) VisitLogoutResponse(w http.ResponseWriter) err
 		HttpOnly: true,
 		Secure:   isSecure, // Set to true in production for HTTPS
 		Path:     "/",
-		SameSite: http.SameSiteStrictMode, // Prevent CSRF
+		SameSite: http.SameSiteNoneMode, // Prevent CSRF
 	})
 
 	// Set content type and status code

@@ -4,6 +4,7 @@ import { CurrentServer, GameTypes } from '@/enums/game';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
+import Swal from 'sweetalert2';
 import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -24,7 +25,7 @@ const currentCourtState = reactive({
 })
 
 const gameStore = useGameStore()
-gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 gameStore.$subscribe(() => {
     updateCourtState()
@@ -193,11 +194,32 @@ const handlePointsOrientation = (orientation: string) => {
 }
 
 const handleUndo = () => {
-    const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
+    Swal.fire({
+        title: 'Confirm undo?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        customClass: {
+            actions: 'my-actions',
+            cancelButton: 'order-1 right-gap',
+            confirmButton: 'order-2',
+            denyButton: 'order-3',
+        },
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            let lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
 
-    if (toRemove.length > 0) {
-        gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
-    }
+            while (lastProgress.id == "") {
+                await delaySeconds(0.5)
+                lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+            }
+
+            const toRemove = gameStore.currentGameProgress.splice(gameStore.currentGameProgress.length - 1, 1)
+
+            if (toRemove.length > 0) {
+                gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
+            }
+        }
+    })
 }
 
 const isNeedsSyncing = () => {
@@ -216,33 +238,53 @@ const handleEndGame = async () => {
 
     isLoading.value = true
 
-    let needsSyncing = isNeedsSyncing()
-    while (needsSyncing) {
-        await delaySeconds(2)
-        needsSyncing = isNeedsSyncing()
-    }
+    Swal.fire({
+        title: 'Confirm end game?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        customClass: {
+            actions: 'my-actions',
+            cancelButton: 'order-1 right-gap',
+            confirmButton: 'order-2',
+            denyButton: 'order-3',
+        },
+    }).then(async (result) => {
+        if (result.isConfirmed) {
 
-    const res = await gameStore.endGame({
-        gameId: gameStore.currentGameSettings.id,
-        endGameRequest: {
-            isEnded: true
+            let needsSyncing = isNeedsSyncing()
+            while (needsSyncing) {
+                await delaySeconds(1)
+                needsSyncing = isNeedsSyncing()
+            }
+
+            const res = await gameStore.endGame({
+                gameId: gameStore.currentGameSettings.id,
+                endGameRequest: {
+                    isEnded: true
+                }
+            })
+
+            if (res instanceof Error) {
+                isLoading.value = false
+                errorMessage.value = res.message
+                return
+            }
+
+            isLoading.value = false
+
+            const gameId = gameStore.currentGameSettings.id
+            localStorage.removeItem("game")
+
+            router.push({
+                name: "game/statistics",
+                params: {
+                    id: gameId
+                }
+            })
         }
     })
-
-    if (res instanceof Error) {
-        isLoading.value = false
-        errorMessage.value = res.message
-        return
-    }
 
     isLoading.value = false
-
-    router.push({
-        name: "game/statistics",
-        params: {
-            id: gameStore.currentGameSettings.id
-        }
-    })
 }
 
 </script>
@@ -345,11 +387,12 @@ const handleEndGame = async () => {
                 <div class="push-end">
                     <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
                     <div>
-                        <button class="footer-buttons" @click="handleEndGame()">{{ isLoading ? "Loading.." : "End Game"
+                        <button class="footer-buttons" @click="handleEndGame()" :disabled="isLoading">{{ isLoading ?
+                            "Loading.." : "End Game"
                             }}
                         </button>
                     </div>
-                    <button class="undo-button footer-buttons" @click="handleUndo()">Undo</button>
+                    <button class="undo-button footer-buttons" @click="handleUndo()" :disabled="isLoading">Undo</button>
                 </div>
             </div>
         </div>
@@ -587,6 +630,7 @@ const handleEndGame = async () => {
 
     .push-end {
         display: flex;
+        margin-right: 2rem;
     }
 
     .undo-button {

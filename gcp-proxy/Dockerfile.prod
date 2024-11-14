@@ -1,0 +1,14 @@
+# Use the official Golang image as a base
+FROM golang:1.22.5
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the Go application code
+COPY ./gcp-proxy .
+
+# Build the Go application
+RUN go build -o proxy-service main.go
+
+# Run the application
+CMD ["./proxy-service"]

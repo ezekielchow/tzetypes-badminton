@@ -17,7 +17,7 @@ import {
 
 import * as runtime from '@/repositories/clients/private';
 
-import type { StartGame201Response } from '@/repositories/clients/private/models/StartGame201Response';
+import { resetStores } from './store';
 
 export class MyApi extends runtime.BaseAPI {
 
@@ -74,7 +74,6 @@ export class MyApi extends runtime.BaseAPI {
           console.error('Token refresh failed: ', refreshError);
 
           // Logout and redirect to the sign-in page on failure
-          this.logoutRequest()
           this.deleteSession();
           throw new Error('Session expired. Please log in again.'); // Optionally rethrow to indicate the session issue
         }
@@ -156,7 +155,10 @@ export class MyApi extends runtime.BaseAPI {
    */
   deleteSession(): void {
     // Clear session storage or any other storage that holds your authentication tokens
-    sessionStorage.removeItem('session_token');
+    sessionStorage.clear()
+    localStorage.clear()
+
+    resetStores()
 
     // Redirect the user to the sign-in page
     window.location.href = this.signInPageUrl;
@@ -258,7 +260,7 @@ export class MyApi extends runtime.BaseAPI {
     return await apiResponse.value();
   }
 
-  private async startGameRequest(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StartGame201Response>> {
+  private async startGameRequest(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.StartGame201Response>> {
     const api = new runtime.GameApi(this.getPrivateConf())
 
     try {
@@ -271,7 +273,7 @@ export class MyApi extends runtime.BaseAPI {
     }
   }
 
-  async startGame(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StartGame201Response> {
+  async startGame(requestParameters: runtime.StartGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.StartGame201Response> {
     const apiResponse = await this.authenticatedRequest(() => this.startGameRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }

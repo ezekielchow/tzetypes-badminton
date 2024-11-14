@@ -5,13 +5,32 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./web:/app
+      - /app/node_modules
     ports:
-      - "127.0.0.1:8080:5173"
+      - "8080:5173"
     depends_on:
       - http
     env_file:
       - .env
       
+  gcp-proxy:
+    build:
+      context: docker/app
+    volumes:
+      - ./gcp-proxy:/gcp-proxy
+    working_dir: /gcp-proxy
+    ports:
+      - "$PROXY_PORT:8080"
+    environment:
+      SERVER_TO_RUN: http
+      GOCACHE: /go-cache
+    env_file:
+      - .env
+    depends_on:
+      - tzetypes-badminton-db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   http:
     build:
       context: docker/app
@@ -28,7 +47,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - tzetypes-badminton-db
+      - gcp-proxy
   
   tzetypes-badminton-db:
     image: postgres:16.4
@@ -42,7 +61,6 @@ services:
     container_name: tzetypes-badminton-db
     volumes:
     - tzetypes-badminton-pg-data:/var/lib/postgresql/data
-    - ./db:/docker-entrypoint-initdb.d/
 
 volumes:
   tzetypes-badminton-pg-data:

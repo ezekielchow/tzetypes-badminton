@@ -46,7 +46,7 @@ func TestRefreshToken(t *testing.T) {
 			HttpOnly: true,
 			Secure:   false, // Set to true in production for HTTPS
 			Path:     "/",
-			SameSite: http.SameSiteStrictMode, // Prevent CSRF
+			SameSite: http.SameSiteNoneMode, // Prevent CSRF
 		}
 
 		// Add the cookie to the request

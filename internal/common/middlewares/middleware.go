@@ -16,7 +16,7 @@ type contextKey string
 const RequestKey contextKey = "httpRequest"
 
 func addCorsMiddleware(router *chi.Mux) {
-	allowedOrigins := strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ";")
+	allowedOrigins := strings.Split(os.Getenv("BACKEND_ALLOW_ORIGINS"), ";")
 	if len(allowedOrigins) == 0 {
 		return
 	}

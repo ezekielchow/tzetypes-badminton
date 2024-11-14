@@ -26,6 +26,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
@@ -93,7 +94,10 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 func main() {
 	ctx := context.Background()
 
-	dbURI := "postgresql://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+	dbURI := os.Getenv("DB_URI")
+	if len(dbURI) < 1 {
+		dbURI = "postgresql://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+	}
 
 	db := database.Database{}
 
@@ -102,13 +106,20 @@ func main() {
 		panic(err)
 	}
 
+	config, err := pgxpool.ParseConfig(dbURI)
+	if err != nil {
+		panic(err)
+	}
+
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
+
 	conn, err := pgx.Connect(ctx, dbURI)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close(ctx)
 
-	pool, err := db.Open(ctx, dbURI)
+	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		panic(err)
 	}

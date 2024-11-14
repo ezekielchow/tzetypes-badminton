@@ -114,6 +114,12 @@ type CurrentUserResponseSchema struct {
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
 
+// StartGame201ResponseSchema defines model for StartGame201ResponseSchema.
+type StartGame201ResponseSchema struct {
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
 // EndGameJSONBody defines parameters for EndGame.
 type EndGameJSONBody struct {
 	IsEnded *bool `json:"isEnded,omitempty"`
@@ -148,11 +154,11 @@ type StartGameJSONRequestBody = GameStartRequestSchema
 // EndGameJSONRequestBody defines body for EndGame for application/json ContentType.
 type EndGameJSONRequestBody EndGameJSONBody
 
-// DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
-type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody
-
 // AddGameStepsJSONRequestBody defines body for AddGameSteps for application/json ContentType.
 type AddGameStepsJSONRequestBody = AddGameStepsRequestSchema
+
+// DeleteGameStepsJSONRequestBody defines body for DeleteGameSteps for application/json ContentType.
+type DeleteGameStepsJSONRequestBody = DeleteGameStepsJSONBody
 
 // AddPlayerJSONRequestBody defines body for AddPlayer for application/json ContentType.
 type AddPlayerJSONRequestBody = AddPlayerRequestSchema
