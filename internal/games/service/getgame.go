@@ -4,9 +4,8 @@ import (
 	"common/models"
 	"common/oapipublic"
 	"context"
-	"fmt"
-	"math"
-	"strconv"
+	"database/sql"
+	"log"
 	"strings"
 )
 
@@ -39,18 +38,7 @@ func updateStreak(currentTeam models.TeamSide, previousServer string, streakPoin
 	return updatedStreakPoints, updatedLeftConsecutivePoints, updatedRightConsecutivePoints
 }
 
-func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
-
-	game, err := gs.GameStore.GetGame(ctx, nil, input.GameId)
-	if err != nil {
-		return nil, err
-	}
-
-	gameSteps, err := gs.GameStore.GetGameSteps(ctx, nil, input.GameId)
-	if err != nil {
-		return nil, err
-	}
-
+func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, error) {
 	leftConsecutivePoints := 0
 	rightConsecutivePoints := 0
 
@@ -97,7 +85,7 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 					longestPointTeam = string(models.TeamSideRight)
 				}
 			}
-			if timeDiff < shortestPointSeconds || shortestPointSeconds == 0 {
+			if timeDiff < shortestPointSeconds || i == 1 {
 				shortestPointSeconds = timeDiff
 				if step.TeamLeftScore > previous.TeamLeftScore {
 					shortestPointTeam = string(models.TeamSideLeft)
@@ -109,9 +97,9 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 	}
 
 	averageSeconds := totalSeconds / len(apiSteps)
-	totalGameTimeSeconds := game.GetGameLength(gameSteps[len(gameSteps)-1].ScoreAt)
+	totalGameTimeSeconds := int(gameSteps[len(gameSteps)-1].ScoreAt.Sub(gameSteps[0].ScoreAt).Seconds())
 
-	_, err = gs.GameStore.CreateStatistic(ctx, nil, game.ID, models.GameStatistic{
+	return models.GameStatistic{
 		TotalGameTimeSeconds:       totalGameTimeSeconds,
 		RightConsecutivePoints:     rightConsecutivePoints,
 		LeftConsecutivePoints:      leftConsecutivePoints,
@@ -120,35 +108,55 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 		ShortestPointSeconds:       shortestPointSeconds,
 		ShortestPointTeam:          shortestPointTeam,
 		AverageTimePerPointSeconds: averageSeconds,
-	})
+	}, nil
+}
+
+func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
+
+	game, err := gs.GameStore.GetGame(ctx, nil, input.GameId)
 	if err != nil {
 		return nil, err
 	}
 
+	gameSteps, err := gs.GameStore.GetGameSteps(ctx, nil, input.GameId)
+	if err != nil {
+		return nil, err
+	}
+
+	gameStatistics, err := gs.GameStore.GetStatisticsWithGameId(ctx, nil, input.GameId)
+	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
+		return nil, err
+	}
+
+	if gameStatistics.ID != "" {
+		apiSteps := models.GameStepsToAPI(gameSteps)
+		formattedStatistics := gameStatistics.ModelToAPI()
+
+		return oapipublic.GetGame200JSONResponse{
+			Game:       game.ModelToPublicAPI(),
+			Steps:      apiSteps,
+			Statistics: &formattedStatistics,
+		}, nil
+	}
+
+	gameStatistics, err = generateGameStatistics(gameSteps)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("CHECK", gameStatistics.ShortestPointSeconds)
+
+	createdStatistics, err := gs.GameStore.CreateStatistic(ctx, nil, game.ID, gameStatistics)
+	if err != nil {
+		return nil, err
+	}
+
+	formattedStatistics := createdStatistics.ModelToAPI()
+	apiSteps := models.GameStepsToAPI(gameSteps)
+
 	return oapipublic.GetGame200JSONResponse{
-		Game: oapipublic.Game{
-			ClubId:              game.ClubID,
-			CreatedAt:           game.CreatedAt.String(),
-			GameType:            game.GameType,
-			Id:                  game.ID,
-			LeftEvenPlayerName:  game.LeftEvenPlayerName,
-			LeftOddPlayerName:   *game.LeftOddPlayerName,
-			RightEvenPlayerName: game.RightEvenPlayerName,
-			RightOddPlayerName:  *game.RightOddPlayerName,
-			ServingSide:         game.ServingSide,
-			IsEnded:             game.IsEnded,
-			UpdatedAt:           game.UpdatedAt.String(),
-		},
-		Steps: apiSteps,
-		Statistics: &oapipublic.GameStatistic{
-			TotalGameTime:          models.GetGameLengthFormatted(totalGameTimeSeconds),
-			RightConsecutivePoints: strconv.Itoa(rightConsecutivePoints),
-			LeftConsecutivePoints:  strconv.Itoa(leftConsecutivePoints),
-			LongestPoint:           fmt.Sprintf("%02.fm %ds", math.Floor(float64(longestPointSeconds)/60), longestPointSeconds%60),
-			LongestPointTeam:       longestPointTeam,
-			ShortestPoint:          fmt.Sprintf("%02.fm %ds", math.Floor(float64(shortestPointSeconds)/60), shortestPointSeconds%60),
-			ShortestPointTeam:      shortestPointTeam,
-			AveragePerPoint:        fmt.Sprintf("%02.fm %ds", math.Floor(float64(shortestPointSeconds)/60), averageSeconds%60),
-		},
+		Game:       game.ModelToPublicAPI(),
+		Steps:      apiSteps,
+		Statistics: &formattedStatistics,
 	}, nil
 }

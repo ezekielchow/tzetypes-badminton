@@ -26,6 +26,17 @@ type GameStatistic struct {
 	UpdatedAt                  *time.Time
 }
 
+type FormattedGameStatistic struct {
+	TotalGameTimeSeconds       string
+	RightConsecutivePoints     string
+	LeftConsecutivePoints      string
+	LongestPointSeconds        string
+	LongestPointTeam           string
+	ShortestPointSeconds       string
+	ShortestPointTeam          string
+	AverageTimePerPointSeconds string
+}
+
 func (gs *GameStatistic) PostgresToModel(fromDb database.GameStatistic) error {
 	id, err := uuid.FromBytes(fromDb.ID.Bytes[:])
 	if err != nil {
@@ -43,7 +54,9 @@ func (gs *GameStatistic) PostgresToModel(fromDb database.GameStatistic) error {
 	gs.RightConsecutivePoints = int(*fromDb.RightConsecutivePoints)
 	gs.LeftConsecutivePoints = int(*fromDb.LeftConsecutivePoints)
 	gs.LongestPointSeconds = int(*fromDb.LongestPointSeconds)
+	gs.LongestPointTeam = *fromDb.LongestPointTeam
 	gs.ShortestPointSeconds = int(*fromDb.ShortestPointSeconds)
+	gs.ShortestPointTeam = *fromDb.ShortestPointTeam
 	gs.AverageTimePerPointSeconds = int(*fromDb.AverageTimePerPointSeconds)
 	gs.CreatedAt = fromDb.CreatedAt.Time
 	gs.UpdatedAt = &fromDb.UpdatedAt.Time
@@ -51,12 +64,29 @@ func (gs *GameStatistic) PostgresToModel(fromDb database.GameStatistic) error {
 }
 
 func (gs *GameStatistic) ModelToAPI() oapipublic.GameStatistic {
+	formatted := gs.FormatStatistics()
+
 	return oapipublic.GameStatistic{
-		AveragePerPoint:        fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(gs.AverageTimePerPointSeconds)/60), gs.AverageTimePerPointSeconds%60),
-		LeftConsecutivePoints:  strconv.Itoa(gs.LeftConsecutivePoints),
-		LongestPoint:           fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(gs.LongestPointSeconds)/60), gs.LongestPointSeconds%60),
-		RightConsecutivePoints: strconv.Itoa(gs.RightConsecutivePoints),
-		ShortestPoint:          fmt.Sprintf("%02.fm %02.ds", math.Floor(float64(gs.ShortestPointSeconds)/60), gs.ShortestPointSeconds%60),
-		TotalGameTime:          fmt.Sprintf("%02.fh %02.dm", math.Floor(float64(gs.TotalGameTimeSeconds)/60/60), (gs.TotalGameTimeSeconds/60)%60),
+		AveragePerPoint:        formatted.AverageTimePerPointSeconds,
+		LeftConsecutivePoints:  formatted.LeftConsecutivePoints,
+		RightConsecutivePoints: formatted.RightConsecutivePoints,
+		LongestPoint:           formatted.LongestPointSeconds,
+		LongestPointTeam:       formatted.LongestPointTeam,
+		ShortestPoint:          formatted.ShortestPointSeconds,
+		ShortestPointTeam:      formatted.ShortestPointTeam,
+		TotalGameTime:          formatted.TotalGameTimeSeconds,
+	}
+}
+
+func (gs GameStatistic) FormatStatistics() FormattedGameStatistic {
+	return FormattedGameStatistic{
+		AverageTimePerPointSeconds: fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.AverageTimePerPointSeconds)/60), gs.AverageTimePerPointSeconds%60),
+		LeftConsecutivePoints:      strconv.Itoa(gs.LeftConsecutivePoints),
+		RightConsecutivePoints:     strconv.Itoa(gs.RightConsecutivePoints),
+		LongestPointSeconds:        fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.LongestPointSeconds)/60), gs.LongestPointSeconds%60),
+		LongestPointTeam:           gs.LongestPointTeam,
+		ShortestPointSeconds:       fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.ShortestPointSeconds)/60), gs.ShortestPointSeconds%60),
+		ShortestPointTeam:          gs.ShortestPointTeam,
+		TotalGameTimeSeconds:       fmt.Sprintf("%0.fh %dm", math.Floor(float64(gs.TotalGameTimeSeconds)/60/60), (gs.TotalGameTimeSeconds/60)%60),
 	}
 }

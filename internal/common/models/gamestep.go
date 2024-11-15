@@ -2,6 +2,8 @@ package models
 
 import (
 	"common/oapiprivate"
+	"common/oapipublic"
+	"common/utils"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -78,4 +80,80 @@ func (gs *GameStep) ModelToAPI() oapiprivate.GameStep {
 		UpdatedAt:           gs.UpdatedAt.String(),
 		SyncId:              &gs.SyncId,
 	}
+}
+
+func GameStepsToAPI(gameSteps []GameStep) []oapipublic.GameStep {
+	apiSteps := []oapipublic.GameStep{}
+
+	for _, step := range gameSteps {
+		apiSteps = append(apiSteps, oapipublic.GameStep{
+			CreatedAt:           step.CreatedAt.String(),
+			GameId:              step.GameID,
+			Id:                  step.ID,
+			ScoreAt:             step.ScoreAt.String(),
+			StepNum:             step.StepNum,
+			TeamLeftScore:       step.TeamLeftScore,
+			TeamRightScore:      step.TeamRightScore,
+			CurrentServer:       step.CurrentServer,
+			LeftEvenPlayerName:  step.LeftEvenPlayerName,
+			LeftOddPlayerName:   *step.LeftOddPlayerName,
+			RightEvenPlayerName: step.RightEvenPlayerName,
+			RightOddPlayerName:  *step.RightOddPlayerName,
+			UpdatedAt:           step.UpdatedAt.String(),
+			SyncId:              &step.SyncId,
+		})
+	}
+
+	return apiSteps
+}
+
+func GameStepFactory(count int, args map[string]interface{}) []GameStep {
+	gameSteps := []GameStep{}
+
+	gameID, ok := args["GameID"]
+	if !ok {
+		gameID = uuid.NewString()
+	}
+
+	teamLeftScore, ok := args["TeamLeftScore"]
+	if !ok {
+		teamLeftScore = 0
+	}
+
+	teamRightScore, ok := args["TeamRightScore"]
+	if !ok {
+		teamRightScore = 0
+	}
+
+	scoreAt, ok := args["ScoreAt"]
+	if !ok {
+		scoreAt = time.Now()
+	}
+
+	stepNum, ok := args["StepNum"]
+	if !ok {
+		stepNum = 0
+	}
+
+	leftOddPlayerName := utils.NewString(10)
+	rightOddPlayerName := utils.NewString(10)
+
+	for i := 0; i < count; i++ {
+		gameSteps = append(gameSteps, GameStep{
+			GameID:              gameID.(string),
+			TeamLeftScore:       teamLeftScore.(int),
+			TeamRightScore:      teamRightScore.(int),
+			ScoreAt:             scoreAt.(time.Time),
+			StepNum:             stepNum.(int),
+			CurrentServer:       string(oapiprivate.LeftEven),
+			LeftOddPlayerName:   &leftOddPlayerName,
+			LeftEvenPlayerName:  utils.NewString(10),
+			RightOddPlayerName:  &rightOddPlayerName,
+			RightEvenPlayerName: utils.NewString(10),
+			SyncId:              utils.NewString(10),
+			CreatedAt:           time.Now(),
+		})
+	}
+
+	return gameSteps
 }
