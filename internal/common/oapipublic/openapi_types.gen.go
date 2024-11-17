@@ -30,9 +30,11 @@ type Game struct {
 // GameStatistic defines model for GameStatistic.
 type GameStatistic struct {
 	AveragePerPoint        string `json:"average_per_point"`
+	LeftAveragePerPoint    string `json:"left_average_per_point"`
 	LeftConsecutivePoints  string `json:"left_consecutive_points"`
 	LongestPoint           string `json:"longest_point"`
 	LongestPointTeam       string `json:"longest_point_team"`
+	RightAveragePerPoint   string `json:"right_average_per_point"`
 	RightConsecutivePoints string `json:"right_consecutive_points"`
 	ShortestPoint          string `json:"shortest_point"`
 	ShortestPointTeam      string `json:"shortest_point_team"`

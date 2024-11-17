@@ -5,7 +5,6 @@ import (
 	"common/oapipublic"
 	"context"
 	"database/sql"
-	"log"
 	"strings"
 )
 
@@ -42,7 +41,7 @@ func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, 
 	leftConsecutivePoints := 0
 	rightConsecutivePoints := 0
 
-	var longestPointSeconds, shortestPointSeconds, totalSeconds int
+	var longestPointSeconds, shortestPointSeconds, totalSeconds, leftTotalSeconds, rightTotalSeconds int
 	var longestPointTeam, shortestPointTeam string
 	streakPoints := 0
 	apiSteps := []oapipublic.GameStep{}
@@ -66,16 +65,19 @@ func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, 
 
 		if i > 0 {
 			previous := gameSteps[i-1]
+			timeDiff := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
+			totalSeconds += timeDiff
+
 			// get streaks
 			if step.TeamLeftScore > previous.TeamLeftScore {
 				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideLeft, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
+
+				leftTotalSeconds += timeDiff
 			} else {
 				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideRight, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
-			}
 
-			// getscorediff
-			timeDiff := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
-			totalSeconds += timeDiff
+				rightTotalSeconds += timeDiff
+			}
 
 			if timeDiff > longestPointSeconds {
 				longestPointSeconds = timeDiff
@@ -100,14 +102,16 @@ func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, 
 	totalGameTimeSeconds := int(gameSteps[len(gameSteps)-1].ScoreAt.Sub(gameSteps[0].ScoreAt).Seconds())
 
 	return models.GameStatistic{
-		TotalGameTimeSeconds:       totalGameTimeSeconds,
-		RightConsecutivePoints:     rightConsecutivePoints,
-		LeftConsecutivePoints:      leftConsecutivePoints,
-		LongestPointSeconds:        longestPointSeconds,
-		LongestPointTeam:           longestPointTeam,
-		ShortestPointSeconds:       shortestPointSeconds,
-		ShortestPointTeam:          shortestPointTeam,
-		AverageTimePerPointSeconds: averageSeconds,
+		TotalGameTimeSeconds:            totalGameTimeSeconds,
+		RightConsecutivePoints:          rightConsecutivePoints,
+		LeftConsecutivePoints:           leftConsecutivePoints,
+		LongestPointSeconds:             longestPointSeconds,
+		LongestPointTeam:                longestPointTeam,
+		ShortestPointSeconds:            shortestPointSeconds,
+		ShortestPointTeam:               shortestPointTeam,
+		AverageTimePerPointSeconds:      averageSeconds,
+		LeftAverageTimePerPointSeconds:  leftTotalSeconds / (gameSteps[len(gameSteps)-1].TeamLeftScore),
+		RightAverageTimePerPointSeconds: rightTotalSeconds / (gameSteps[len(gameSteps)-1].TeamRightScore),
 	}, nil
 }
 
@@ -143,8 +147,6 @@ func (gs GameService) GetGame(ctx context.Context, input oapipublic.GetGameReque
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("CHECK", gameStatistics.ShortestPointSeconds)
 
 	createdStatistics, err := gs.GameStore.CreateStatistic(ctx, nil, game.ID, gameStatistics)
 	if err != nil {

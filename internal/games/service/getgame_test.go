@@ -34,6 +34,7 @@ func TestGetGame(t *testing.T) {
 		initialTime := time.Now()
 		secondLongestPoint := initialTime.Add(time.Minute * 2)
 		thirdShortestPoint := secondLongestPoint.Add(time.Second * 2)
+		fourthPointTime := thirdShortestPoint.Add(time.Second * 15)
 
 		toCreateSteps := []map[string]interface{}{
 			{
@@ -57,6 +58,13 @@ func TestGetGame(t *testing.T) {
 				"ScoreAt":        thirdShortestPoint,
 				"StepNum":        3,
 			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  2,
+				"TeamRightScore": 1,
+				"ScoreAt":        fourthPointTime,
+				"StepNum":        4,
+			},
 		}
 
 		steps := []models.GameStep{}
@@ -74,13 +82,15 @@ func TestGetGame(t *testing.T) {
 			t.Errorf("unable to create statistic: %s", err.Error())
 		}
 
-		assert.Equal(t, int(thirdShortestPoint.Sub(initialTime).Seconds()), statistic.TotalGameTimeSeconds)
-		assert.Equal(t, 0, statistic.RightConsecutivePoints)
+		assert.Equal(t, int(fourthPointTime.Sub(initialTime).Seconds()), statistic.TotalGameTimeSeconds)
+		assert.Equal(t, 1, statistic.RightConsecutivePoints)
 		assert.Equal(t, 2, statistic.LeftConsecutivePoints)
 		assert.Equal(t, int(secondLongestPoint.Sub(initialTime).Seconds()), statistic.LongestPointSeconds)
 		assert.Equal(t, string(models.TeamSideLeft), statistic.LongestPointTeam)
 		assert.Equal(t, int(thirdShortestPoint.Sub(secondLongestPoint).Seconds()), statistic.ShortestPointSeconds)
 		assert.Equal(t, string(models.TeamSideLeft), statistic.ShortestPointTeam)
-		assert.Equal(t, int((thirdShortestPoint.Sub(initialTime).Seconds())/3), statistic.AverageTimePerPointSeconds)
+		assert.Equal(t, int((fourthPointTime.Sub(initialTime).Seconds())/4), statistic.AverageTimePerPointSeconds)
+		assert.Equal(t, 122/2, statistic.LeftAverageTimePerPointSeconds)
+		assert.Equal(t, 15, statistic.RightAverageTimePerPointSeconds)
 	})
 }

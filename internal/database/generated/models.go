@@ -31,18 +31,20 @@ type Game struct {
 }
 
 type GameStatistic struct {
-	ID                         pgtype.UUID
-	GameID                     pgtype.UUID
-	TotalGameTimeSeconds       *int32
-	RightConsecutivePoints     *int32
-	LeftConsecutivePoints      *int32
-	LongestPointSeconds        *int32
-	LongestPointTeam           *string
-	ShortestPointSeconds       *int32
-	ShortestPointTeam          *string
-	AverageTimePerPointSeconds *int32
-	CreatedAt                  pgtype.Timestamp
-	UpdatedAt                  pgtype.Timestamp
+	ID                              pgtype.UUID
+	GameID                          pgtype.UUID
+	TotalGameTimeSeconds            *int32
+	RightConsecutivePoints          *int32
+	LeftConsecutivePoints           *int32
+	LongestPointSeconds             *int32
+	LongestPointTeam                *string
+	ShortestPointSeconds            *int32
+	ShortestPointTeam               *string
+	AverageTimePerPointSeconds      *int32
+	LeftAverageTimePerPointSeconds  *int32
+	RightAverageTimePerPointSeconds *int32
+	CreatedAt                       pgtype.Timestamp
+	UpdatedAt                       pgtype.Timestamp
 }
 
 type GameStep struct {

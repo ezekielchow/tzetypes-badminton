@@ -72,7 +72,9 @@ INSERT INTO game_statistics(
     longest_point_team,
     shortest_point_seconds,
     shortest_point_team,
-    average_time_per_point_seconds
+    average_time_per_point_seconds,
+    right_average_time_per_point_seconds,
+    left_average_time_per_point_seconds
 ) VALUES (
     @game_id::uuid,
     @total_game_time_seconds::int,
@@ -82,5 +84,7 @@ INSERT INTO game_statistics(
     @longest_point_team::text,
     @shortest_point_seconds::int,
     @shortest_point_team::text,
-    @average_time_per_point_seconds::int
+    @average_time_per_point_seconds::int,
+    @right_average_time_per_point_seconds::int,
+    @left_average_time_per_point_seconds::int
 ) RETURNING *;

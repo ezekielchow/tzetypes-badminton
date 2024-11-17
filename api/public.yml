@@ -169,6 +169,8 @@ components:
         - shortest_point
         - shortest_point_team
         - average_per_point
+        - left_average_per_point
+        - right_average_per_point
       properties:
         total_game_time:
           type: string
@@ -185,6 +187,10 @@ components:
         shortest_point_team:
           type: string
         average_per_point:
+          type: string
+        left_average_per_point:
+          type: string
+        right_average_per_point:
           type: string
 
     Game:

@@ -166,15 +166,17 @@ func (gp GamePostgres) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID s
 	}
 
 	dbRes, err := gp.Queries.CreateGameStatistic(ctx, database.CreateGameStatisticParams{
-		GameID:                     pgGameID,
-		TotalGameTimeSeconds:       int32(toCreate.TotalGameTimeSeconds),
-		RightConsecutivePoints:     int32(toCreate.RightConsecutivePoints),
-		LeftConsecutivePoints:      int32(toCreate.LeftConsecutivePoints),
-		LongestPointSeconds:        int32(toCreate.LongestPointSeconds),
-		LongestPointTeam:           toCreate.LongestPointTeam,
-		ShortestPointSeconds:       int32(toCreate.ShortestPointSeconds),
-		ShortestPointTeam:          toCreate.ShortestPointTeam,
-		AverageTimePerPointSeconds: int32(toCreate.AverageTimePerPointSeconds),
+		GameID:                          pgGameID,
+		TotalGameTimeSeconds:            int32(toCreate.TotalGameTimeSeconds),
+		RightConsecutivePoints:          int32(toCreate.RightConsecutivePoints),
+		LeftConsecutivePoints:           int32(toCreate.LeftConsecutivePoints),
+		LongestPointSeconds:             int32(toCreate.LongestPointSeconds),
+		LongestPointTeam:                toCreate.LongestPointTeam,
+		ShortestPointSeconds:            int32(toCreate.ShortestPointSeconds),
+		ShortestPointTeam:               toCreate.ShortestPointTeam,
+		AverageTimePerPointSeconds:      int32(toCreate.AverageTimePerPointSeconds),
+		LeftAverageTimePerPointSeconds:  int32(toCreate.LeftAverageTimePerPointSeconds),
+		RightAverageTimePerPointSeconds: int32(toCreate.RightAverageTimePerPointSeconds),
 	})
 	if err != nil {
 		return models.GameStatistic{}, err

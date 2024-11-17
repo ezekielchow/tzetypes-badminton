@@ -67,6 +67,18 @@ export interface GameStatistic {
      * @memberof GameStatistic
      */
     averagePerPoint: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GameStatistic
+     */
+    leftAveragePerPoint: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GameStatistic
+     */
+    rightAveragePerPoint: string;
 }
 
 /**
@@ -81,6 +93,8 @@ export function instanceOfGameStatistic(value: object): value is GameStatistic {
     if (!('shortestPoint' in value) || value['shortestPoint'] === undefined) return false;
     if (!('shortestPointTeam' in value) || value['shortestPointTeam'] === undefined) return false;
     if (!('averagePerPoint' in value) || value['averagePerPoint'] === undefined) return false;
+    if (!('leftAveragePerPoint' in value) || value['leftAveragePerPoint'] === undefined) return false;
+    if (!('rightAveragePerPoint' in value) || value['rightAveragePerPoint'] === undefined) return false;
     return true;
 }
 
@@ -102,6 +116,8 @@ export function GameStatisticFromJSONTyped(json: any, ignoreDiscriminator: boole
         'shortestPoint': json['shortest_point'],
         'shortestPointTeam': json['shortest_point_team'],
         'averagePerPoint': json['average_per_point'],
+        'leftAveragePerPoint': json['left_average_per_point'],
+        'rightAveragePerPoint': json['right_average_per_point'],
     };
 }
 
@@ -119,6 +135,8 @@ export function GameStatisticToJSON(value?: GameStatistic | null): any {
         'shortest_point': value['shortestPoint'],
         'shortest_point_team': value['shortestPointTeam'],
         'average_per_point': value['averagePerPoint'],
+        'left_average_per_point': value['leftAveragePerPoint'],
+        'right_average_per_point': value['rightAveragePerPoint'],
     };
 }
 
