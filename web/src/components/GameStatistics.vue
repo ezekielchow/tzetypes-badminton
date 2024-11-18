@@ -1,18 +1,46 @@
 <script setup lang="ts">
-import shuttlecock from '@/assets/images/shuttlecock.png';
-import type { GameStep, GetGame200Response } from "@/repositories/clients/public";
+import userImage from '@/assets/images/user.png';
+import type { GetGame200Response } from "@/repositories/clients/public";
 import { useGameStore } from '@/stores/game-store';
-import { onBeforeMount, reactive, ref } from 'vue';
+import { computed, onBeforeMount, reactive, ref } from 'vue';
 
 const gameData = reactive({} as GetGame200Response)
 const errorMessage = ref("")
-const noOfSteps = ref(0)
+const winningTeam = ref("")
+const firstLeftPlayerName = ref("")
+const secondLeftPlayerName = ref("")
+const firstRightPlayerName = ref("")
+const secondRightPlayerName = ref("")
+const matchDuration = ref("")
 const gameStore = useGameStore()
-gameStore.setBackendUrl(import.meta.env.VITE_BACKEND_URL)
+gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 onBeforeMount(async () => {
     await getStatistics()
 })
+
+const updateDisplay = () => {
+
+    if (gameData.steps) {
+        const last = gameData.steps[gameData.steps.length - 1]
+        if (last.teamLeftScore > last.teamRightScore) {
+            winningTeam.value = "left"
+        } else {
+            winningTeam.value = "right"
+        }
+    }
+
+    if (gameData.game) {
+        firstLeftPlayerName.value = gameData.game.leftOddPlayerName
+        secondLeftPlayerName.value = gameData.game.leftEvenPlayerName
+        firstRightPlayerName.value = gameData.game.rightEvenPlayerName
+        secondRightPlayerName.value = gameData.game.rightOddPlayerName
+    }
+
+    if (gameData.statistics) {
+        matchDuration.value = gameData.statistics.totalGameTime
+    }
+}
 
 const getStatistics = async () => {
     const res = await gameStore.getGameStatistics({
@@ -29,71 +57,80 @@ const getStatistics = async () => {
     gameData.game = data.game
     gameData.steps = data.steps.slice(1)
     gameData.statistics = data.statistics
-    noOfSteps.value = data.steps.length
 
-    console.log(gameData);
-
+    updateDisplay()
 }
 
-const generateShuttleStyles = (index: number, current: GameStep) => {
-    const greenStyles = {
-        gridColumn: `${index + (index * 2)} / span 1`,
-        gridRow: "1 / span 1",
+const leftPoint = computed(() => {
+    if (gameData.steps && gameData.steps.length > 0) {
+        const last = gameData.steps[gameData.steps.length - 1]
+        return last.teamLeftScore
     }
+    return ""
+})
 
-    const redStyles = {
-        gridColumn: `${index + (index * 2)} / span 1`,
-        gridRow: "3 / span 1",
-        marginTop: "5px"
+const rightPoint = computed(() => {
+    if (gameData.steps && gameData.steps.length > 0) {
+        const last = gameData.steps[gameData.steps.length - 1]
+        return last.teamRightScore
     }
+    return ""
+})
 
-    if (index == 0) {
-        if (current.teamLeftScore > 0) {
-            return greenStyles
-        }
+const leftPointsClass = computed(() => ({
+    isRed: winningTeam.value == "left",
+    pointText: true
+}))
 
-        return redStyles
-    }
-
-    const previous = gameData.steps[index - 1]
-
-    if (current.teamLeftScore > previous.teamLeftScore) {
-        return greenStyles
-    }
-
-    return redStyles
-}
-
-const generateMiddleStyles = (index: number) => {
-    return {
-        gridColumn: `${index + (index * 2)} / span 1`,
-        gridRow: "2 / span 1",
-    }
-}
+const rightPointsClass = computed(() => ({
+    isRed: winningTeam.value == "right",
+    pointText: true
+}))
 
 </script>
 
 <template>
     <div class="container">
-        <div class="actions-section">
-        </div>
-        <div class="points-section">
-            <div class="player-circle-container">
-                <div class="player-circle green"></div>
-                <div class="player-circle red"></div>
-            </div>
-            <div class="points-display-container">
-                <div v-for="(step, index) in gameData.steps" :key="step.id" :style="generateShuttleStyles(index, step)">
-                    <img :src="shuttlecock" width="20px" height="20px">
+        <div class="player-section">
+            <div class="player-card">
+                <div class="user-container user-mb" v-if="firstLeftPlayerName != ''">
+                    <div class="profile-photo-container">
+                        <img :src="userImage" alt="first left player image" width="30px" height="30px">
+                    </div>
+                    <span class="player-name">{{ firstLeftPlayerName }}</span>
                 </div>
-                <div v-for="(step, index) in gameData.steps" :key="`middle_line_${step.id}`"
-                    :style="generateMiddleStyles(index)">
-                    <div class="middle-line-background"></div>
-                </div>
-            </div>
-        </div>
-        <div class="actions-section">
 
+                <div class="user-container" v-if="secondLeftPlayerName != ''">
+                    <div class="profile-photo-container">
+                        <img :src="userImage" alt="second left player image" width="30px" height="30px">
+                    </div>
+                    <span class="player-name">{{ secondLeftPlayerName }}</span>
+                </div>
+            </div>
+            <div class="points-section">
+                <div class="points-box">
+                    <span :class="leftPointsClass">{{ leftPoint }}</span>
+                    <span class="point-seperator"> : </span>
+                    <span :class="rightPointsClass">{{ rightPoint }}</span>
+                </div>
+                <div class="time-container">
+                    <span>{{ matchDuration }}</span>
+                </div>
+            </div>
+            <div class="player-card">
+                <div class="user-container" v-if="firstRightPlayerName != ''">
+                    <div class="profile-photo-container">
+                        <img :src="userImage" alt="first right player image" width="30px" height="30px">
+                    </div>
+                    <span class="player-name">{{ firstRightPlayerName }}</span>
+                </div>
+                <div class="user-container user-mt" v-if="secondRightPlayerName != ''">
+                    <div class="profile-photo-container">
+                        <img :src="userImage" alt="second right player image" width="30px" height="30px">
+                    </div>
+                    <span class="player-name">{{ secondRightPlayerName }}</span>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -102,56 +139,83 @@ const generateMiddleStyles = (index: number) => {
 .container {
     display: flex;
     flex-direction: column;
+    background-color: rgb(191, 243, 191);
 }
 
-.actions-section {
+.player-section {
+    display: flex;
+    justify-content: center;
+    width: 100vw;
+    height: 30vh;
+}
+
+.player-card {
     display: flex;
     flex-direction: column;
-    height: 15vh;
-    padding: 1rem;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    width: 40vw;
+    padding: 0 20px;
+}
+
+.time-container {
+    font-weight: bold;
+    font-size: 1rem
 }
 
 .points-section {
     display: flex;
-    height: 70vh;
-    padding: 1rem;
+    flex-direction: column;
+    width: 20vw;
     align-items: center;
+    justify-content: center;
+
 }
 
-.player-circle-container {
+.points-box {
+    display: flex;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    max-height: 15vh;
 }
 
-.player-circle {
-    height: 90px;
-    width: 90px;
-    border-radius: 45px;
-    margin-right: 1rem;
+.profile-photo-container {
+    border: 1px solid black;
+    border-radius: 30px;
+    padding: 10px;
 }
 
-.player-circle.green {
-    background-color: green;
-    margin-bottom: 1rem;
+.isRed {
+    color: red;
 }
 
-.player-circle.red {
-    background-color: #D32F2F;
-    margin-top: 1rem;
+.pointText {
+    font-size: 2rem;
+    margin: 0 5px;
 }
 
-.points-display-container {
-    display: grid;
-    grid-template-columns: repeat(v-bind("noOfSteps"), 1fr 0.2fr);
-    grid-template-rows: 2fr 0.2fr 2fr;
-    width: 75vw;
-    height: 50px;
+.point-seperator {
+    font-size: 1.5rem;
 }
 
-.middle-line-background {
-    height: 3px;
-    background-color: darkgray;
-    margin-left: 1px;
-    margin-right: 1px;
+.user-mt {
+    margin-top: 15px;
+}
+
+.user-mb {
+    margin-bottom: 15px;
+}
+
+.player-name {
+    font-weight: bold;
+    text-wrap: wrap;
 }
 </style>

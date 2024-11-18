@@ -95,7 +95,7 @@ func (gs GameStatistic) FormatStatistics() FormattedGameStatistic {
 		LongestPointTeam:                gs.LongestPointTeam,
 		ShortestPointSeconds:            fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.ShortestPointSeconds)/60), gs.ShortestPointSeconds%60),
 		ShortestPointTeam:               gs.ShortestPointTeam,
-		TotalGameTimeSeconds:            fmt.Sprintf("%0.fh %dm", math.Floor(float64(gs.TotalGameTimeSeconds)/60/60), (gs.TotalGameTimeSeconds/60)%60),
+		TotalGameTimeSeconds:            fmt.Sprintf("%0.f h %d m", math.Floor(float64(gs.TotalGameTimeSeconds)/60/60), (gs.TotalGameTimeSeconds/60)%60),
 		RightAverageTimePerPointSeconds: fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.RightAverageTimePerPointSeconds)/60), gs.RightAverageTimePerPointSeconds%60),
 		LeftAverageTimePerPointSeconds:  fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.LeftAverageTimePerPointSeconds)/60), gs.LeftAverageTimePerPointSeconds%60),
 	}
