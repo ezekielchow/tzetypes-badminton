@@ -3,6 +3,7 @@ package models
 import (
 	"common/oapipublic"
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"time"
@@ -17,10 +18,10 @@ type GameStatistic struct {
 	TotalGameTimeSeconds            int
 	RightConsecutivePoints          int
 	LeftConsecutivePoints           int
-	LongestPointSeconds             int
-	LongestPointTeam                string
-	ShortestPointSeconds            int
-	ShortestPointTeam               string
+	LeftLongestPointSeconds         int
+	LeftShortestPointSeconds        int
+	RightLongestPointSeconds        int
+	RightShortestPointSeconds       int
 	AverageTimePerPointSeconds      int
 	LeftAverageTimePerPointSeconds  int
 	RightAverageTimePerPointSeconds int
@@ -32,13 +33,17 @@ type FormattedGameStatistic struct {
 	TotalGameTimeSeconds            string
 	RightConsecutivePoints          string
 	LeftConsecutivePoints           string
-	LongestPointSeconds             string
-	LongestPointTeam                string
-	ShortestPointSeconds            string
-	ShortestPointTeam               string
+	LeftLongestPoint                string
+	LeftShortestPoint               string
+	RightLongestPoint               string
+	RightShortestPoint              string
 	AverageTimePerPointSeconds      string
 	LeftAverageTimePerPointSeconds  string
 	RightAverageTimePerPointSeconds string
+	ConsecutivePointsRatio          string
+	LongestPointRatio               string
+	ShortestPointRatio              string
+	AverageTimePerPointRatio        string
 }
 
 func (gs *GameStatistic) PostgresToModel(fromDb database.GameStatistic) error {
@@ -57,10 +62,10 @@ func (gs *GameStatistic) PostgresToModel(fromDb database.GameStatistic) error {
 	gs.TotalGameTimeSeconds = int(*fromDb.TotalGameTimeSeconds)
 	gs.RightConsecutivePoints = int(*fromDb.RightConsecutivePoints)
 	gs.LeftConsecutivePoints = int(*fromDb.LeftConsecutivePoints)
-	gs.LongestPointSeconds = int(*fromDb.LongestPointSeconds)
-	gs.LongestPointTeam = *fromDb.LongestPointTeam
-	gs.ShortestPointSeconds = int(*fromDb.ShortestPointSeconds)
-	gs.ShortestPointTeam = *fromDb.ShortestPointTeam
+	gs.LeftLongestPointSeconds = int(*fromDb.LeftLongestPointSeconds)
+	gs.LeftShortestPointSeconds = int(*fromDb.LeftShortestPointSeconds)
+	gs.RightLongestPointSeconds = int(*fromDb.RightLongestPointSeconds)
+	gs.RightShortestPointSeconds = int(*fromDb.RightShortestPointSeconds)
 	gs.AverageTimePerPointSeconds = int(*fromDb.AverageTimePerPointSeconds)
 	gs.RightAverageTimePerPointSeconds = int(*fromDb.RightAverageTimePerPointSeconds)
 	gs.LeftAverageTimePerPointSeconds = int(*fromDb.LeftAverageTimePerPointSeconds)
@@ -76,27 +81,54 @@ func (gs *GameStatistic) ModelToAPI() oapipublic.GameStatistic {
 		AveragePerPoint:        formatted.AverageTimePerPointSeconds,
 		LeftConsecutivePoints:  formatted.LeftConsecutivePoints,
 		RightConsecutivePoints: formatted.RightConsecutivePoints,
-		LongestPoint:           formatted.LongestPointSeconds,
-		LongestPointTeam:       formatted.LongestPointTeam,
-		ShortestPoint:          formatted.ShortestPointSeconds,
-		ShortestPointTeam:      formatted.ShortestPointTeam,
+		LeftLongestPoint:       formatted.LeftLongestPoint,
+		LeftShortestPoint:      formatted.LeftShortestPoint,
+		RightLongestPoint:      formatted.RightLongestPoint,
+		RightShortestPoint:     formatted.RightShortestPoint,
 		TotalGameTime:          formatted.TotalGameTimeSeconds,
 		LeftAveragePerPoint:    formatted.LeftAverageTimePerPointSeconds,
 		RightAveragePerPoint:   formatted.RightAverageTimePerPointSeconds,
+		ConsecutivePointsRatio: formatted.ConsecutivePointsRatio,
+		LongestPointRatio:      formatted.LongestPointRatio,
+		ShortestPointRatio:     formatted.ShortestPointRatio,
+		AveragePerPointRatio:   formatted.AverageTimePerPointRatio,
 	}
 }
 
+func calculateRatios(left, right int) (leftRatio, rightRatio float64) {
+	total := left + right
+	if total != 0 {
+		leftRatio = (float64(left) / float64(total)) * 100
+		rightRatio = 100 - leftRatio
+	} else {
+		leftRatio = 100
+		rightRatio = 0
+	}
+	return
+}
+
 func (gs GameStatistic) FormatStatistics() FormattedGameStatistic {
+
+	leftConsecutiveRatio, rightConsecutiveRatio := calculateRatios(gs.LeftConsecutivePoints, gs.RightConsecutivePoints)
+	log.Println("aaaa", gs.LeftConsecutivePoints, gs.RightConsecutivePoints, "sss", leftConsecutiveRatio, rightConsecutiveRatio)
+	leftLongestRatio, rightLongestRatio := calculateRatios(gs.LeftLongestPointSeconds, gs.RightLongestPointSeconds)
+	leftShortestRatio, rightShortestRatio := calculateRatios(gs.LeftShortestPointSeconds, gs.RightShortestPointSeconds)
+	leftAveragePerPointRatio, rightAveragePerPointRatio := calculateRatios(gs.LeftAverageTimePerPointSeconds, gs.RightAverageTimePerPointSeconds)
+
 	return FormattedGameStatistic{
 		AverageTimePerPointSeconds:      fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.AverageTimePerPointSeconds)/60), gs.AverageTimePerPointSeconds%60),
 		LeftConsecutivePoints:           strconv.Itoa(gs.LeftConsecutivePoints),
 		RightConsecutivePoints:          strconv.Itoa(gs.RightConsecutivePoints),
-		LongestPointSeconds:             fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.LongestPointSeconds)/60), gs.LongestPointSeconds%60),
-		LongestPointTeam:                gs.LongestPointTeam,
-		ShortestPointSeconds:            fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.ShortestPointSeconds)/60), gs.ShortestPointSeconds%60),
-		ShortestPointTeam:               gs.ShortestPointTeam,
+		LeftLongestPoint:                fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.LeftLongestPointSeconds)/60), gs.LeftLongestPointSeconds%60),
+		LeftShortestPoint:               fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.LeftShortestPointSeconds)/60), gs.LeftShortestPointSeconds%60),
+		RightLongestPoint:               fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.RightLongestPointSeconds)/60), gs.RightLongestPointSeconds%60),
+		RightShortestPoint:              fmt.Sprintf("%0.fm %ds", math.Floor(float64(gs.RightShortestPointSeconds)/60), gs.RightShortestPointSeconds%60),
 		TotalGameTimeSeconds:            fmt.Sprintf("%0.f h %d m", math.Floor(float64(gs.TotalGameTimeSeconds)/60/60), (gs.TotalGameTimeSeconds/60)%60),
 		RightAverageTimePerPointSeconds: fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.RightAverageTimePerPointSeconds)/60), gs.RightAverageTimePerPointSeconds%60),
 		LeftAverageTimePerPointSeconds:  fmt.Sprintf("%.fm %ds", math.Floor(float64(gs.LeftAverageTimePerPointSeconds)/60), gs.LeftAverageTimePerPointSeconds%60),
+		ConsecutivePointsRatio:          fmt.Sprintf("%.2f", leftConsecutiveRatio) + ":" + fmt.Sprintf("%.2f", rightConsecutiveRatio),
+		LongestPointRatio:               fmt.Sprintf("%.2f", leftLongestRatio) + ":" + fmt.Sprintf("%.2f", rightLongestRatio),
+		ShortestPointRatio:              fmt.Sprintf("%.2f", leftShortestRatio) + ":" + fmt.Sprintf("%.2f", rightShortestRatio),
+		AverageTimePerPointRatio:        fmt.Sprintf("%.2f", leftAveragePerPointRatio) + ":" + fmt.Sprintf("%.2f", rightAveragePerPointRatio),
 	}
 }

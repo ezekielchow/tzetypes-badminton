@@ -41,9 +41,16 @@ func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, 
 	leftConsecutivePoints := 0
 	rightConsecutivePoints := 0
 
-	var longestPointSeconds, shortestPointSeconds, totalSeconds, leftTotalSeconds, rightTotalSeconds int
-	var longestPointTeam, shortestPointTeam string
+	var longestLeftPointSeconds, shortestLeftPointSeconds int
+	var longestRightPointSeconds, shortestRightPointSeconds int
+	var totalSeconds, leftTotalSeconds, rightTotalSeconds int
 	streakPoints := 0
+
+	// Initialize shortest points with a high value
+	const maxInt = int(^uint(0) >> 1)
+	shortestLeftPointSeconds = maxInt
+	shortestRightPointSeconds = maxInt
+
 	apiSteps := []oapipublic.GameStep{}
 	for i, step := range gameSteps {
 		apiSteps = append(apiSteps, oapipublic.GameStep{
@@ -68,50 +75,58 @@ func generateGameStatistics(gameSteps []models.GameStep) (models.GameStatistic, 
 			timeDiff := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
 			totalSeconds += timeDiff
 
-			// get streaks
 			if step.TeamLeftScore > previous.TeamLeftScore {
 				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideLeft, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
-
 				leftTotalSeconds += timeDiff
+
+				// Update longest and shortest point for Team Left
+				if timeDiff > longestLeftPointSeconds {
+					longestLeftPointSeconds = timeDiff
+				}
+				if timeDiff < shortestLeftPointSeconds {
+					shortestLeftPointSeconds = timeDiff
+				}
 			} else {
 				streakPoints, leftConsecutivePoints, rightConsecutivePoints = updateStreak(models.TeamSideRight, previous.CurrentServer, streakPoints, leftConsecutivePoints, rightConsecutivePoints)
-
 				rightTotalSeconds += timeDiff
-			}
 
-			if timeDiff > longestPointSeconds {
-				longestPointSeconds = timeDiff
-				if step.TeamLeftScore > previous.TeamLeftScore {
-					longestPointTeam = string(models.TeamSideLeft)
-				} else {
-					longestPointTeam = string(models.TeamSideRight)
+				// Update longest and shortest point for Team Right
+				if timeDiff > longestRightPointSeconds {
+					longestRightPointSeconds = timeDiff
 				}
-			}
-			if timeDiff < shortestPointSeconds || i == 1 {
-				shortestPointSeconds = timeDiff
-				if step.TeamLeftScore > previous.TeamLeftScore {
-					shortestPointTeam = string(models.TeamSideLeft)
-				} else {
-					shortestPointTeam = string(models.TeamSideRight)
+				if timeDiff < shortestRightPointSeconds {
+					shortestRightPointSeconds = timeDiff
 				}
 			}
 		}
 	}
 
-	averageSeconds := totalSeconds / len(apiSteps)
+	// Avoid division by zero when calculating averages
+	leftPoints := gameSteps[len(gameSteps)-1].TeamLeftScore
+	rightPoints := gameSteps[len(gameSteps)-1].TeamRightScore
+
+	leftAverageTimePerPoint := 0
+	rightAverageTimePerPoint := 0
+	if leftPoints > 0 {
+		leftAverageTimePerPoint = leftTotalSeconds / leftPoints
+	}
+	if rightPoints > 0 {
+		rightAverageTimePerPoint = rightTotalSeconds / rightPoints
+	}
+
 	totalGameTimeSeconds := int(gameSteps[len(gameSteps)-1].ScoreAt.Sub(gameSteps[0].ScoreAt).Seconds())
 
 	return models.GameStatistic{
 		TotalGameTimeSeconds:            totalGameTimeSeconds,
 		RightConsecutivePoints:          rightConsecutivePoints,
 		LeftConsecutivePoints:           leftConsecutivePoints,
-		LongestPointSeconds:             longestPointSeconds,
-		LongestPointTeam:                longestPointTeam,
-		ShortestPointSeconds:            shortestPointSeconds,
-		ShortestPointTeam:               shortestPointTeam,
-		AverageTimePerPointSeconds:      averageSeconds,
-		LeftAverageTimePerPointSeconds:  leftTotalSeconds / (gameSteps[len(gameSteps)-1].TeamLeftScore),
-		RightAverageTimePerPointSeconds: rightTotalSeconds / (gameSteps[len(gameSteps)-1].TeamRightScore),
+		LeftLongestPointSeconds:         longestLeftPointSeconds,
+		LeftShortestPointSeconds:        shortestLeftPointSeconds,
+		RightLongestPointSeconds:        longestRightPointSeconds,
+		RightShortestPointSeconds:       shortestRightPointSeconds,
+		AverageTimePerPointSeconds:      totalSeconds / len(apiSteps),
+		LeftAverageTimePerPointSeconds:  leftAverageTimePerPoint,
+		RightAverageTimePerPointSeconds: rightAverageTimePerPoint,
 	}, nil
 }
 

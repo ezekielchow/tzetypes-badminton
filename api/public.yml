@@ -163,14 +163,18 @@ components:
       required:
         - total_game_time
         - left_consecutive_points
+        - consecutive_points_ratio
         - right_consecutive_points
-        - longest_point
-        - longest_point_team
-        - shortest_point
-        - shortest_point_team
+        - left_longest_point
+        - left_shortest_point
+        - right_longest_point
+        - right_shortest_point
+        - longest_point_ratio
+        - shortest_point_ratio
         - average_per_point
         - left_average_per_point
         - right_average_per_point
+        - average_per_point_ratio
       properties:
         total_game_time:
           type: string
@@ -178,19 +182,27 @@ components:
           type: string
         right_consecutive_points:
           type: string
-        longest_point:
+        left_longest_point:
           type: string
-        longest_point_team:
+        left_shortest_point:
           type: string
-        shortest_point:
+        right_longest_point:
           type: string
-        shortest_point_team:
+        right_shortest_point:
           type: string
         average_per_point:
           type: string
         left_average_per_point:
           type: string
         right_average_per_point:
+          type: string
+        consecutive_points_ratio:
+          type: string
+        longest_point_ratio:
+          type: string
+        shortest_point_ratio:
+          type: string
+        average_per_point_ratio:
           type: string
 
     Game:

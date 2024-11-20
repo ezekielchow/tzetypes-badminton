@@ -30,14 +30,18 @@ type Game struct {
 // GameStatistic defines model for GameStatistic.
 type GameStatistic struct {
 	AveragePerPoint        string `json:"average_per_point"`
+	AveragePerPointRatio   string `json:"average_per_point_ratio"`
+	ConsecutivePointsRatio string `json:"consecutive_points_ratio"`
 	LeftAveragePerPoint    string `json:"left_average_per_point"`
 	LeftConsecutivePoints  string `json:"left_consecutive_points"`
-	LongestPoint           string `json:"longest_point"`
-	LongestPointTeam       string `json:"longest_point_team"`
+	LeftLongestPoint       string `json:"left_longest_point"`
+	LeftShortestPoint      string `json:"left_shortest_point"`
+	LongestPointRatio      string `json:"longest_point_ratio"`
 	RightAveragePerPoint   string `json:"right_average_per_point"`
 	RightConsecutivePoints string `json:"right_consecutive_points"`
-	ShortestPoint          string `json:"shortest_point"`
-	ShortestPointTeam      string `json:"shortest_point_team"`
+	RightLongestPoint      string `json:"right_longest_point"`
+	RightShortestPoint     string `json:"right_shortest_point"`
+	ShortestPointRatio     string `json:"shortest_point_ratio"`
 	TotalGameTime          string `json:"total_game_time"`
 }
 

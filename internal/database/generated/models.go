@@ -36,10 +36,10 @@ type GameStatistic struct {
 	TotalGameTimeSeconds            *int32
 	RightConsecutivePoints          *int32
 	LeftConsecutivePoints           *int32
-	LongestPointSeconds             *int32
-	LongestPointTeam                *string
-	ShortestPointSeconds            *int32
-	ShortestPointTeam               *string
+	LeftLongestPointSeconds         *int32
+	LeftShortestPointSeconds        *int32
+	RightLongestPointSeconds        *int32
+	RightShortestPointSeconds       *int32
 	AverageTimePerPointSeconds      *int32
 	LeftAverageTimePerPointSeconds  *int32
 	RightAverageTimePerPointSeconds *int32

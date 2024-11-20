@@ -74,10 +74,10 @@ INSERT INTO game_statistics(
     total_game_time_seconds, 
     right_consecutive_points,
     left_consecutive_points,
-    longest_point_seconds,
-    longest_point_team,
-    shortest_point_seconds,
-    shortest_point_team,
+    left_longest_point_seconds,
+    left_shortest_point_seconds,
+    right_longest_point_seconds,
+    right_shortest_point_seconds,
     average_time_per_point_seconds,
     right_average_time_per_point_seconds,
     left_average_time_per_point_seconds
@@ -87,13 +87,13 @@ INSERT INTO game_statistics(
     $3::int,
     $4::int,
     $5::int,
-    $6::text,
+    $6::int,
     $7::int,
-    $8::text,
+    $8::int,
     $9::int,
     $10::int,
     $11::int
-) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, longest_point_seconds, longest_point_team, shortest_point_seconds, shortest_point_team, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at
+) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, left_longest_point_seconds, left_shortest_point_seconds, right_longest_point_seconds, right_shortest_point_seconds, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at
 `
 
 type CreateGameStatisticParams struct {
@@ -101,10 +101,10 @@ type CreateGameStatisticParams struct {
 	TotalGameTimeSeconds            int32
 	RightConsecutivePoints          int32
 	LeftConsecutivePoints           int32
-	LongestPointSeconds             int32
-	LongestPointTeam                string
-	ShortestPointSeconds            int32
-	ShortestPointTeam               string
+	LeftLongestPointSeconds         int32
+	LeftShortestPointSeconds        int32
+	RightLongestPointSeconds        int32
+	RightShortestPointSeconds       int32
 	AverageTimePerPointSeconds      int32
 	RightAverageTimePerPointSeconds int32
 	LeftAverageTimePerPointSeconds  int32
@@ -116,10 +116,10 @@ func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatist
 		arg.TotalGameTimeSeconds,
 		arg.RightConsecutivePoints,
 		arg.LeftConsecutivePoints,
-		arg.LongestPointSeconds,
-		arg.LongestPointTeam,
-		arg.ShortestPointSeconds,
-		arg.ShortestPointTeam,
+		arg.LeftLongestPointSeconds,
+		arg.LeftShortestPointSeconds,
+		arg.RightLongestPointSeconds,
+		arg.RightShortestPointSeconds,
 		arg.AverageTimePerPointSeconds,
 		arg.RightAverageTimePerPointSeconds,
 		arg.LeftAverageTimePerPointSeconds,
@@ -131,10 +131,10 @@ func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatist
 		&i.TotalGameTimeSeconds,
 		&i.RightConsecutivePoints,
 		&i.LeftConsecutivePoints,
-		&i.LongestPointSeconds,
-		&i.LongestPointTeam,
-		&i.ShortestPointSeconds,
-		&i.ShortestPointTeam,
+		&i.LeftLongestPointSeconds,
+		&i.LeftShortestPointSeconds,
+		&i.RightLongestPointSeconds,
+		&i.RightShortestPointSeconds,
 		&i.AverageTimePerPointSeconds,
 		&i.LeftAverageTimePerPointSeconds,
 		&i.RightAverageTimePerPointSeconds,
@@ -246,7 +246,7 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 }
 
 const getGameStatisticsWithGameID = `-- name: GetGameStatisticsWithGameID :one
-SELECT id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, longest_point_seconds, longest_point_team, shortest_point_seconds, shortest_point_team, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
+SELECT id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, left_longest_point_seconds, left_shortest_point_seconds, right_longest_point_seconds, right_shortest_point_seconds, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
 `
 
 func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype.UUID) (GameStatistic, error) {
@@ -258,10 +258,10 @@ func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype
 		&i.TotalGameTimeSeconds,
 		&i.RightConsecutivePoints,
 		&i.LeftConsecutivePoints,
-		&i.LongestPointSeconds,
-		&i.LongestPointTeam,
-		&i.ShortestPointSeconds,
-		&i.ShortestPointTeam,
+		&i.LeftLongestPointSeconds,
+		&i.LeftShortestPointSeconds,
+		&i.RightLongestPointSeconds,
+		&i.RightShortestPointSeconds,
 		&i.AverageTimePerPointSeconds,
 		&i.LeftAverageTimePerPointSeconds,
 		&i.RightAverageTimePerPointSeconds,
