@@ -19,7 +19,7 @@ test:  ## Run tests
 	@./scripts/test.sh games .test.env
 
 sqlc-gen: ## Generate golang code from sqlc queries
-	sqlc generate --file internal/database/sqlc.yml
+	docker run --rm -v $(PWD):/src -w /src sqlc/sqlc generate --file internal/database/sqlc.yml
 
 create-migration: ## Create migration file; Usage: make create-migration table_name=your_table_name
 	migrate create -ext sql -dir ./internal/database/migrations -seq $(table_name)
