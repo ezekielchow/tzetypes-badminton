@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import userImage from '@/assets/images/user.png';
+import ShareButton from '@/components/ShareButton.vue';
 import { type GetGame200Response } from "@/repositories/clients/public";
 import { useGameStore } from '@/stores/game-store';
 import { computed, onBeforeMount, reactive, ref } from 'vue';
@@ -23,6 +24,7 @@ const shortestRightWidth = ref("")
 const averagePerPointLeftWidth = ref("")
 const averagePerpointRightWidth = ref("")
 
+const shareURL = `${window.location.href}`
 const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
@@ -74,11 +76,38 @@ const getStatistics = async () => {
     const data = res as GetGame200Response
 
     gameData.game = data.game
-    gameData.steps = data.steps.slice(1)
+    gameData.steps = data.steps
     gameData.statistics = data.statistics
 
     updateDisplay()
+    updateMetaTags()
 }
+
+const playerScoreText = computed(() => {
+    if (gameData.game && gameData.steps && gameData.steps.length > 0) {
+        const last = gameData.steps[gameData.steps.length - 1]
+
+        let leftPlayers = gameData.game.leftEvenPlayerName
+        if (gameData.game.leftOddPlayerName !== "") {
+            leftPlayers = `${leftPlayers},${gameData.game.leftOddPlayerName}`
+        }
+
+        let rightPlayers = gameData.game.rightEvenPlayerName
+        if (gameData.game.rightOddPlayerName !== "") {
+            rightPlayers = `${leftPlayers},${gameData.game.rightOddPlayerName}`
+        }
+
+        let leftWinner, rightWinner = ""
+        if (last.teamLeftScore > last.teamRightScore) {
+            leftWinner = "\uD83C\uDFC6"
+        } else {
+            rightWinner = "\uD83C\uDFC6"
+        }
+
+        return `${leftPlayers} ${leftWinner} ${last.teamLeftScore}:${last.teamRightScore} ${rightWinner} ${rightPlayers}`
+    }
+    return ""
+})
 
 const leftPoint = computed(() => {
     if (gameData.steps && gameData.steps.length > 0) {
@@ -106,10 +135,33 @@ const rightPointsClass = computed(() => ({
     pointText: true
 }))
 
+const updateMetaTags = () => {
+    document.title = "🏸 Badminton Game Results 🏸";
+    const metaTags = [
+        { property: "og:title", content: "🏸 Badminton Game Results 🏸" },
+        { property: "og:description", content: playerScoreText.value },
+        { property: "og:image", content: "/images/badminton-graph-image.jpg" },
+        { property: "og:url", content: window.location.href },
+        { property: "og:type", content: "website" },
+    ];
+
+    metaTags.forEach(tag => {
+        const meta = document.createElement("meta");
+        meta.setAttribute("property", tag.property);
+        meta.setAttribute("content", tag.content);
+        document.head.appendChild(meta);
+    });
+}
 </script>
 
 <template>
     <div class="container">
+        <div class="header-section">
+            <div></div>
+            <div>
+                <ShareButton :title="'🏸 Badminton Game Results 🏸'" :text="playerScoreText" :url="shareURL" />
+            </div>
+        </div>
         <div class="player-section">
             <div class="player-card">
                 <div class="user-container user-mb" v-if="firstLeftPlayerName != ''">
@@ -381,5 +433,17 @@ const rightPointsClass = computed(() => ({
 
 .statistic-green {
     background-color: green;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 15px;
+}
+
+.whatsapp-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
