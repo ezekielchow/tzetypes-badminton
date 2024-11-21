@@ -5,6 +5,6 @@ models/LoginRequestSchema.ts
 models/LoginResponseSchema.ts
 models/ModelError.ts
 models/RefreshTokenResponseSchema.ts
-models/SignupRequestSchema.ts
+models/SignupClubOwnerRequestSchema.ts
 models/index.ts
 runtime.ts

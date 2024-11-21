@@ -22,8 +22,8 @@ type ServerInterface interface {
 	// (POST /refresh-token)
 	RefreshToken(w http.ResponseWriter, r *http.Request)
 
-	// (POST /signup)
-	Signup(w http.ResponseWriter, r *http.Request)
+	// (POST /signup-club-owner)
+	SignupClubOwner(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -40,8 +40,8 @@ func (_ Unimplemented) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /signup)
-func (_ Unimplemented) Signup(w http.ResponseWriter, r *http.Request) {
+// (POST /signup-club-owner)
+func (_ Unimplemented) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -84,12 +84,12 @@ func (siw *ServerInterfaceWrapper) RefreshToken(w http.ResponseWriter, r *http.R
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// Signup operation middleware
-func (siw *ServerInterfaceWrapper) Signup(w http.ResponseWriter, r *http.Request) {
+// SignupClubOwner operation middleware
+func (siw *ServerInterfaceWrapper) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.Signup(w, r)
+		siw.Handler.SignupClubOwner(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -219,7 +219,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/refresh-token", wrapper.RefreshToken)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/signup", wrapper.Signup)
+		r.Post(options.BaseURL+"/signup-club-owner", wrapper.SignupClubOwner)
 	})
 
 	return r
@@ -284,28 +284,28 @@ func (response RefreshTokendefaultJSONResponse) VisitRefreshTokenResponse(w http
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type SignupRequestObject struct {
-	Body *SignupJSONRequestBody
+type SignupClubOwnerRequestObject struct {
+	Body *SignupClubOwnerJSONRequestBody
 }
 
-type SignupResponseObject interface {
-	VisitSignupResponse(w http.ResponseWriter) error
+type SignupClubOwnerResponseObject interface {
+	VisitSignupClubOwnerResponse(w http.ResponseWriter) error
 }
 
-type Signup201Response struct {
+type SignupClubOwner201Response struct {
 }
 
-func (response Signup201Response) VisitSignupResponse(w http.ResponseWriter) error {
+func (response SignupClubOwner201Response) VisitSignupClubOwnerResponse(w http.ResponseWriter) error {
 	w.WriteHeader(201)
 	return nil
 }
 
-type SignupdefaultJSONResponse struct {
+type SignupClubOwnerdefaultJSONResponse struct {
 	Body       Error
 	StatusCode int
 }
 
-func (response SignupdefaultJSONResponse) VisitSignupResponse(w http.ResponseWriter) error {
+func (response SignupClubOwnerdefaultJSONResponse) VisitSignupClubOwnerResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -321,8 +321,8 @@ type StrictServerInterface interface {
 	// (POST /refresh-token)
 	RefreshToken(ctx context.Context, request RefreshTokenRequestObject) (RefreshTokenResponseObject, error)
 
-	// (POST /signup)
-	Signup(ctx context.Context, request SignupRequestObject) (SignupResponseObject, error)
+	// (POST /signup-club-owner)
+	SignupClubOwner(ctx context.Context, request SignupClubOwnerRequestObject) (SignupClubOwnerResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -409,11 +409,11 @@ func (sh *strictHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Signup operation middleware
-func (sh *strictHandler) Signup(w http.ResponseWriter, r *http.Request) {
-	var request SignupRequestObject
+// SignupClubOwner operation middleware
+func (sh *strictHandler) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
+	var request SignupClubOwnerRequestObject
 
-	var body SignupJSONRequestBody
+	var body SignupClubOwnerJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -421,18 +421,18 @@ func (sh *strictHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.Signup(ctx, request.(SignupRequestObject))
+		return sh.ssi.SignupClubOwner(ctx, request.(SignupClubOwnerRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "Signup")
+		handler = middleware(handler, "SignupClubOwner")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(SignupResponseObject); ok {
-		if err := validResponse.VisitSignupResponse(w); err != nil {
+	} else if validResponse, ok := response.(SignupClubOwnerResponseObject); ok {
+		if err := validResponse.VisitSignupClubOwnerResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

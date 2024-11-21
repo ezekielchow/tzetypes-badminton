@@ -74,28 +74,28 @@ func (_m *StrictServerInterface) RefreshToken(ctx context.Context, request oapip
 	return r0, r1
 }
 
-// Signup provides a mock function with given fields: ctx, request
-func (_m *StrictServerInterface) Signup(ctx context.Context, request oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
+// SignupClubOwner provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) SignupClubOwner(ctx context.Context, request oapipublic.SignupClubOwnerRequestObject) (oapipublic.SignupClubOwnerResponseObject, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Signup")
+		panic("no return value specified for SignupClubOwner")
 	}
 
-	var r0 oapipublic.SignupResponseObject
+	var r0 oapipublic.SignupClubOwnerResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupClubOwnerRequestObject) (oapipublic.SignupClubOwnerResponseObject, error)); ok {
 		return rf(ctx, request)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupRequestObject) oapipublic.SignupResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupClubOwnerRequestObject) oapipublic.SignupClubOwnerResponseObject); ok {
 		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapipublic.SignupResponseObject)
+			r0 = ret.Get(0).(oapipublic.SignupClubOwnerResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupClubOwnerRequestObject) error); ok {
 		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)

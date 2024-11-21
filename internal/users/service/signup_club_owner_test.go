@@ -1,6 +1,7 @@
 package users
 
 import (
+	"common/models"
 	"common/oapipublic"
 	"common/utils"
 	"context"
@@ -19,15 +20,15 @@ func TestSignup(t *testing.T) {
 	t.Run("Successful signup", func(t *testing.T) {
 		email := utils.NewEmail(10)
 
-		res, err := userService.Signup(ctx, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
+		res, err := userService.SignupClubOwner(ctx, oapipublic.SignupClubOwnerRequestObject{
+			Body: &oapipublic.SignupClubOwnerJSONRequestBody{
 				Email:          types.Email(email),
 				Password:       "",
 				PasswordRepeat: "",
 			},
 		})
 		assert.NoError(t, err)
-		_, ok := res.(oapipublic.Signup201Response)
+		_, ok := res.(oapipublic.SignupClubOwner201Response)
 		if !ok {
 			t.Fatal("unable to convert to default response")
 		}
@@ -36,6 +37,7 @@ func TestSignup(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unable to find user: %s", err)
 		}
+		assert.Equal(t, string(models.UserTypeClubOwner), foundUser.UserType, "user check for club owner")
 
 		if foundUser.ID == "" {
 			t.Fatal("failed to create user")
@@ -54,8 +56,8 @@ func TestSignup(t *testing.T) {
 	t.Run("repeat password does not match password", func(t *testing.T) {
 		email := utils.NewEmail(10)
 
-		res, err := userService.Signup(ctx, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
+		res, err := userService.SignupClubOwner(ctx, oapipublic.SignupClubOwnerRequestObject{
+			Body: &oapipublic.SignupClubOwnerJSONRequestBody{
 				Email:          types.Email(email),
 				Password:       "123",
 				PasswordRepeat: "1234",
@@ -64,7 +66,7 @@ func TestSignup(t *testing.T) {
 
 		assert.NoError(t, err)
 
-		defaultResponse, ok := res.(oapipublic.SignupdefaultJSONResponse)
+		defaultResponse, ok := res.(oapipublic.SignupClubOwnerdefaultJSONResponse)
 		if !ok {
 			t.Fatal("unable to convert to default response")
 		}
@@ -76,13 +78,13 @@ func TestSignup(t *testing.T) {
 
 		email := utils.NewEmail(10)
 
-		created, err := userService.UserStore.CreateUser(ctx, nil, email, "")
+		created, err := userService.UserStore.CreateUser(ctx, nil, email, "", string(models.UserTypeClubOwner))
 		if err != nil {
 			t.Fatalf("unable to create user: %s", err)
 		}
 
-		res, err := userService.Signup(ctx, oapipublic.SignupRequestObject{
-			Body: &oapipublic.SignupJSONRequestBody{
+		res, err := userService.SignupClubOwner(ctx, oapipublic.SignupClubOwnerRequestObject{
+			Body: &oapipublic.SignupClubOwnerJSONRequestBody{
 				Email:          types.Email(created.Email),
 				Password:       "123",
 				PasswordRepeat: "123",
@@ -91,7 +93,7 @@ func TestSignup(t *testing.T) {
 
 		assert.NoError(t, err)
 
-		defaultResponse, ok := res.(oapipublic.SignupdefaultJSONResponse)
+		defaultResponse, ok := res.(oapipublic.SignupClubOwnerdefaultJSONResponse)
 		if !ok {
 			t.Fatal("unable to convert to default response")
 		}

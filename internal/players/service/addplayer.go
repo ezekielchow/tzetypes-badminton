@@ -16,7 +16,7 @@ func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlay
 
 	defer tx.Rollback(ctx)
 
-	user, err := ps.UserStore.CreateUser(ctx, &tx, "", "")
+	user, err := ps.UserStore.CreateUser(ctx, &tx, "", "", string(models.UserTypePlayer))
 	if err != nil {
 		return nil, err
 	}

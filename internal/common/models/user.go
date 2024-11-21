@@ -8,10 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type UserType string
+
+const (
+	UserTypeClubOwner UserType = "club_owner"
+	UserTypePlayer    UserType = "player"
+)
+
 type User struct {
 	ID           string
 	Email        string
 	PasswordHash string
+	UserType     string
 	CreatedAt    time.Time
 	UpdatedAt    *time.Time
 }
@@ -25,6 +33,7 @@ func (u *User) PostgresToModel(fromDb database.User) error {
 	u.ID = uuid.String()
 	u.Email = fromDb.Email
 	u.PasswordHash = *fromDb.PasswordHash
+	u.UserType = fromDb.UserType
 	u.CreatedAt = fromDb.CreatedAt.Time
 	u.UpdatedAt = &fromDb.UpdatedAt.Time
 

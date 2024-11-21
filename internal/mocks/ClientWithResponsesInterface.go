@@ -127,8 +127,8 @@ func (_m *ClientWithResponsesInterface) RefreshTokenWithResponse(ctx context.Con
 	return r0, r1
 }
 
-// SignupWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
-func (_m *ClientWithResponsesInterface) SignupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupResponse, error) {
+// SignupClubOwnerWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) SignupClubOwnerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupClubOwnerResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -139,19 +139,19 @@ func (_m *ClientWithResponsesInterface) SignupWithBodyWithResponse(ctx context.C
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SignupWithBodyWithResponse")
+		panic("no return value specified for SignupClubOwnerWithBodyWithResponse")
 	}
 
-	var r0 *oapipublic.SignupResponse
+	var r0 *oapipublic.SignupClubOwnerResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) (*oapipublic.SignupResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) (*oapipublic.SignupClubOwnerResponse, error)); ok {
 		return rf(ctx, contentType, body, reqEditors...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) *oapipublic.SignupResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) *oapipublic.SignupClubOwnerResponse); ok {
 		r0 = rf(ctx, contentType, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*oapipublic.SignupResponse)
+			r0 = ret.Get(0).(*oapipublic.SignupClubOwnerResponse)
 		}
 	}
 
@@ -164,8 +164,8 @@ func (_m *ClientWithResponsesInterface) SignupWithBodyWithResponse(ctx context.C
 	return r0, r1
 }
 
-// SignupWithResponse provides a mock function with given fields: ctx, body, reqEditors
-func (_m *ClientWithResponsesInterface) SignupWithResponse(ctx context.Context, body oapipublic.SignupJSONRequestBody, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupResponse, error) {
+// SignupClubOwnerWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *ClientWithResponsesInterface) SignupClubOwnerWithResponse(ctx context.Context, body oapipublic.SignupClubOwnerJSONRequestBody, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupClubOwnerResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -176,23 +176,23 @@ func (_m *ClientWithResponsesInterface) SignupWithResponse(ctx context.Context, 
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SignupWithResponse")
+		panic("no return value specified for SignupClubOwnerWithResponse")
 	}
 
-	var r0 *oapipublic.SignupResponse
+	var r0 *oapipublic.SignupClubOwnerResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupJSONRequestBody, ...oapipublic.RequestEditorFn) (*oapipublic.SignupResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupClubOwnerJSONRequestBody, ...oapipublic.RequestEditorFn) (*oapipublic.SignupClubOwnerResponse, error)); ok {
 		return rf(ctx, body, reqEditors...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupJSONRequestBody, ...oapipublic.RequestEditorFn) *oapipublic.SignupResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupClubOwnerJSONRequestBody, ...oapipublic.RequestEditorFn) *oapipublic.SignupClubOwnerResponse); ok {
 		r0 = rf(ctx, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*oapipublic.SignupResponse)
+			r0 = ret.Get(0).(*oapipublic.SignupClubOwnerResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupJSONRequestBody, ...oapipublic.RequestEditorFn) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupClubOwnerJSONRequestBody, ...oapipublic.RequestEditorFn) error); ok {
 		r1 = rf(ctx, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)

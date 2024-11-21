@@ -23,8 +23,8 @@ func (_m *ServerInterface) RefreshToken(w http.ResponseWriter, r *http.Request) 
 	_m.Called(w, r)
 }
 
-// Signup provides a mock function with given fields: w, r
-func (_m *ServerInterface) Signup(w http.ResponseWriter, r *http.Request) {
+// SignupClubOwner provides a mock function with given fields: w, r
+func (_m *ServerInterface) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
 

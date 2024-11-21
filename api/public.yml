@@ -33,17 +33,17 @@ paths:
                 $ref: "#/components/schemas/LoginResponseSchema"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
-  /signup:
+  /signup-club-owner:
     post:
       tags:
         - users
-      operationId: signup
+      operationId: signupClubOwner
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SignupRequestSchema"
+              $ref: "#/components/schemas/SignupClubOwnerRequestSchema"
       responses:
         "201":
           description: signup success
@@ -91,7 +91,7 @@ components:
         refresh_token:
           type: string
 
-    SignupRequestSchema:
+    SignupClubOwnerRequestSchema:
       type: object
       required:
         - email
