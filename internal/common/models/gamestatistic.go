@@ -3,7 +3,6 @@ package models
 import (
 	"common/oapipublic"
 	"fmt"
-	"log"
 	"math"
 	"strconv"
 	"time"
@@ -110,7 +109,6 @@ func calculateRatios(left, right int) (leftRatio, rightRatio float64) {
 func (gs GameStatistic) FormatStatistics() FormattedGameStatistic {
 
 	leftConsecutiveRatio, rightConsecutiveRatio := calculateRatios(gs.LeftConsecutivePoints, gs.RightConsecutivePoints)
-	log.Println("aaaa", gs.LeftConsecutivePoints, gs.RightConsecutivePoints, "sss", leftConsecutiveRatio, rightConsecutiveRatio)
 	leftLongestRatio, rightLongestRatio := calculateRatios(gs.LeftLongestPointSeconds, gs.RightLongestPointSeconds)
 	leftShortestRatio, rightShortestRatio := calculateRatios(gs.LeftShortestPointSeconds, gs.RightShortestPointSeconds)
 	leftAveragePerPointRatio, rightAveragePerPointRatio := calculateRatios(gs.LeftAverageTimePerPointSeconds, gs.RightAverageTimePerPointSeconds)

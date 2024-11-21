@@ -49,7 +49,7 @@ func TestStartGame(t *testing.T) {
 
 		resSuccess, ok := res.(oapiprivate.StartGame201JSONResponse)
 		if !ok {
-			t.Fatalf("failed to convert response:%s", err)
+			t.Fatalf("failed to convert response")
 		}
 
 		assert.Equal(t, club.ID, resSuccess.Game.ClubId)
@@ -99,7 +99,7 @@ func TestStartGame(t *testing.T) {
 
 		resSuccess, ok := res.(oapiprivate.StartGame201JSONResponse)
 		if !ok {
-			t.Fatalf("failed to convert response:%s", err)
+			t.Fatalf("failed to convert response")
 		}
 
 		assert.Equal(t, club.ID, resSuccess.Game.ClubId)
@@ -161,7 +161,7 @@ func TestStartGame(t *testing.T) {
 
 			resSuccess, ok := res.(oapiprivate.StartGamedefaultJSONResponse)
 			if !ok {
-				t.Fatalf("failed to convert response:%s", err)
+				t.Fatalf("failed to convert response")
 			}
 
 			assert.Equal(t, http.StatusBadRequest, resSuccess.StatusCode)
@@ -228,7 +228,7 @@ func TestStartGame(t *testing.T) {
 
 			resSuccess, ok := res.(oapiprivate.StartGamedefaultJSONResponse)
 			if !ok {
-				t.Fatalf("failed to convert response:%s", err)
+				t.Fatalf("failed to convert response")
 			}
 
 			assert.Equal(t, http.StatusBadRequest, resSuccess.StatusCode)

@@ -4,6 +4,7 @@ import (
 	"common/oapiprivate"
 	"common/oapipublic"
 	"common/utils"
+	"log"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -11,10 +12,15 @@ import (
 )
 
 type TeamSide string
+type PlayerServer string
 
 const (
-	TeamSideLeft  TeamSide = "team_side_left"
-	TeamSideRight TeamSide = "team_side_right"
+	TeamSideLeft    TeamSide     = "team_side_left"
+	TeamSideRight   TeamSide     = "team_side_right"
+	RightEvenServer PlayerServer = "right_even"
+	RightOddServer  PlayerServer = "right_odd"
+	LeftEvenServer  PlayerServer = "left_even"
+	LeftOddServer   PlayerServer = "left_odd"
 )
 
 type GameStep struct {
@@ -135,6 +141,21 @@ func GameStepFactory(count int, args map[string]interface{}) []GameStep {
 		stepNum = 0
 	}
 
+	currentServerInterface, ok := args["CurrentServer"]
+	var currentServer PlayerServer
+	if ok {
+
+		// Attempt to assert the value to PlayerServer
+		if cs, valid := currentServerInterface.(PlayerServer); valid {
+			currentServer = cs
+		} else {
+			log.Fatalf("invalid type for CurrentServer, expected PlayerServer, got %T", currentServerInterface)
+		}
+	} else {
+		// Default value if not present
+		currentServer = LeftEvenServer
+	}
+
 	leftOddPlayerName := utils.NewString(10)
 	rightOddPlayerName := utils.NewString(10)
 
@@ -145,7 +166,7 @@ func GameStepFactory(count int, args map[string]interface{}) []GameStep {
 			TeamRightScore:      teamRightScore.(int),
 			ScoreAt:             scoreAt.(time.Time),
 			StepNum:             stepNum.(int),
-			CurrentServer:       string(oapiprivate.LeftEven),
+			CurrentServer:       string(currentServer),
 			LeftOddPlayerName:   &leftOddPlayerName,
 			LeftEvenPlayerName:  utils.NewString(10),
 			RightOddPlayerName:  &rightOddPlayerName,
