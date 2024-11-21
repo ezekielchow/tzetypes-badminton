@@ -231,11 +231,5 @@ func TestGetGame(t *testing.T) {
 
 		averageTimePerPointRatio := "68.54:31.46"
 		assert.Equal(t, averageTimePerPointRatio, resSuccess.Statistics.AveragePerPointRatio)
-
-		// ConsecutivePointsRatio:          fmt.Sprintf("%.2f", leftConsecutiveRatio) + ":" + fmt.Sprintf("%.2f", rightConsecutiveRatio),
-		// LongestPointRatio:               fmt.Sprintf("%.2f", leftLongestRatio) + ":" + fmt.Sprintf("%.2f", rightLongestRatio),
-		// ShortestPointRatio:              fmt.Sprintf("%.2f", leftShortestRatio) + ":" + fmt.Sprintf("%.2f", rightShortestRatio),
-		// AverageTimePerPointRatio:        fmt.Sprintf("%.2f", leftAveragePerPointRatio) + ":" + fmt.Sprintf("%.2f", rightAveragePerPointRatio),
-
 	})
 }

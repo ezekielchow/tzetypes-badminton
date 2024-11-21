@@ -4,7 +4,6 @@ import (
 	"common/oapiprivate"
 	"common/oapipublic"
 	"common/utils"
-	"fmt"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -65,13 +64,6 @@ func (g *Game) ModelToAPI() oapiprivate.Game {
 		IsEnded:             g.IsEnded,
 		UpdatedAt:           g.UpdatedAt.String(),
 	}
-}
-
-func GetGameLengthFormatted(seconds int) string {
-	hours := seconds / 3600
-	minutes := (seconds % 3600) / 60
-
-	return fmt.Sprintf("%02d hours %02d minutes", hours, minutes)
 }
 
 func (g *Game) ModelToPublicAPI() oapipublic.Game {
