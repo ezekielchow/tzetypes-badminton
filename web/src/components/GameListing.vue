@@ -1,9 +1,8 @@
 <template>
   <div class="game-dashboard">
     <h1>Game Dashboard</h1>
-    <p>Here is the list of all games.</p>
+    <p>list of all games.</p>
 
-    // Search box
     <div class="search-container">
       <input
         type="text"
@@ -16,16 +15,15 @@
     <table class="game-listing-table">
       <thead>
         <tr>
-          <th>Game Name</th>
-          <th>Status</th>
+          <th>Club ID</th>
+          <th>Game Type</th>
+          <th>Serving Side</th>
           <th>Players</th>
           <th>Created At</th>
           <th>Ended</th>
         </tr>
       </thead>
       <tbody>
-        
-        // looping through seeded data
         <tr
           v-for="game in filteredGames"
           :key="game.id"
@@ -34,11 +32,13 @@
             'ended': game.isEnded
           }"
         >
-          <td>{{ game.name }}</td>
-          <td>{{ game.status }}</td>
+          <td>{{ game.club_id }}</td>
+          <td>{{ game.game_type }}</td>
+          <td>{{ game.serving_side }}</td>
           <td>
             {{ game.left_odd_player_name }}, 
-            {{ game.left_even_player_name }}, 
+            {{ game.left_even_player_name }}
+          <span class="vs"> vs </span>
             {{ game.right_odd_player_name }}, 
             {{ game.right_even_player_name }}
           </td>
@@ -51,14 +51,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 
-// Seeded data
+// fake data
 const games = ref([
   {
-    id: 1,
-    name: 'Game 1',
-    status: 'Ongoing',
+    id: '1',
+    club_id: 'club-123',
+    game_type: 'Singles',
+    serving_side: 'Left',
     createdAt: '2024-11-01,10:00:00',
     isEnded: false,
     left_odd_player_name: 'Ahmad',
@@ -67,9 +68,10 @@ const games = ref([
     right_even_player_name: 'Long',
   },
   {
-    id: 2,
-    name: 'Game 2',
-    status: 'Completed',
+    id: '2',
+    club_id: 'club-124',
+    game_type: 'Doubles',
+    serving_side: 'Right',
     createdAt: '2024-11-02,11:30:00',
     isEnded: true,
     left_odd_player_name: 'Sing',
@@ -77,19 +79,18 @@ const games = ref([
     right_odd_player_name: 'Pang',
     right_even_player_name: 'Hank',
   },
-  
 ]);
 
 // Search query for filtering games by player name
 const searchQuery = ref('');
 
-// Format date
+// format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString();
 };
 
-// Computed property to filter games based on the search query for player names
+// filter games based on search query for player names
 const filteredGames = computed(() => {
   return games.value.filter((game) => {
     const allPlayers = [
@@ -103,10 +104,6 @@ const filteredGames = computed(() => {
 
     return allPlayers.includes(searchQuery.value.toLowerCase());
   });
-});
-
-onMounted(() => {
-  
 });
 </script>
 
@@ -148,5 +145,13 @@ onMounted(() => {
 .ended {
   background-color: #dc3545;
   color: white;
+}
+
+.vs {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0 15px;
+  align-items: center;
+  text-transform: uppercase;
 }
 </style>
