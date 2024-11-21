@@ -14,4 +14,6 @@ type GameRepository interface {
 	EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error
 	GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error)
 	GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error)
+	CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error)
+	GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, gameID string) (models.GameStatistic, error)
 }

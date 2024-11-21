@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/utils"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -33,4 +34,23 @@ func (c *Club) PostgresToModel(fromDb database.Club) error {
 	c.UpdatedAt = &fromDb.UpdatedAt.Time
 
 	return nil
+}
+
+func ClubFactory(count int, args map[string]interface{}) []Club {
+	clubs := []Club{}
+
+	ownerID, ok := args["ownerID"]
+	if !ok {
+		ownerID = uuid.NewString()
+	}
+
+	for i := 0; i < count; i++ {
+		clubs = append(clubs, Club{
+			OwnerID:   ownerID.(string),
+			Name:      utils.NewString(10),
+			CreatedAt: time.Now(),
+		})
+	}
+
+	return clubs
 }

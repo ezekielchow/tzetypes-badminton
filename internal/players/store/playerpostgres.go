@@ -119,7 +119,7 @@ func (pp PlayerPostgres) FindUserWithName(ctx context.Context, tx *pgx.Tx, name 
 func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.Player, error) {
 	dbPlayers, err := pp.Queries.AllPlayers(ctx)
 	if err != nil {
-		return []models.Player{}, nil
+		return []models.Player{}, err
 	}
 
 	players := []models.Player{}
@@ -127,7 +127,7 @@ func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.P
 		player := models.Player{}
 		err := player.PostgresToModel(dbPlayer)
 		if err != nil {
-			return []models.Player{}, nil
+			return []models.Player{}, err
 		}
 
 		players = append(players, player)
@@ -174,13 +174,13 @@ func (pp PlayerPostgres) GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id str
 
 	dbPlayer, err := pp.Queries.GetPlayerWithId(ctx, pgID)
 	if err != nil {
-		return models.Player{}, nil
+		return models.Player{}, err
 	}
 
 	player := models.Player{}
 	err = player.PostgresToModel(dbPlayer)
 	if err != nil {
-		return models.Player{}, nil
+		return models.Player{}, err
 	}
 
 	return player, nil

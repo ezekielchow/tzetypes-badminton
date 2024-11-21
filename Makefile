@@ -30,7 +30,7 @@ gen-mocks:  ## Generate mocks to help in testing
 web-build: ## Build Frontend
 	cd ./web && bun run build
 
-pre-commit: lint openapi openapi-js sqlc-gen gen-mocks test web-build ## Make sure all code is ok before commiting
+pre-commit: openapi openapi-js sqlc-gen gen-mocks lint test web-build ## Make sure all code is ok before commiting
 
 lint: ## Lint golang
 	docker run --rm -v ./internal:/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w /app golangci/golangci-lint:v1.61.0 golangci-lint run -v ./...

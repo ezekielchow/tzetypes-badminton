@@ -117,18 +117,18 @@ func (gp GamePostgres) GetGame(ctx context.Context, tx *pgx.Tx, id string) (mode
 
 	pgID, err := utils.StringToPgId(id)
 	if err != nil {
-		return models.Game{}, nil
+		return models.Game{}, err
 	}
 
 	res, err := gp.Queries.GetGameWithID(ctx, pgID)
 	if err != nil {
-		return models.Game{}, nil
+		return models.Game{}, err
 	}
 
 	game := models.Game{}
 	err = game.PostgresToModel(res)
 	if err != nil {
-		return models.Game{}, nil
+		return models.Game{}, err
 	}
 
 	return game, nil
@@ -137,12 +137,12 @@ func (gp GamePostgres) GetGame(ctx context.Context, tx *pgx.Tx, id string) (mode
 func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error) {
 	pgGameID, err := utils.StringToPgId(gameID)
 	if err != nil {
-		return []models.GameStep{}, nil
+		return []models.GameStep{}, err
 	}
 
 	res, err := gp.Queries.GetGameStepsWithGameID(ctx, pgGameID)
 	if err != nil {
-		return []models.GameStep{}, nil
+		return []models.GameStep{}, err
 	}
 
 	steps := []models.GameStep{}
@@ -150,11 +150,64 @@ func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID stri
 		step := models.GameStep{}
 		err = step.PostgresToModel(dbGameStep)
 		if err != nil {
-			return []models.GameStep{}, nil
+			return []models.GameStep{}, err
 		}
 
 		steps = append(steps, step)
 	}
 
 	return steps, nil
+}
+
+func (gp GamePostgres) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error) {
+	pgGameID, err := utils.StringToPgId(gameID)
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	dbRes, err := gp.Queries.CreateGameStatistic(ctx, database.CreateGameStatisticParams{
+		GameID:                          pgGameID,
+		TotalGameTimeSeconds:            int32(toCreate.TotalGameTimeSeconds),
+		RightConsecutivePoints:          int32(toCreate.RightConsecutivePoints),
+		LeftConsecutivePoints:           int32(toCreate.LeftConsecutivePoints),
+		LeftLongestPointSeconds:         int32(toCreate.LeftLongestPointSeconds),
+		LeftShortestPointSeconds:        int32(toCreate.LeftShortestPointSeconds),
+		RightLongestPointSeconds:        int32(toCreate.RightLongestPointSeconds),
+		RightShortestPointSeconds:       int32(toCreate.RightShortestPointSeconds),
+		AverageTimePerPointSeconds:      int32(toCreate.AverageTimePerPointSeconds),
+		LeftAverageTimePerPointSeconds:  int32(toCreate.LeftAverageTimePerPointSeconds),
+		RightAverageTimePerPointSeconds: int32(toCreate.RightAverageTimePerPointSeconds),
+	})
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	statistic := models.GameStatistic{}
+	err = statistic.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	return statistic, nil
+}
+
+func (gp GamePostgres) GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, gameID string) (models.GameStatistic, error) {
+
+	pgGameID, err := utils.StringToPgId(gameID)
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	dbRes, err := gp.Queries.GetGameStatisticsWithGameID(ctx, pgGameID)
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	statistic := models.GameStatistic{}
+	err = statistic.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameStatistic{}, err
+	}
+
+	return statistic, nil
 }

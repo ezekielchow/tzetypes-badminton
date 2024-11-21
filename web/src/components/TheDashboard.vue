@@ -55,11 +55,11 @@ getUserEmail()
         </div>
 
         <div class="content">
-            <RouterLink to="/players">
+            <!-- <RouterLink to="/players">
                 <button class="primary-button">
                     My Players
                 </button>
-            </RouterLink>
+            </RouterLink> -->
             <RouterLink to="/game/setup" class="mt">
                 <button class="primary-button">
                     New Game

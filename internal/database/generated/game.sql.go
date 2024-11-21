@@ -68,6 +68,82 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 	return i, err
 }
 
+const createGameStatistic = `-- name: CreateGameStatistic :one
+INSERT INTO game_statistics(
+    game_id,
+    total_game_time_seconds, 
+    right_consecutive_points,
+    left_consecutive_points,
+    left_longest_point_seconds,
+    left_shortest_point_seconds,
+    right_longest_point_seconds,
+    right_shortest_point_seconds,
+    average_time_per_point_seconds,
+    right_average_time_per_point_seconds,
+    left_average_time_per_point_seconds
+) VALUES (
+    $1::uuid,
+    $2::int,
+    $3::int,
+    $4::int,
+    $5::int,
+    $6::int,
+    $7::int,
+    $8::int,
+    $9::int,
+    $10::int,
+    $11::int
+) RETURNING id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, left_longest_point_seconds, left_shortest_point_seconds, right_longest_point_seconds, right_shortest_point_seconds, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at
+`
+
+type CreateGameStatisticParams struct {
+	GameID                          pgtype.UUID
+	TotalGameTimeSeconds            int32
+	RightConsecutivePoints          int32
+	LeftConsecutivePoints           int32
+	LeftLongestPointSeconds         int32
+	LeftShortestPointSeconds        int32
+	RightLongestPointSeconds        int32
+	RightShortestPointSeconds       int32
+	AverageTimePerPointSeconds      int32
+	RightAverageTimePerPointSeconds int32
+	LeftAverageTimePerPointSeconds  int32
+}
+
+func (q *Queries) CreateGameStatistic(ctx context.Context, arg CreateGameStatisticParams) (GameStatistic, error) {
+	row := q.db.QueryRow(ctx, createGameStatistic,
+		arg.GameID,
+		arg.TotalGameTimeSeconds,
+		arg.RightConsecutivePoints,
+		arg.LeftConsecutivePoints,
+		arg.LeftLongestPointSeconds,
+		arg.LeftShortestPointSeconds,
+		arg.RightLongestPointSeconds,
+		arg.RightShortestPointSeconds,
+		arg.AverageTimePerPointSeconds,
+		arg.RightAverageTimePerPointSeconds,
+		arg.LeftAverageTimePerPointSeconds,
+	)
+	var i GameStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.TotalGameTimeSeconds,
+		&i.RightConsecutivePoints,
+		&i.LeftConsecutivePoints,
+		&i.LeftLongestPointSeconds,
+		&i.LeftShortestPointSeconds,
+		&i.RightLongestPointSeconds,
+		&i.RightShortestPointSeconds,
+		&i.AverageTimePerPointSeconds,
+		&i.LeftAverageTimePerPointSeconds,
+		&i.RightAverageTimePerPointSeconds,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createGameStep = `-- name: CreateGameStep :one
 INSERT INTO game_steps (
     game_id,
@@ -169,8 +245,35 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 	return err
 }
 
+const getGameStatisticsWithGameID = `-- name: GetGameStatisticsWithGameID :one
+SELECT id, game_id, total_game_time_seconds, right_consecutive_points, left_consecutive_points, left_longest_point_seconds, left_shortest_point_seconds, right_longest_point_seconds, right_shortest_point_seconds, average_time_per_point_seconds, left_average_time_per_point_seconds, right_average_time_per_point_seconds, created_at, updated_at FROM game_statistics WHERE game_id = $1::uuid LIMIT 1
+`
+
+func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype.UUID) (GameStatistic, error) {
+	row := q.db.QueryRow(ctx, getGameStatisticsWithGameID, gameID)
+	var i GameStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.TotalGameTimeSeconds,
+		&i.RightConsecutivePoints,
+		&i.LeftConsecutivePoints,
+		&i.LeftLongestPointSeconds,
+		&i.LeftShortestPointSeconds,
+		&i.RightLongestPointSeconds,
+		&i.RightShortestPointSeconds,
+		&i.AverageTimePerPointSeconds,
+		&i.LeftAverageTimePerPointSeconds,
+		&i.RightAverageTimePerPointSeconds,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
 SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at FROM game_steps WHERE game_id = $1::uuid
+ORDER BY step_num ASC
 `
 
 func (q *Queries) GetGameStepsWithGameID(ctx context.Context, gameID pgtype.UUID) ([]GameStep, error) {

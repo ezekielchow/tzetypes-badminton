@@ -103,6 +103,6 @@ func (c Controller) EndGame(ctx context.Context, input oapiprivate.EndGameReques
 	return c.Services.GameService.EndGame(ctx, input)
 }
 
-func (c Controller) GetGame(ctx context.Context, input oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error) {
+func (c Controller) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 	return c.Services.GameService.GetGame(ctx, input)
 }

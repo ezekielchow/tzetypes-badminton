@@ -63,7 +63,6 @@ const router = createRouter({
       path: '/game/:id/statistics',
       name: 'game/statistics',
       component: GameStatisticsView,
-      meta: { requiresAuth: true }
     },
   ]
 })

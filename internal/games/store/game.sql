@@ -56,4 +56,35 @@ WHERE id = @id;
 SELECT * FROM games WHERE id = @id::uuid limit 1;
 
 -- name: GetGameStepsWithGameID :many
-SELECT * FROM game_steps WHERE game_id = @game_id::uuid;
+SELECT * FROM game_steps WHERE game_id = @game_id::uuid
+ORDER BY step_num ASC;
+
+-- name: GetGameStatisticsWithGameID :one
+SELECT * FROM game_statistics WHERE game_id = @game_id::uuid LIMIT 1;
+
+-- name: CreateGameStatistic :one
+INSERT INTO game_statistics(
+    game_id,
+    total_game_time_seconds, 
+    right_consecutive_points,
+    left_consecutive_points,
+    left_longest_point_seconds,
+    left_shortest_point_seconds,
+    right_longest_point_seconds,
+    right_shortest_point_seconds,
+    average_time_per_point_seconds,
+    right_average_time_per_point_seconds,
+    left_average_time_per_point_seconds
+) VALUES (
+    @game_id::uuid,
+    @total_game_time_seconds::int,
+    @right_consecutive_points::int,
+    @left_consecutive_points::int,
+    @left_longest_point_seconds::int,
+    @left_shortest_point_seconds::int,
+    @right_longest_point_seconds::int,
+    @right_shortest_point_seconds::int,
+    @average_time_per_point_seconds::int,
+    @right_average_time_per_point_seconds::int,
+    @left_average_time_per_point_seconds::int
+) RETURNING *;

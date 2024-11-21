@@ -3,7 +3,9 @@ package players
 import (
 	"common/oapiprivate"
 	"context"
+	"database/sql"
 	"errors"
+	"strings"
 )
 
 const (
@@ -13,7 +15,7 @@ const (
 func (ps PlayerService) GetPlayerWithId(ctx context.Context, input oapiprivate.GetPlayerWithIdRequestObject) (oapiprivate.GetPlayerWithIdResponseObject, error) {
 
 	player, err := ps.PlayerStore.GetPlayerWithId(ctx, nil, input.Id)
-	if err != nil {
+	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 		return nil, err
 	}
 

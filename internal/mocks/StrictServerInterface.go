@@ -14,6 +14,36 @@ type StrictServerInterface struct {
 	mock.Mock
 }
 
+// GetGame provides a mock function with given fields: ctx, request
+func (_m *StrictServerInterface) GetGame(ctx context.Context, request oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
+	ret := _m.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGame")
+	}
+
+	var r0 oapipublic.GetGameResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameRequestObject) oapipublic.GetGameResponseObject); ok {
+		r0 = rf(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.GetGameResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GetGameRequestObject) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Login provides a mock function with given fields: ctx, request
 func (_m *StrictServerInterface) Login(ctx context.Context, request oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
 	ret := _m.Called(ctx, request)

@@ -73,6 +73,34 @@ func (_m *GameRepository) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCrea
 	return r0, r1
 }
 
+// CreateStatistic provides a mock function with given fields: ctx, tx, gameID, toCreate
+func (_m *GameRepository) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error) {
+	ret := _m.Called(ctx, tx, gameID, toCreate)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateStatistic")
+	}
+
+	var r0 models.GameStatistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, models.GameStatistic) (models.GameStatistic, error)); ok {
+		return rf(ctx, tx, gameID, toCreate)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, models.GameStatistic) models.GameStatistic); ok {
+		r0 = rf(ctx, tx, gameID, toCreate)
+	} else {
+		r0 = ret.Get(0).(models.GameStatistic)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, models.GameStatistic) error); ok {
+		r1 = rf(ctx, tx, gameID, toCreate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteGameStep provides a mock function with given fields: ctx, tx, id
 func (_m *GameRepository) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error {
 	ret := _m.Called(ctx, tx, id)
@@ -156,6 +184,34 @@ func (_m *GameRepository) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID s
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.GameStep)
 		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, gameID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetStatisticsWithGameId provides a mock function with given fields: ctx, tx, gameID
+func (_m *GameRepository) GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, gameID string) (models.GameStatistic, error) {
+	ret := _m.Called(ctx, tx, gameID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStatisticsWithGameId")
+	}
+
+	var r0 models.GameStatistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) (models.GameStatistic, error)); ok {
+		return rf(ctx, tx, gameID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) models.GameStatistic); ok {
+		r0 = rf(ctx, tx, gameID)
+	} else {
+		r0 = ret.Get(0).(models.GameStatistic)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {

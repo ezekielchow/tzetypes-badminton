@@ -12,6 +12,57 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Game defines model for Game.
+type Game struct {
+	ClubId              string `json:"club_id"`
+	CreatedAt           string `json:"created_at"`
+	GameType            string `json:"game_type"`
+	Id                  string `json:"id"`
+	IsEnded             bool   `json:"is_ended"`
+	LeftEvenPlayerName  string `json:"left_even_player_name"`
+	LeftOddPlayerName   string `json:"left_odd_player_name"`
+	RightEvenPlayerName string `json:"right_even_player_name"`
+	RightOddPlayerName  string `json:"right_odd_player_name"`
+	ServingSide         string `json:"serving_side"`
+	UpdatedAt           string `json:"updated_at"`
+}
+
+// GameStatistic defines model for GameStatistic.
+type GameStatistic struct {
+	AveragePerPoint        string `json:"average_per_point"`
+	AveragePerPointRatio   string `json:"average_per_point_ratio"`
+	ConsecutivePointsRatio string `json:"consecutive_points_ratio"`
+	LeftAveragePerPoint    string `json:"left_average_per_point"`
+	LeftConsecutivePoints  string `json:"left_consecutive_points"`
+	LeftLongestPoint       string `json:"left_longest_point"`
+	LeftShortestPoint      string `json:"left_shortest_point"`
+	LongestPointRatio      string `json:"longest_point_ratio"`
+	RightAveragePerPoint   string `json:"right_average_per_point"`
+	RightConsecutivePoints string `json:"right_consecutive_points"`
+	RightLongestPoint      string `json:"right_longest_point"`
+	RightShortestPoint     string `json:"right_shortest_point"`
+	ShortestPointRatio     string `json:"shortest_point_ratio"`
+	TotalGameTime          string `json:"total_game_time"`
+}
+
+// GameStep defines model for GameStep.
+type GameStep struct {
+	CreatedAt           string  `json:"created_at"`
+	CurrentServer       string  `json:"current_server"`
+	GameId              string  `json:"game_id"`
+	Id                  string  `json:"id"`
+	LeftEvenPlayerName  string  `json:"left_even_player_name"`
+	LeftOddPlayerName   string  `json:"left_odd_player_name"`
+	RightEvenPlayerName string  `json:"right_even_player_name"`
+	RightOddPlayerName  string  `json:"right_odd_player_name"`
+	ScoreAt             string  `json:"score_at"`
+	StepNum             int     `json:"step_num"`
+	SyncId              *string `json:"sync_id,omitempty"`
+	TeamLeftScore       int     `json:"team_left_score"`
+	TeamRightScore      int     `json:"team_right_score"`
+	UpdatedAt           string  `json:"updated_at"`
+}
+
 // LoginRequestSchema defines model for LoginRequestSchema.
 type LoginRequestSchema struct {
 	Email    openapi_types.Email `json:"email"`

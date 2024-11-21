@@ -2,10 +2,25 @@ package models
 
 import (
 	"common/oapiprivate"
+	"common/oapipublic"
+	"common/utils"
+	"log"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/google/uuid"
+)
+
+type TeamSide string
+type PlayerServer string
+
+const (
+	TeamSideLeft    TeamSide     = "team_side_left"
+	TeamSideRight   TeamSide     = "team_side_right"
+	RightEvenServer PlayerServer = "right_even"
+	RightOddServer  PlayerServer = "right_odd"
+	LeftEvenServer  PlayerServer = "left_even"
+	LeftOddServer   PlayerServer = "left_odd"
 )
 
 type GameStep struct {
@@ -71,4 +86,95 @@ func (gs *GameStep) ModelToAPI() oapiprivate.GameStep {
 		UpdatedAt:           gs.UpdatedAt.String(),
 		SyncId:              &gs.SyncId,
 	}
+}
+
+func GameStepsToAPI(gameSteps []GameStep) []oapipublic.GameStep {
+	apiSteps := []oapipublic.GameStep{}
+
+	for _, step := range gameSteps {
+		apiSteps = append(apiSteps, oapipublic.GameStep{
+			CreatedAt:           step.CreatedAt.String(),
+			GameId:              step.GameID,
+			Id:                  step.ID,
+			ScoreAt:             step.ScoreAt.String(),
+			StepNum:             step.StepNum,
+			TeamLeftScore:       step.TeamLeftScore,
+			TeamRightScore:      step.TeamRightScore,
+			CurrentServer:       step.CurrentServer,
+			LeftEvenPlayerName:  step.LeftEvenPlayerName,
+			LeftOddPlayerName:   *step.LeftOddPlayerName,
+			RightEvenPlayerName: step.RightEvenPlayerName,
+			RightOddPlayerName:  *step.RightOddPlayerName,
+			UpdatedAt:           step.UpdatedAt.String(),
+			SyncId:              &step.SyncId,
+		})
+	}
+
+	return apiSteps
+}
+
+func GameStepFactory(count int, args map[string]interface{}) []GameStep {
+	gameSteps := []GameStep{}
+
+	gameID, ok := args["GameID"]
+	if !ok {
+		gameID = uuid.NewString()
+	}
+
+	teamLeftScore, ok := args["TeamLeftScore"]
+	if !ok {
+		teamLeftScore = 0
+	}
+
+	teamRightScore, ok := args["TeamRightScore"]
+	if !ok {
+		teamRightScore = 0
+	}
+
+	scoreAt, ok := args["ScoreAt"]
+	if !ok {
+		scoreAt = time.Now()
+	}
+
+	stepNum, ok := args["StepNum"]
+	if !ok {
+		stepNum = 0
+	}
+
+	currentServerInterface, ok := args["CurrentServer"]
+	var currentServer PlayerServer
+	if ok {
+
+		// Attempt to assert the value to PlayerServer
+		if cs, valid := currentServerInterface.(PlayerServer); valid {
+			currentServer = cs
+		} else {
+			log.Fatalf("invalid type for CurrentServer, expected PlayerServer, got %T", currentServerInterface)
+		}
+	} else {
+		// Default value if not present
+		currentServer = LeftEvenServer
+	}
+
+	leftOddPlayerName := utils.NewString(10)
+	rightOddPlayerName := utils.NewString(10)
+
+	for i := 0; i < count; i++ {
+		gameSteps = append(gameSteps, GameStep{
+			GameID:              gameID.(string),
+			TeamLeftScore:       teamLeftScore.(int),
+			TeamRightScore:      teamRightScore.(int),
+			ScoreAt:             scoreAt.(time.Time),
+			StepNum:             stepNum.(int),
+			CurrentServer:       string(currentServer),
+			LeftOddPlayerName:   &leftOddPlayerName,
+			LeftEvenPlayerName:  utils.NewString(10),
+			RightOddPlayerName:  &rightOddPlayerName,
+			RightEvenPlayerName: utils.NewString(10),
+			SyncId:              utils.NewString(10),
+			CreatedAt:           time.Now(),
+		})
+	}
+
+	return gameSteps
 }

@@ -49,10 +49,6 @@ export interface EndGameOperationRequest {
     endGameRequest?: EndGameRequest;
 }
 
-export interface GetGameRequest {
-    gameId: string;
-}
-
 export interface StartGameRequest {
     gameStartRequestSchema: GameStartRequestSchema;
 }
@@ -200,47 +196,6 @@ export class GameApi extends runtime.BaseAPI {
      */
     async endGame(requestParameters: EndGameOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.endGameRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Get game and steps given id
-     */
-    async getGameRaw(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StartGame201Response>> {
-        if (requestParameters['gameId'] == null) {
-            throw new runtime.RequiredError(
-                'gameId',
-                'Required parameter "gameId" was null or undefined when calling getGame().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("BearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/game/{game_id}`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => StartGame201ResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Get game and steps given id
-     */
-    async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StartGame201Response> {
-        const response = await this.getGameRaw(requestParameters, initOverrides);
-        return await response.value();
     }
 
     /**

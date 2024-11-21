@@ -2,6 +2,8 @@ package models
 
 import (
 	"common/oapiprivate"
+	"common/oapipublic"
+	"common/utils"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -62,4 +64,62 @@ func (g *Game) ModelToAPI() oapiprivate.Game {
 		IsEnded:             g.IsEnded,
 		UpdatedAt:           g.UpdatedAt.String(),
 	}
+}
+
+func (g *Game) ModelToPublicAPI() oapipublic.Game {
+	return oapipublic.Game{
+		ClubId:              g.ClubID,
+		CreatedAt:           g.CreatedAt.String(),
+		GameType:            g.GameType,
+		Id:                  g.ID,
+		LeftEvenPlayerName:  g.LeftEvenPlayerName,
+		LeftOddPlayerName:   *g.LeftOddPlayerName,
+		RightEvenPlayerName: g.RightEvenPlayerName,
+		RightOddPlayerName:  *g.RightOddPlayerName,
+		ServingSide:         g.ServingSide,
+		IsEnded:             g.IsEnded,
+		UpdatedAt:           g.UpdatedAt.String(),
+	}
+}
+
+func GameFactory(count int, args map[string]interface{}) []Game {
+	games := []Game{}
+
+	clubID, ok := args["ClubID"]
+	if !ok {
+		clubID = utils.NewString(10)
+	}
+
+	gameType, ok := args["GameType"]
+	if !ok {
+		gameType = string(oapiprivate.Singles)
+	}
+
+	rightOddName := ""
+	leftOddName := ""
+	if gameType == oapiprivate.Doubles {
+		rightOddName = utils.NewString(10)
+		leftOddName = utils.NewString(10)
+	}
+
+	servingSide, ok := args["ServingSide"]
+	if !ok {
+		servingSide = string(oapiprivate.RightEven)
+	}
+
+	for i := 0; i < count; i++ {
+		games = append(games, Game{
+			ClubID:              clubID.(string),
+			LeftOddPlayerName:   &leftOddName,
+			LeftEvenPlayerName:  utils.NewString(10),
+			RightOddPlayerName:  &rightOddName,
+			RightEvenPlayerName: utils.NewString(10),
+			GameType:            gameType.(string),
+			ServingSide:         servingSide.(string),
+			IsEnded:             false,
+			CreatedAt:           time.Now(),
+		})
+	}
+
+	return games
 }

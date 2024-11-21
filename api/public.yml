@@ -65,6 +65,40 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{game_id}:
+    get:
+      summary: Get game and steps given id
+      operationId: getGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Get game successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - steps
+                  - game
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameStep"
+                  game:
+                    $ref: "#/components/schemas/Game"
+                  statistics:
+                    $ref: "#/components/schemas/GameStatistic"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
 components:
   schemas:
     LoginRequestSchema:
@@ -122,6 +156,137 @@ components:
         - message
       properties:
         message:
+          type: string
+
+    GameStatistic:
+      type: object
+      required:
+        - total_game_time
+        - left_consecutive_points
+        - consecutive_points_ratio
+        - right_consecutive_points
+        - left_longest_point
+        - left_shortest_point
+        - right_longest_point
+        - right_shortest_point
+        - longest_point_ratio
+        - shortest_point_ratio
+        - average_per_point
+        - left_average_per_point
+        - right_average_per_point
+        - average_per_point_ratio
+      properties:
+        total_game_time:
+          type: string
+        left_consecutive_points:
+          type: string
+        right_consecutive_points:
+          type: string
+        left_longest_point:
+          type: string
+        left_shortest_point:
+          type: string
+        right_longest_point:
+          type: string
+        right_shortest_point:
+          type: string
+        average_per_point:
+          type: string
+        left_average_per_point:
+          type: string
+        right_average_per_point:
+          type: string
+        consecutive_points_ratio:
+          type: string
+        longest_point_ratio:
+          type: string
+        shortest_point_ratio:
+          type: string
+        average_per_point_ratio:
+          type: string
+
+    Game:
+      type: object
+      required:
+        - id
+        - club_id
+        - left_odd_player_name
+        - left_even_player_name
+        - right_odd_player_name
+        - right_even_player_name
+        - game_type
+        - serving_side
+        - is_ended
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        club_id:
+          type: string
+        left_odd_player_name:
+          type: string
+        left_even_player_name:
+          type: string
+        right_odd_player_name:
+          type: string
+        right_even_player_name:
+          type: string
+        game_type:
+          type: string
+        serving_side:
+          type: string
+        is_ended:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    GameStep:
+      type: object
+      required:
+        - id
+        - game_id
+        - team_left_score
+        - team_right_score
+        - score_at
+        - step_num
+        - current_server
+        - left_odd_player_name
+        - left_even_player_name
+        - right_odd_player_name
+        - right_even_player_name
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        game_id:
+          type: string
+        team_left_score:
+          type: integer
+        team_right_score:
+          type: integer
+        score_at:
+          type: string
+        step_num:
+          type: integer
+        current_server:
+          type: string
+        left_odd_player_name:
+          type: string
+        left_even_player_name:
+          type: string
+        right_odd_player_name:
+          type: string
+        right_even_player_name:
+          type: string
+        sync_id:
+          type: string
+        created_at:
+          type: string
+        updated_at:
           type: string
 
   responses:
