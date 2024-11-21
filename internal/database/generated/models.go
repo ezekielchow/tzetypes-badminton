@@ -94,6 +94,7 @@ type Session struct {
 type User struct {
 	ID           pgtype.UUID
 	Email        string
+	UserType     string
 	PasswordHash *string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp

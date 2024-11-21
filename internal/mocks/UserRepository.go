@@ -16,9 +16,9 @@ type UserRepository struct {
 	mock.Mock
 }
 
-// CreateUser provides a mock function with given fields: ctx, tx, email, passwordHash
-func (_m *UserRepository) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string) (models.User, error) {
-	ret := _m.Called(ctx, tx, email, passwordHash)
+// CreateUser provides a mock function with given fields: ctx, tx, email, passwordHash, userType
+func (_m *UserRepository) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string, userType string) (models.User, error) {
+	ret := _m.Called(ctx, tx, email, passwordHash, userType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUser")
@@ -26,17 +26,17 @@ func (_m *UserRepository) CreateUser(ctx context.Context, tx *pgx.Tx, email stri
 
 	var r0 models.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string) (models.User, error)); ok {
-		return rf(ctx, tx, email, passwordHash)
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, string) (models.User, error)); ok {
+		return rf(ctx, tx, email, passwordHash, userType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string) models.User); ok {
-		r0 = rf(ctx, tx, email, passwordHash)
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, string) models.User); ok {
+		r0 = rf(ctx, tx, email, passwordHash, userType)
 	} else {
 		r0 = ret.Get(0).(models.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, string) error); ok {
-		r1 = rf(ctx, tx, email, passwordHash)
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, string, string) error); ok {
+		r1 = rf(ctx, tx, email, passwordHash, userType)
 	} else {
 		r1 = ret.Error(1)
 	}

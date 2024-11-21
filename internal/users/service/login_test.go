@@ -1,6 +1,7 @@
 package users
 
 import (
+	"common/models"
 	"common/oapipublic"
 	"common/utils"
 	"context"
@@ -24,7 +25,7 @@ func TestLogin(t *testing.T) {
 			t.Fatalf("unable to generate password: %s", err)
 		}
 
-		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash))
+		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash), string(models.UserTypeClubOwner))
 		if err != nil {
 			t.Fatalf("unable to create user: %s", err)
 		}
@@ -60,7 +61,7 @@ func TestLogin(t *testing.T) {
 			t.Fatalf("unable to generate password: %s", err)
 		}
 
-		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash))
+		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash), string(models.UserTypeClubOwner))
 		if err != nil {
 			t.Fatalf("unable to create user: %s", err)
 		}
@@ -92,7 +93,7 @@ func TestLogin(t *testing.T) {
 			t.Fatalf("unable to generate password: %s", err)
 		}
 
-		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash))
+		_, err = userService.UserStore.CreateUser(ctx, nil, email, string(hash), string(models.UserTypeClubOwner))
 		if err != nil {
 			t.Fatalf("unable to create user: %s", err)
 		}

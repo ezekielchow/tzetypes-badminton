@@ -13,7 +13,7 @@ type UserPostgres struct {
 	Queries *database.Queries
 }
 
-func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string) (models.User, error) {
+func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string, userType string) (models.User, error) {
 	queries := up.Queries
 	if tx != nil {
 		queries = queries.WithTx(*tx)
@@ -22,6 +22,7 @@ func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, email string,
 	created, err := queries.CreateUser(ctx, database.CreateUserParams{
 		Email:        email,
 		PasswordHash: &passwordHash,
+		UserType:     userType,
 	})
 
 	if err != nil {
