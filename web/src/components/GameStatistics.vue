@@ -104,7 +104,7 @@ const playerScoreText = computed(() => {
             rightWinner = "\uD83C\uDFC6"
         }
 
-        return `${leftPlayers} ${leftWinner} ${last.teamLeftScore}:${last.teamRightScore} ${rightWinner} ${rightPlayers}`
+        return `${leftPlayers} ${leftWinner} ${last.teamLeftScore}:${last.teamRightScore} ${rightWinner} ${rightPlayers}\n`
     }
     return ""
 })
