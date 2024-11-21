@@ -13,23 +13,25 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email,password_hash
+  email,password_hash,user_type
 ) VALUES (
-  $1,$2
-) RETURNING id, email, password_hash, created_at, updated_at
+  $1,$2,$3
+) RETURNING id, email, user_type, password_hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Email        string
 	PasswordHash *string
+	UserType     string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.PasswordHash)
+	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.PasswordHash, arg.UserType)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.UserType,
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -38,7 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const findUserWithEmail = `-- name: FindUserWithEmail :one
-SELECT id, email, password_hash, created_at, updated_at FROM users WHERE email=$1
+SELECT id, email, user_type, password_hash, created_at, updated_at FROM users WHERE email=$1
 `
 
 func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, error) {
@@ -47,6 +49,7 @@ func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, er
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.UserType,
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -55,7 +58,7 @@ func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, er
 }
 
 const findUserWithID = `-- name: FindUserWithID :one
-SELECT id, email, password_hash, created_at, updated_at FROM users WHERE id=$1
+SELECT id, email, user_type, password_hash, created_at, updated_at FROM users WHERE id=$1
 `
 
 func (q *Queries) FindUserWithID(ctx context.Context, id pgtype.UUID) (User, error) {
@@ -64,6 +67,7 @@ func (q *Queries) FindUserWithID(ctx context.Context, id pgtype.UUID) (User, err
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.UserType,
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,

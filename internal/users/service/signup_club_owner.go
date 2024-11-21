@@ -18,14 +18,14 @@ const (
 	EmailUsedError      = "email is already registered with another account"
 )
 
-func returnSignupError(err error) oapipublic.SignupdefaultJSONResponse {
-	return oapipublic.SignupdefaultJSONResponse{
+func returnSignupError(err error) oapipublic.SignupClubOwnerdefaultJSONResponse {
+	return oapipublic.SignupClubOwnerdefaultJSONResponse{
 		Body:       oapipublic.Error{Message: err.Error()},
 		StatusCode: http.StatusInternalServerError,
 	}
 }
 
-func validateSignup(ctx context.Context, userStore userstore.UserRepository, input oapipublic.SignupRequestObject) error {
+func validateSignup(ctx context.Context, userStore userstore.UserRepository, input oapipublic.SignupClubOwnerRequestObject) error {
 
 	if input.Body.Password != input.Body.PasswordRepeat {
 		return errors.New(PasswordRepeatError)
@@ -43,7 +43,7 @@ func validateSignup(ctx context.Context, userStore userstore.UserRepository, inp
 	return nil
 }
 
-func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
+func (us UserService) SignupClubOwner(ctx context.Context, input oapipublic.SignupClubOwnerRequestObject) (oapipublic.SignupClubOwnerResponseObject, error) {
 
 	tx, err := us.PgxPool.Begin(ctx)
 	if err != nil {
@@ -61,7 +61,7 @@ func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequest
 		return nil, err
 	}
 
-	user, err := us.UserStore.CreateUser(ctx, &tx, string(input.Body.Email), string(hash))
+	user, err := us.UserStore.CreateUser(ctx, &tx, string(input.Body.Email), string(hash), string(models.UserTypeClubOwner))
 
 	if err != nil {
 		return nil, err
@@ -81,5 +81,5 @@ func (us UserService) Signup(ctx context.Context, input oapipublic.SignupRequest
 		return nil, err
 	}
 
-	return oapipublic.Signup201Response{}, nil
+	return oapipublic.SignupClubOwner201Response{}, nil
 }

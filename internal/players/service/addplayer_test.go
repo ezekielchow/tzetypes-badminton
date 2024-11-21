@@ -19,7 +19,7 @@ func TestAddPlayer(t *testing.T) {
 		name := utils.NewString(10)
 		ownerEmail := utils.NewEmail(10)
 
-		user, err := playerService.UserStore.CreateUser(ctx, nil, ownerEmail, "")
+		user, err := playerService.UserStore.CreateUser(ctx, nil, ownerEmail, "", string(models.UserTypePlayer))
 		if err != nil {
 			t.Fatalf("unable to create user:%s", err)
 		}

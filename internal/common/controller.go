@@ -29,8 +29,8 @@ func (c Controller) Login(ctx context.Context, input oapipublic.LoginRequestObje
 	return c.Services.UserService.Login(ctx, input)
 }
 
-func (c Controller) Signup(ctx context.Context, input oapipublic.SignupRequestObject) (oapipublic.SignupResponseObject, error) {
-	return c.Services.UserService.Signup(ctx, input)
+func (c Controller) SignupClubOwner(ctx context.Context, input oapipublic.SignupClubOwnerRequestObject) (oapipublic.SignupClubOwnerResponseObject, error) {
+	return c.Services.UserService.SignupClubOwner(ctx, input)
 }
 
 func (c Controller) RefreshToken(ctx context.Context, input oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error) {

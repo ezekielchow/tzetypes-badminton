@@ -100,10 +100,10 @@ type ClientInterface interface {
 	// RefreshToken request
 	RefreshToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SignupWithBody request with any body
-	SignupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SignupClubOwnerWithBody request with any body
+	SignupClubOwnerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	Signup(ctx context.Context, body SignupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SignupClubOwner(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -154,8 +154,8 @@ func (c *Client) RefreshToken(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-func (c *Client) SignupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSignupRequestWithBody(c.Server, contentType, body)
+func (c *Client) SignupClubOwnerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignupClubOwnerRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -166,8 +166,8 @@ func (c *Client) SignupWithBody(ctx context.Context, contentType string, body io
 	return c.Client.Do(req)
 }
 
-func (c *Client) Signup(ctx context.Context, body SignupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSignupRequest(c.Server, body)
+func (c *Client) SignupClubOwner(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignupClubOwnerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -279,19 +279,19 @@ func NewRefreshTokenRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewSignupRequest calls the generic Signup builder with application/json body
-func NewSignupRequest(server string, body SignupJSONRequestBody) (*http.Request, error) {
+// NewSignupClubOwnerRequest calls the generic SignupClubOwner builder with application/json body
+func NewSignupClubOwnerRequest(server string, body SignupClubOwnerJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSignupRequestWithBody(server, "application/json", bodyReader)
+	return NewSignupClubOwnerRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewSignupRequestWithBody generates requests for Signup with any type of body
-func NewSignupRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewSignupClubOwnerRequestWithBody generates requests for SignupClubOwner with any type of body
+func NewSignupClubOwnerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -299,7 +299,7 @@ func NewSignupRequestWithBody(server string, contentType string, body io.Reader)
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/signup")
+	operationPath := fmt.Sprintf("/signup-club-owner")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -373,10 +373,10 @@ type ClientWithResponsesInterface interface {
 	// RefreshTokenWithResponse request
 	RefreshTokenWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshTokenResponse, error)
 
-	// SignupWithBodyWithResponse request with any body
-	SignupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupResponse, error)
+	// SignupClubOwnerWithBodyWithResponse request with any body
+	SignupClubOwnerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error)
 
-	SignupWithResponse(ctx context.Context, body SignupJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupResponse, error)
+	SignupClubOwnerWithResponse(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error)
 }
 
 type GetGameResponse struct {
@@ -452,14 +452,14 @@ func (r RefreshTokenResponse) StatusCode() int {
 	return 0
 }
 
-type SignupResponse struct {
+type SignupClubOwnerResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSONDefault  *ErrorResponseSchema
 }
 
 // Status returns HTTPResponse.Status
-func (r SignupResponse) Status() string {
+func (r SignupClubOwnerResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -467,7 +467,7 @@ func (r SignupResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r SignupResponse) StatusCode() int {
+func (r SignupClubOwnerResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -509,21 +509,21 @@ func (c *ClientWithResponses) RefreshTokenWithResponse(ctx context.Context, reqE
 	return ParseRefreshTokenResponse(rsp)
 }
 
-// SignupWithBodyWithResponse request with arbitrary body returning *SignupResponse
-func (c *ClientWithResponses) SignupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupResponse, error) {
-	rsp, err := c.SignupWithBody(ctx, contentType, body, reqEditors...)
+// SignupClubOwnerWithBodyWithResponse request with arbitrary body returning *SignupClubOwnerResponse
+func (c *ClientWithResponses) SignupClubOwnerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error) {
+	rsp, err := c.SignupClubOwnerWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSignupResponse(rsp)
+	return ParseSignupClubOwnerResponse(rsp)
 }
 
-func (c *ClientWithResponses) SignupWithResponse(ctx context.Context, body SignupJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupResponse, error) {
-	rsp, err := c.Signup(ctx, body, reqEditors...)
+func (c *ClientWithResponses) SignupClubOwnerWithResponse(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error) {
+	rsp, err := c.SignupClubOwner(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSignupResponse(rsp)
+	return ParseSignupClubOwnerResponse(rsp)
 }
 
 // ParseGetGameResponse parses an HTTP response from a GetGameWithResponse call
@@ -629,15 +629,15 @@ func ParseRefreshTokenResponse(rsp *http.Response) (*RefreshTokenResponse, error
 	return response, nil
 }
 
-// ParseSignupResponse parses an HTTP response from a SignupWithResponse call
-func ParseSignupResponse(rsp *http.Response) (*SignupResponse, error) {
+// ParseSignupClubOwnerResponse parses an HTTP response from a SignupClubOwnerWithResponse call
+func ParseSignupClubOwnerResponse(rsp *http.Response) (*SignupClubOwnerResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &SignupResponse{
+	response := &SignupClubOwnerResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
