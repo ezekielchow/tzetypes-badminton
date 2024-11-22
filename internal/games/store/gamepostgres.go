@@ -211,3 +211,61 @@ func (gp GamePostgres) GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, 
 
 	return statistic, nil
 }
+
+func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx, toCreate models.GameHistory) (models.GameHistory, error) {
+	pgUserID, err := utils.StringToPgId(toCreate.UserID)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	pgGameID, err := utils.StringToPgId(toCreate.GameID)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	dbRes, err := gp.Queries.CreateOrUpdateGameHistory(ctx, database.CreateOrUpdateGameHistoryParams{
+		UserID:         pgUserID,
+		GameID:         pgGameID,
+		PlayerPosition: toCreate.PlayerPosition,
+	})
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	gameHistory := models.GameHistory{}
+	err = gameHistory.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	return gameHistory, nil
+}
+
+func (gp GamePostgres) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, tx *pgx.Tx, userID string, gameID string) (models.GameHistory, error) {
+
+	pgUserID, err := utils.StringToPgId(userID)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	pgGameID, err := utils.StringToPgId(gameID)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	dbRes, err := gp.Queries.GetGameHistoryGivenUserIdAndGameId(ctx, database.GetGameHistoryGivenUserIdAndGameIdParams{
+		UserID: pgUserID,
+		GameID: pgGameID,
+	})
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	gameHistory := models.GameHistory{}
+	err = gameHistory.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
+	return gameHistory, nil
+}

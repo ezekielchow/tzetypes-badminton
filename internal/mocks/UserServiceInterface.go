@@ -168,6 +168,36 @@ func (_m *UserServiceInterface) SignupClubOwner(ctx context.Context, input oapip
 	return r0, r1
 }
 
+// SignupPlayer provides a mock function with given fields: ctx, input
+func (_m *UserServiceInterface) SignupPlayer(ctx context.Context, input oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignupPlayer")
+	}
+
+	var r0 oapipublic.SignupPlayerResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupPlayerRequestObject) oapipublic.SignupPlayerResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.SignupPlayerResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupPlayerRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewUserServiceInterface creates a new instance of UserServiceInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserServiceInterface(t interface {

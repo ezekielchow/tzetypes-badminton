@@ -7,6 +7,14 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
+// Defines values for CreateOrUpdateGameHistoryRequestSchemaPlayerPosition.
+const (
+	LeftEvenPlayer  CreateOrUpdateGameHistoryRequestSchemaPlayerPosition = "left_even_player"
+	LeftOddPlayer   CreateOrUpdateGameHistoryRequestSchemaPlayerPosition = "left_odd_player"
+	RightEvenPlayer CreateOrUpdateGameHistoryRequestSchemaPlayerPosition = "right_even_player"
+	RightOddPlayer  CreateOrUpdateGameHistoryRequestSchemaPlayerPosition = "right_odd_player"
+)
+
 // Defines values for GameStartRequestSchemaGameType.
 const (
 	Doubles GameStartRequestSchemaGameType = "doubles"
@@ -29,6 +37,14 @@ type AddPlayerRequestSchema struct {
 	Name string `json:"name"`
 }
 
+// CreateOrUpdateGameHistoryRequestSchema defines model for CreateOrUpdateGameHistoryRequestSchema.
+type CreateOrUpdateGameHistoryRequestSchema struct {
+	PlayerPosition CreateOrUpdateGameHistoryRequestSchemaPlayerPosition `json:"player_position"`
+}
+
+// CreateOrUpdateGameHistoryRequestSchemaPlayerPosition defines model for CreateOrUpdateGameHistoryRequestSchema.PlayerPosition.
+type CreateOrUpdateGameHistoryRequestSchemaPlayerPosition string
+
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
@@ -47,6 +63,16 @@ type Game struct {
 	RightOddPlayerName  string `json:"right_odd_player_name"`
 	ServingSide         string `json:"serving_side"`
 	UpdatedAt           string `json:"updated_at"`
+}
+
+// GameHistory defines model for GameHistory.
+type GameHistory struct {
+	CreatedAt      string `json:"created_at"`
+	GameId         string `json:"game_id"`
+	Id             string `json:"id"`
+	PlayerPosition string `json:"player_position"`
+	UpdatedAt      string `json:"updated_at"`
+	UserId         string `json:"user_id"`
 }
 
 // GameStartRequestSchema defines model for GameStartRequestSchema.
@@ -106,6 +132,11 @@ type User struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// CreateOrUpdateGameHistoryResponseSchema defines model for CreateOrUpdateGameHistoryResponseSchema.
+type CreateOrUpdateGameHistoryResponseSchema struct {
+	GameHistory GameHistory `json:"game_history"`
+}
+
 // CurrentUserResponseSchema defines model for CurrentUserResponseSchema.
 type CurrentUserResponseSchema struct {
 	User User `json:"user"`
@@ -113,6 +144,11 @@ type CurrentUserResponseSchema struct {
 
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
+
+// GetGameHistoryResponseSchema defines model for GetGameHistoryResponseSchema.
+type GetGameHistoryResponseSchema struct {
+	GameHistory GameHistory `json:"game_history"`
+}
 
 // StartGame201ResponseSchema defines model for StartGame201ResponseSchema.
 type StartGame201ResponseSchema struct {
@@ -153,6 +189,9 @@ type StartGameJSONRequestBody = GameStartRequestSchema
 
 // EndGameJSONRequestBody defines body for EndGame for application/json ContentType.
 type EndGameJSONRequestBody EndGameJSONBody
+
+// CreateOrUpdateGameHistoryJSONRequestBody defines body for CreateOrUpdateGameHistory for application/json ContentType.
+type CreateOrUpdateGameHistoryJSONRequestBody = CreateOrUpdateGameHistoryRequestSchema
 
 // AddGameStepsJSONRequestBody defines body for AddGameSteps for application/json ContentType.
 type AddGameStepsJSONRequestBody = AddGameStepsRequestSchema

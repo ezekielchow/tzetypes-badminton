@@ -7,10 +7,13 @@ index.ts
 models/AddGameSteps201Response.ts
 models/AddGameStepsRequestSchema.ts
 models/AddPlayerRequestSchema.ts
+models/CreateOrUpdateGameHistoryRequestSchema.ts
 models/EndGameRequest.ts
 models/Game.ts
+models/GameHistory.ts
 models/GameStartRequestSchema.ts
 models/GameStep.ts
+models/GetGameHistory200Response.ts
 models/GetLoggedInUser200Response.ts
 models/ListPlayers200Response.ts
 models/ListPlayers200ResponsePagination.ts

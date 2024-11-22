@@ -221,6 +221,43 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 	return i, err
 }
 
+const createOrUpdateGameHistory = `-- name: CreateOrUpdateGameHistory :one
+INSERT INTO game_histories(
+    user_id,
+    game_id,
+    player_position
+) VALUES (
+    $1::uuid,
+    $2::uuid,
+    $3::text
+) 
+ON CONFLICT (user_id,game_id) DO UPDATE
+    SET 
+    player_position = EXCLUDED.player_position,
+    updated_at = now()
+RETURNING id, user_id, game_id, player_position, created_at, updated_at
+`
+
+type CreateOrUpdateGameHistoryParams struct {
+	UserID         pgtype.UUID
+	GameID         pgtype.UUID
+	PlayerPosition string
+}
+
+func (q *Queries) CreateOrUpdateGameHistory(ctx context.Context, arg CreateOrUpdateGameHistoryParams) (GameHistory, error) {
+	row := q.db.QueryRow(ctx, createOrUpdateGameHistory, arg.UserID, arg.GameID, arg.PlayerPosition)
+	var i GameHistory
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.GameID,
+		&i.PlayerPosition,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const deleteGameStep = `-- name: DeleteGameStep :exec
 DELETE FROM game_steps where id = $1::uuid
 `
@@ -243,6 +280,29 @@ type EndGameParams struct {
 func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 	_, err := q.db.Exec(ctx, endGame, arg.IsEnded, arg.ID)
 	return err
+}
+
+const getGameHistoryGivenUserIdAndGameId = `-- name: GetGameHistoryGivenUserIdAndGameId :one
+SELECT id, user_id, game_id, player_position, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
+`
+
+type GetGameHistoryGivenUserIdAndGameIdParams struct {
+	GameID pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, arg GetGameHistoryGivenUserIdAndGameIdParams) (GameHistory, error) {
+	row := q.db.QueryRow(ctx, getGameHistoryGivenUserIdAndGameId, arg.GameID, arg.UserID)
+	var i GameHistory
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.GameID,
+		&i.PlayerPosition,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const getGameStatisticsWithGameID = `-- name: GetGameStatisticsWithGameID :one

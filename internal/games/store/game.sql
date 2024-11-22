@@ -88,3 +88,22 @@ INSERT INTO game_statistics(
     @right_average_time_per_point_seconds::int,
     @left_average_time_per_point_seconds::int
 ) RETURNING *;
+
+-- name: CreateOrUpdateGameHistory :one
+INSERT INTO game_histories(
+    user_id,
+    game_id,
+    player_position
+) VALUES (
+    @user_id::uuid,
+    @game_id::uuid,
+    @player_position::text
+) 
+ON CONFLICT (user_id,game_id) DO UPDATE
+    SET 
+    player_position = EXCLUDED.player_position,
+    updated_at = now()
+RETURNING *;
+
+-- name: GetGameHistoryGivenUserIdAndGameId :one
+SELECT * FROM game_histories WHERE game_id = @game_id::uuid AND user_id = @user_id::uuid limit 1;

@@ -166,6 +166,80 @@ func (_m *ClientInterface) AddPlayerWithBody(ctx context.Context, contentType st
 	return r0, r1
 }
 
+// CreateOrUpdateGameHistory provides a mock function with given fields: ctx, gameId, body, reqEditors
+func (_m *ClientInterface) CreateOrUpdateGameHistory(ctx context.Context, gameId string, body oapiprivate.CreateOrUpdateGameHistoryJSONRequestBody, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOrUpdateGameHistory")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.CreateOrUpdateGameHistoryJSONRequestBody, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, gameId, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, oapiprivate.CreateOrUpdateGameHistoryJSONRequestBody, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, gameId, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, oapiprivate.CreateOrUpdateGameHistoryJSONRequestBody, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateOrUpdateGameHistoryWithBody provides a mock function with given fields: ctx, gameId, contentType, body, reqEditors
+func (_m *ClientInterface) CreateOrUpdateGameHistoryWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOrUpdateGameHistoryWithBody")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, gameId, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Dashboard provides a mock function with given fields: ctx, reqEditors
 func (_m *ClientInterface) Dashboard(ctx context.Context, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
 	_va := make([]interface{}, len(reqEditors))
@@ -344,6 +418,43 @@ func (_m *ClientInterface) EndGameWithBody(ctx context.Context, gameId string, c
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...oapiprivate.RequestEditorFn) error); ok {
 		r1 = rf(ctx, gameId, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameHistory provides a mock function with given fields: ctx, gameId, reqEditors
+func (_m *ClientInterface) GetGameHistory(ctx context.Context, gameId string, reqEditors ...oapiprivate.RequestEditorFn) (*http.Response, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, gameId)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameHistory")
+	}
+
+	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapiprivate.RequestEditorFn) (*http.Response, error)); ok {
+		return rf(ctx, gameId, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapiprivate.RequestEditorFn) *http.Response); ok {
+		r0 = rf(ctx, gameId, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Response)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, ...oapiprivate.RequestEditorFn) error); ok {
+		r1 = rf(ctx, gameId, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}
