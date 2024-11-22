@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import userImage from '@/assets/images/user.png';
 import ShareButton from '@/components/ShareButton.vue';
+import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
 import { type GetGame200Response } from "@/repositories/clients/public";
 import router from '@/router';
 import { useGameStore } from '@/stores/game-store';
@@ -26,6 +27,7 @@ const shortestLeftWidth = ref("")
 const shortestRightWidth = ref("")
 const averagePerPointLeftWidth = ref("")
 const averagePerpointRightWidth = ref("")
+const playerIdentityVal = ref("")
 
 const shareURL = `${window.location.href}`
 const gameStore = useGameStore()
@@ -86,6 +88,11 @@ const getStatistics = async () => {
 
     updateDisplay()
     updateMetaTags()
+
+    const token = sessionStorage.getItem('session_token')
+    if (token && token !== "") {
+        await getGameHistory(gameData.game.id)
+    }
 }
 
 const playerScoreText = computed(() => {
@@ -158,7 +165,7 @@ const updateMetaTags = () => {
     });
 }
 
-const handlePlayerIdentify = (value: string) => {
+const handlePlayerIdentify = async (value: string) => {
 
     const token = sessionStorage.getItem('session_token')
     if (!token || token === "") {
@@ -166,7 +173,7 @@ const handlePlayerIdentify = (value: string) => {
             (radio as HTMLInputElement).checked = false
         });
 
-        Swal.fire({
+        return Swal.fire({
             title: 'Sign up now to unlock this feature, ready to join?',
             showCancelButton: true,
             confirmButtonText: 'Yes',
@@ -181,11 +188,37 @@ const handlePlayerIdentify = (value: string) => {
                 sessionStore.toRedirectToUrl = shareURL
                 router.push("/signup-player")
             }
+
+            return
         })
     }
 
-    // call api bind user to player
+    const res = await gameStore.createOrUpdateGameHistory({
+        gameId: gameData.game.id,
+        createOrUpdateGameHistoryRequestSchema: {
+            playerPosition: value as CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum
+        }
+    })
 
+    if (res instanceof Error) {
+        errorMessage.value = res.message
+        document.getElementsByName("player_identify").forEach((radio) => {
+            (radio as HTMLInputElement).checked = false
+        });
+        return
+    }
+}
+
+const getGameHistory = async (gameId: string) => {
+    const res = await gameStore.getGameHistory({
+        gameId: gameId
+    })
+
+    if (res instanceof Error) {
+        return
+    }
+
+    playerIdentityVal.value = res.gameHistory.playerPosition
 }
 </script>
 
@@ -197,12 +230,13 @@ const handlePlayerIdentify = (value: string) => {
                 <ShareButton :title="'🏸 Badminton Game Results 🏸'" :text="playerScoreText" :url="shareURL" />
             </div>
         </div>
+        <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
         <div class="player-section">
             <div class="player-card">
                 <div class="user-container-box user-mb" v-if="leftOddPlayerName != ''">
                     <div class="identify-box">
                         <input type="radio" @change="handlePlayerIdentify('left_odd_player_identify')"
-                            name="player_identify" value="left_odd_player_identify">
+                            name="player_identify" value="left_odd_player_identify" v-model="playerIdentityVal">
                         <label for="player_identify"> This is me</label>
                     </div>
                     <div class="user-container">
@@ -216,7 +250,7 @@ const handlePlayerIdentify = (value: string) => {
                 <div class="user-container-box" v-if="leftEvenPlayerName != ''">
                     <div class="identify-box">
                         <input type="radio" @change="handlePlayerIdentify('left_even_player_identify')"
-                            name="player_identify" value="left_even_player_identify">
+                            name="player_identify" value="left_even_player_identify" v-model="playerIdentityVal">
                         <label for="player_identify"> This is me</label>
                     </div>
                     <div class="user-container">
@@ -242,7 +276,7 @@ const handlePlayerIdentify = (value: string) => {
 
                     <div class="identify-box">
                         <input type="radio" @change="handlePlayerIdentify('right_even_player_identify')"
-                            name="player_identify" value="right_even_player_identify">
+                            name="player_identify" value="right_even_player_identify" v-model="playerIdentityVal">
                         <label for="player_identify"> This is me</label>
                     </div>
                     <div class="user-container">
@@ -255,7 +289,7 @@ const handlePlayerIdentify = (value: string) => {
                 <div class="user-container-box user-mt" v-if="rightOddPlayerName != ''">
                     <div class="identify-box">
                         <input type="radio" @change="handlePlayerIdentify('right_odd_player_identify')"
-                            name="player_identify" value="right_odd_player_identify">
+                            name="player_identify" value="right_odd_player_identify" v-model="playerIdentityVal">
                         <label for="player_identify"> This is me</label>
                     </div>
                     <div class="user-container">

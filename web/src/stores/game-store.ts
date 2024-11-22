@@ -1,4 +1,4 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type StartGameRequest } from "@/repositories/clients/private";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
 import type { GetGame200Response, GetGameRequest } from "@/repositories/clients/public";
 import { MyApi } from "@/services/requests";
@@ -129,6 +129,38 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await myApi.getGame(params)
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async createOrUpdateGameHistory(params: CreateOrUpdateGameHistoryRequest
+    ): Promise<GetGameHistory200Response | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.createOrUpdateGameHistory(params)
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getGameHistory(params: GetGameHistoryRequest
+    ): Promise<GetGameHistory200Response | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.getGameHistory(params)
         return res
 
       } catch (error: any) {
