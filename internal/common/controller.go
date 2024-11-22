@@ -106,3 +106,25 @@ func (c Controller) EndGame(ctx context.Context, input oapiprivate.EndGameReques
 func (c Controller) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 	return c.Services.GameService.GetGame(ctx, input)
 }
+
+func (c Controller) SignupPlayer(ctx context.Context, input oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error) {
+	return c.Services.UserService.SignupPlayer(ctx, input)
+}
+
+func (c Controller) CreateOrUpdateGameHistory(ctx context.Context, input oapiprivate.CreateOrUpdateGameHistoryRequestObject) (oapiprivate.CreateOrUpdateGameHistoryResponseObject, error) {
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.GameService.CreateOrUpdateGameHistory(ctx, input, user)
+}
+
+func (c Controller) GetGameHistory(ctx context.Context, input oapiprivate.GetGameHistoryRequestObject) (oapiprivate.GetGameHistoryResponseObject, error) {
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.GameService.GetGameHistory(ctx, input, user)
+}

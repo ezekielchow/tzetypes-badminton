@@ -43,7 +43,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SignupClubOwnerRequestSchema"
+              $ref: "#/components/schemas/SignupRequestSchema"
+      responses:
+        "201":
+          description: signup success
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /signup-player:
+    post:
+      tags:
+        - users
+      operationId: signupPlayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequestSchema"
       responses:
         "201":
           description: signup success
@@ -125,7 +142,7 @@ components:
         refresh_token:
           type: string
 
-    SignupClubOwnerRequestSchema:
+    SignupRequestSchema:
       type: object
       required:
         - email

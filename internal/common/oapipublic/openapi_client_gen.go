@@ -104,6 +104,11 @@ type ClientInterface interface {
 	SignupClubOwnerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SignupClubOwner(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignupPlayerWithBody request with any body
+	SignupPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignupPlayer(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -168,6 +173,30 @@ func (c *Client) SignupClubOwnerWithBody(ctx context.Context, contentType string
 
 func (c *Client) SignupClubOwner(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignupClubOwnerRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SignupPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignupPlayerRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SignupPlayer(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignupPlayerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -319,6 +348,46 @@ func NewSignupClubOwnerRequestWithBody(server string, contentType string, body i
 	return req, nil
 }
 
+// NewSignupPlayerRequest calls the generic SignupPlayer builder with application/json body
+func NewSignupPlayerRequest(server string, body SignupPlayerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignupPlayerRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSignupPlayerRequestWithBody generates requests for SignupPlayer with any type of body
+func NewSignupPlayerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/signup-player")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -377,6 +446,11 @@ type ClientWithResponsesInterface interface {
 	SignupClubOwnerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error)
 
 	SignupClubOwnerWithResponse(ctx context.Context, body SignupClubOwnerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupClubOwnerResponse, error)
+
+	// SignupPlayerWithBodyWithResponse request with any body
+	SignupPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error)
+
+	SignupPlayerWithResponse(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error)
 }
 
 type GetGameResponse struct {
@@ -474,6 +548,28 @@ func (r SignupClubOwnerResponse) StatusCode() int {
 	return 0
 }
 
+type SignupPlayerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r SignupPlayerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignupPlayerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetGameWithResponse request returning *GetGameResponse
 func (c *ClientWithResponses) GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error) {
 	rsp, err := c.GetGame(ctx, gameId, reqEditors...)
@@ -524,6 +620,23 @@ func (c *ClientWithResponses) SignupClubOwnerWithResponse(ctx context.Context, b
 		return nil, err
 	}
 	return ParseSignupClubOwnerResponse(rsp)
+}
+
+// SignupPlayerWithBodyWithResponse request with arbitrary body returning *SignupPlayerResponse
+func (c *ClientWithResponses) SignupPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error) {
+	rsp, err := c.SignupPlayerWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignupPlayerResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignupPlayerWithResponse(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error) {
+	rsp, err := c.SignupPlayer(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignupPlayerResponse(rsp)
 }
 
 // ParseGetGameResponse parses an HTTP response from a GetGameWithResponse call
@@ -638,6 +751,32 @@ func ParseSignupClubOwnerResponse(rsp *http.Response) (*SignupClubOwnerResponse,
 	}
 
 	response := &SignupClubOwnerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignupPlayerResponse parses an HTTP response from a SignupPlayerWithResponse call
+func ParseSignupPlayerResponse(rsp *http.Response) (*SignupPlayerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignupPlayerResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

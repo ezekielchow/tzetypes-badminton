@@ -102,6 +102,14 @@ type ClientInterface interface {
 
 	EndGame(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetGameHistory request
+	GetGameHistory(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateOrUpdateGameHistoryWithBody request with any body
+	CreateOrUpdateGameHistoryWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOrUpdateGameHistory(ctx context.Context, gameId string, body CreateOrUpdateGameHistoryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// AddGameStepsWithBody request with any body
 	AddGameStepsWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -185,6 +193,42 @@ func (c *Client) EndGameWithBody(ctx context.Context, gameId string, contentType
 
 func (c *Client) EndGame(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewEndGameRequest(c.Server, gameId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetGameHistory(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetGameHistoryRequest(c.Server, gameId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrUpdateGameHistoryWithBody(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrUpdateGameHistoryRequestWithBody(c.Server, gameId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOrUpdateGameHistory(ctx context.Context, gameId string, body CreateOrUpdateGameHistoryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOrUpdateGameHistoryRequest(c.Server, gameId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -444,6 +488,87 @@ func NewEndGameRequestWithBody(server string, gameId string, contentType string,
 	}
 
 	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetGameHistoryRequest generates requests for GetGameHistory
+func NewGetGameHistoryRequest(server string, gameId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "game_id", runtime.ParamLocationPath, gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/game/%s/history", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateOrUpdateGameHistoryRequest calls the generic CreateOrUpdateGameHistory builder with application/json body
+func NewCreateOrUpdateGameHistoryRequest(server string, gameId string, body CreateOrUpdateGameHistoryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOrUpdateGameHistoryRequestWithBody(server, gameId, "application/json", bodyReader)
+}
+
+// NewCreateOrUpdateGameHistoryRequestWithBody generates requests for CreateOrUpdateGameHistory with any type of body
+func NewCreateOrUpdateGameHistoryRequestWithBody(server string, gameId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "game_id", runtime.ParamLocationPath, gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/game/%s/history", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -867,6 +992,14 @@ type ClientWithResponsesInterface interface {
 
 	EndGameWithResponse(ctx context.Context, gameId string, body EndGameJSONRequestBody, reqEditors ...RequestEditorFn) (*EndGameResponse, error)
 
+	// GetGameHistoryWithResponse request
+	GetGameHistoryWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameHistoryResponse, error)
+
+	// CreateOrUpdateGameHistoryWithBodyWithResponse request with any body
+	CreateOrUpdateGameHistoryWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrUpdateGameHistoryResponse, error)
+
+	CreateOrUpdateGameHistoryWithResponse(ctx context.Context, gameId string, body CreateOrUpdateGameHistoryJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrUpdateGameHistoryResponse, error)
+
 	// AddGameStepsWithBodyWithResponse request with any body
 	AddGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error)
 
@@ -961,6 +1094,52 @@ func (r EndGameResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r EndGameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetGameHistoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *GetGameHistoryResponseSchema
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r GetGameHistoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetGameHistoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateOrUpdateGameHistoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreateOrUpdateGameHistoryResponseSchema
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOrUpdateGameHistoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOrUpdateGameHistoryResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1200,6 +1379,32 @@ func (c *ClientWithResponses) EndGameWithResponse(ctx context.Context, gameId st
 	return ParseEndGameResponse(rsp)
 }
 
+// GetGameHistoryWithResponse request returning *GetGameHistoryResponse
+func (c *ClientWithResponses) GetGameHistoryWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameHistoryResponse, error) {
+	rsp, err := c.GetGameHistory(ctx, gameId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetGameHistoryResponse(rsp)
+}
+
+// CreateOrUpdateGameHistoryWithBodyWithResponse request with arbitrary body returning *CreateOrUpdateGameHistoryResponse
+func (c *ClientWithResponses) CreateOrUpdateGameHistoryWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOrUpdateGameHistoryResponse, error) {
+	rsp, err := c.CreateOrUpdateGameHistoryWithBody(ctx, gameId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrUpdateGameHistoryResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateOrUpdateGameHistoryWithResponse(ctx context.Context, gameId string, body CreateOrUpdateGameHistoryJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOrUpdateGameHistoryResponse, error) {
+	rsp, err := c.CreateOrUpdateGameHistory(ctx, gameId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOrUpdateGameHistoryResponse(rsp)
+}
+
 // AddGameStepsWithBodyWithResponse request with arbitrary body returning *AddGameStepsResponse
 func (c *ClientWithResponses) AddGameStepsWithBodyWithResponse(ctx context.Context, gameId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddGameStepsResponse, error) {
 	rsp, err := c.AddGameStepsWithBody(ctx, gameId, contentType, body, reqEditors...)
@@ -1377,6 +1582,72 @@ func ParseEndGameResponse(rsp *http.Response) (*EndGameResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetGameHistoryResponse parses an HTTP response from a GetGameHistoryWithResponse call
+func ParseGetGameHistoryResponse(rsp *http.Response) (*GetGameHistoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetGameHistoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetGameHistoryResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOrUpdateGameHistoryResponse parses an HTTP response from a CreateOrUpdateGameHistoryWithResponse call
+func ParseCreateOrUpdateGameHistoryResponse(rsp *http.Response) (*CreateOrUpdateGameHistoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOrUpdateGameHistoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreateOrUpdateGameHistoryResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

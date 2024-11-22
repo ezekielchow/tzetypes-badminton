@@ -11,7 +11,8 @@ import {
   type GetGame200Response,
   type GetGameRequest,
   type LoginRequest,
-  type LoginResponseSchema
+  type LoginResponseSchema,
+  type SignupPlayerRequest
 } from '@/repositories/clients/public';
 
 
@@ -347,6 +348,62 @@ export class MyApi extends runtime.BaseAPI {
 
   async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGame200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.getGameRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async requestSignupPlayer(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    const api = new PublicUsersApi(this.getPublicConf())
+
+    try {
+      return api.signupPlayer(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to signup player');
+    }
+  }
+
+  /**
+   * Public method to access the dashboard endpoint
+   */
+  async signupPlayer(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    return this.requestSignupPlayer(requestParameters, initOverrides);
+  }
+
+  private async createOrUpdateGameHistoryRequest(requestParameters: runtime.CreateOrUpdateGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.GetGameHistory200Response>> {
+    const api = new runtime.GameApi(this.getPrivateConf())
+
+    try {
+      return api.createOrUpdateGameHistoryRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to create or update game history');
+    }
+  }
+
+  async createOrUpdateGameHistory(requestParameters: runtime.CreateOrUpdateGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.GetGameHistory200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.createOrUpdateGameHistoryRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async getGameHistoryRequest(requestParameters: runtime.GetGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<runtime.GetGameHistory200Response>> {
+    const api = new runtime.GameApi(this.getPrivateConf())
+
+    try {
+      return api.getGameHistoryRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get game history');
+    }
+  }
+
+  async getGameHistory(requestParameters: runtime.GetGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.GetGameHistory200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.getGameHistoryRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
 }

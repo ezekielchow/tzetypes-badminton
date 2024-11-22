@@ -80,8 +80,8 @@ type RefreshTokenResponseSchema struct {
 	SessionToken string `json:"session_token"`
 }
 
-// SignupClubOwnerRequestSchema defines model for SignupClubOwnerRequestSchema.
-type SignupClubOwnerRequestSchema struct {
+// SignupRequestSchema defines model for SignupRequestSchema.
+type SignupRequestSchema struct {
 	Email          openapi_types.Email `json:"email"`
 	Password       string              `json:"password"`
 	PasswordRepeat string              `json:"password_repeat"`
@@ -94,4 +94,7 @@ type ErrorResponseSchema = Error
 type LoginJSONRequestBody = LoginRequestSchema
 
 // SignupClubOwnerJSONRequestBody defines body for SignupClubOwner for application/json ContentType.
-type SignupClubOwnerJSONRequestBody = SignupClubOwnerRequestSchema
+type SignupClubOwnerJSONRequestBody = SignupRequestSchema
+
+// SignupPlayerJSONRequestBody defines body for SignupPlayer for application/json ContentType.
+type SignupPlayerJSONRequestBody = SignupRequestSchema

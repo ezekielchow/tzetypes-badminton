@@ -17,8 +17,10 @@ import * as runtime from '../runtime';
 import type {
   AddGameSteps201Response,
   AddGameStepsRequestSchema,
+  CreateOrUpdateGameHistoryRequestSchema,
   EndGameRequest,
   GameStartRequestSchema,
+  GetGameHistory200Response,
   StartGame201Response,
 } from '../models/index';
 import {
@@ -26,10 +28,14 @@ import {
     AddGameSteps201ResponseToJSON,
     AddGameStepsRequestSchemaFromJSON,
     AddGameStepsRequestSchemaToJSON,
+    CreateOrUpdateGameHistoryRequestSchemaFromJSON,
+    CreateOrUpdateGameHistoryRequestSchemaToJSON,
     EndGameRequestFromJSON,
     EndGameRequestToJSON,
     GameStartRequestSchemaFromJSON,
     GameStartRequestSchemaToJSON,
+    GetGameHistory200ResponseFromJSON,
+    GetGameHistory200ResponseToJSON,
     StartGame201ResponseFromJSON,
     StartGame201ResponseToJSON,
 } from '../models/index';
@@ -37,6 +43,11 @@ import {
 export interface AddGameStepsRequest {
     gameId: string;
     addGameStepsRequestSchema: AddGameStepsRequestSchema;
+}
+
+export interface CreateOrUpdateGameHistoryRequest {
+    gameId: string;
+    createOrUpdateGameHistoryRequestSchema: CreateOrUpdateGameHistoryRequestSchema;
 }
 
 export interface DeleteGameStepsRequest {
@@ -47,6 +58,10 @@ export interface DeleteGameStepsRequest {
 export interface EndGameOperationRequest {
     gameId: string;
     endGameRequest?: EndGameRequest;
+}
+
+export interface GetGameHistoryRequest {
+    gameId: string;
 }
 
 export interface StartGameRequest {
@@ -104,6 +119,55 @@ export class GameApi extends runtime.BaseAPI {
      */
     async addGameSteps(requestParameters: AddGameStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddGameSteps201Response> {
         const response = await this.addGameStepsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async createOrUpdateGameHistoryRaw(requestParameters: CreateOrUpdateGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGameHistory200Response>> {
+        if (requestParameters['gameId'] == null) {
+            throw new runtime.RequiredError(
+                'gameId',
+                'Required parameter "gameId" was null or undefined when calling createOrUpdateGameHistory().'
+            );
+        }
+
+        if (requestParameters['createOrUpdateGameHistoryRequestSchema'] == null) {
+            throw new runtime.RequiredError(
+                'createOrUpdateGameHistoryRequestSchema',
+                'Required parameter "createOrUpdateGameHistoryRequestSchema" was null or undefined when calling createOrUpdateGameHistory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("BearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/game/{game_id}/history`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateOrUpdateGameHistoryRequestSchemaToJSON(requestParameters['createOrUpdateGameHistoryRequestSchema']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetGameHistory200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async createOrUpdateGameHistory(requestParameters: CreateOrUpdateGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGameHistory200Response> {
+        const response = await this.createOrUpdateGameHistoryRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -196,6 +260,45 @@ export class GameApi extends runtime.BaseAPI {
      */
     async endGame(requestParameters: EndGameOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.endGameRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async getGameHistoryRaw(requestParameters: GetGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGameHistory200Response>> {
+        if (requestParameters['gameId'] == null) {
+            throw new runtime.RequiredError(
+                'gameId',
+                'Required parameter "gameId" was null or undefined when calling getGameHistory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("BearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/game/{game_id}/history`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetGameHistory200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getGameHistory(requestParameters: GetGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGameHistory200Response> {
+        const response = await this.getGameHistoryRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

@@ -291,6 +291,48 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{game_id}/history:
+    get:
+      operationId: getGameHistory
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      responses:
+        "200":
+          description: get player success
+          $ref: "#/components/responses/GetGameHistoryResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+    post:
+      operationId: createOrUpdateGameHistory
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrUpdateGameHistoryRequestSchema"
+      responses:
+        "200":
+          description: create game history success
+          $ref: "#/components/responses/CreateOrUpdateGameHistoryResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
   securitySchemes: # Added missing security scheme
     BearerAuth:
@@ -351,6 +393,19 @@ components:
             - left_even
             - right_even
 
+    CreateOrUpdateGameHistoryRequestSchema:
+      type: object
+      required:
+        - player_position
+      properties:
+        player_position:
+          type: string
+          enum:
+            - left_odd_player
+            - left_even_player
+            - right_odd_player
+            - right_even_player
+
     User:
       type: object
       required:
@@ -362,6 +417,29 @@ components:
         id:
           type: string
         email:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    GameHistory:
+      type: object
+      required:
+        - id
+        - user_id
+        - game_id
+        - player_position
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        game_id:
+          type: string
+        player_position:
           type: string
         created_at:
           type: string
@@ -525,3 +603,25 @@ components:
                   $ref: "#/components/schemas/GameStep"
               game:
                 $ref: "#/components/schemas/Game"
+    GetGameHistoryResponseSchema:
+      description: get game history success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - game_history
+            properties:
+              game_history:
+                $ref: "#/components/schemas/GameHistory"
+    CreateOrUpdateGameHistoryResponseSchema:
+      description: create game history success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - game_history
+            properties:
+              game_history:
+                $ref: "#/components/schemas/GameHistory"

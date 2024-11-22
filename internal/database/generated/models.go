@@ -30,6 +30,15 @@ type Game struct {
 	UpdatedAt           pgtype.Timestamp
 }
 
+type GameHistory struct {
+	ID             pgtype.UUID
+	UserID         pgtype.UUID
+	GameID         pgtype.UUID
+	PlayerPosition string
+	CreatedAt      pgtype.Timestamp
+	UpdatedAt      pgtype.Timestamp
+}
+
 type GameStatistic struct {
 	ID                              pgtype.UUID
 	GameID                          pgtype.UUID

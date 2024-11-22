@@ -238,6 +238,80 @@ func (_m *ClientWithResponsesInterface) SignupClubOwnerWithResponse(ctx context.
 	return r0, r1
 }
 
+// SignupPlayerWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *ClientWithResponsesInterface) SignupPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupPlayerResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignupPlayerWithBodyWithResponse")
+	}
+
+	var r0 *oapipublic.SignupPlayerResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) (*oapipublic.SignupPlayerResponse, error)); ok {
+		return rf(ctx, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) *oapipublic.SignupPlayerResponse); ok {
+		r0 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapipublic.SignupPlayerResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...oapipublic.RequestEditorFn) error); ok {
+		r1 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SignupPlayerWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *ClientWithResponsesInterface) SignupPlayerWithResponse(ctx context.Context, body oapipublic.SignupPlayerJSONRequestBody, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.SignupPlayerResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignupPlayerWithResponse")
+	}
+
+	var r0 *oapipublic.SignupPlayerResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupPlayerJSONRequestBody, ...oapipublic.RequestEditorFn) (*oapipublic.SignupPlayerResponse, error)); ok {
+		return rf(ctx, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.SignupPlayerJSONRequestBody, ...oapipublic.RequestEditorFn) *oapipublic.SignupPlayerResponse); ok {
+		r0 = rf(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oapipublic.SignupPlayerResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.SignupPlayerJSONRequestBody, ...oapipublic.RequestEditorFn) error); ok {
+		r1 = rf(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewClientWithResponsesInterface creates a new instance of ClientWithResponsesInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewClientWithResponsesInterface(t interface {

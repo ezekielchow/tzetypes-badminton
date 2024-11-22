@@ -49,6 +49,36 @@ func (_m *GameServiceInterface) AddGameSteps(ctx context.Context, input oapipriv
 	return r0, r1
 }
 
+// CreateOrUpdateGameHistory provides a mock function with given fields: ctx, input, user
+func (_m *GameServiceInterface) CreateOrUpdateGameHistory(ctx context.Context, input oapiprivate.CreateOrUpdateGameHistoryRequestObject, user models.User) (oapiprivate.CreateOrUpdateGameHistoryResponseObject, error) {
+	ret := _m.Called(ctx, input, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOrUpdateGameHistory")
+	}
+
+	var r0 oapiprivate.CreateOrUpdateGameHistoryResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.CreateOrUpdateGameHistoryRequestObject, models.User) (oapiprivate.CreateOrUpdateGameHistoryResponseObject, error)); ok {
+		return rf(ctx, input, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.CreateOrUpdateGameHistoryRequestObject, models.User) oapiprivate.CreateOrUpdateGameHistoryResponseObject); ok {
+		r0 = rf(ctx, input, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.CreateOrUpdateGameHistoryResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.CreateOrUpdateGameHistoryRequestObject, models.User) error); ok {
+		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteGameSteps provides a mock function with given fields: ctx, input
 func (_m *GameServiceInterface) DeleteGameSteps(ctx context.Context, input oapiprivate.DeleteGameStepsRequestObject) (oapiprivate.DeleteGameStepsResponseObject, error) {
 	ret := _m.Called(ctx, input)
@@ -132,6 +162,36 @@ func (_m *GameServiceInterface) GetGame(ctx context.Context, input oapipublic.Ge
 
 	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GetGameRequestObject) error); ok {
 		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameHistory provides a mock function with given fields: ctx, input, user
+func (_m *GameServiceInterface) GetGameHistory(ctx context.Context, input oapiprivate.GetGameHistoryRequestObject, user models.User) (oapiprivate.GetGameHistoryResponseObject, error) {
+	ret := _m.Called(ctx, input, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameHistory")
+	}
+
+	var r0 oapiprivate.GetGameHistoryResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetGameHistoryRequestObject, models.User) (oapiprivate.GetGameHistoryResponseObject, error)); ok {
+		return rf(ctx, input, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetGameHistoryRequestObject, models.User) oapiprivate.GetGameHistoryResponseObject); ok {
+		r0 = rf(ctx, input, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetGameHistoryResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetGameHistoryRequestObject, models.User) error); ok {
+		r1 = rf(ctx, input, user)
 	} else {
 		r1 = ret.Error(1)
 	}

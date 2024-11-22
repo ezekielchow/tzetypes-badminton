@@ -28,6 +28,9 @@ type ServerInterface interface {
 
 	// (POST /signup-club-owner)
 	SignupClubOwner(w http.ResponseWriter, r *http.Request)
+
+	// (POST /signup-player)
+	SignupPlayer(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -52,6 +55,11 @@ func (_ Unimplemented) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 // (POST /signup-club-owner)
 func (_ Unimplemented) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /signup-player)
+func (_ Unimplemented) SignupPlayer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -126,6 +134,21 @@ func (siw *ServerInterfaceWrapper) SignupClubOwner(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.SignupClubOwner(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// SignupPlayer operation middleware
+func (siw *ServerInterfaceWrapper) SignupPlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SignupPlayer(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -260,6 +283,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/signup-club-owner", wrapper.SignupClubOwner)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/signup-player", wrapper.SignupPlayer)
+	})
 
 	return r
 }
@@ -384,6 +410,34 @@ func (response SignupClubOwnerdefaultJSONResponse) VisitSignupClubOwnerResponse(
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type SignupPlayerRequestObject struct {
+	Body *SignupPlayerJSONRequestBody
+}
+
+type SignupPlayerResponseObject interface {
+	VisitSignupPlayerResponse(w http.ResponseWriter) error
+}
+
+type SignupPlayer201Response struct {
+}
+
+func (response SignupPlayer201Response) VisitSignupPlayerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
+	return nil
+}
+
+type SignupPlayerdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response SignupPlayerdefaultJSONResponse) VisitSignupPlayerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Get game and steps given id
@@ -398,6 +452,9 @@ type StrictServerInterface interface {
 
 	// (POST /signup-club-owner)
 	SignupClubOwner(ctx context.Context, request SignupClubOwnerRequestObject) (SignupClubOwnerResponseObject, error)
+
+	// (POST /signup-player)
+	SignupPlayer(ctx context.Context, request SignupPlayerRequestObject) (SignupPlayerResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -534,6 +591,37 @@ func (sh *strictHandler) SignupClubOwner(w http.ResponseWriter, r *http.Request)
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(SignupClubOwnerResponseObject); ok {
 		if err := validResponse.VisitSignupClubOwnerResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// SignupPlayer operation middleware
+func (sh *strictHandler) SignupPlayer(w http.ResponseWriter, r *http.Request) {
+	var request SignupPlayerRequestObject
+
+	var body SignupPlayerJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.SignupPlayer(ctx, request.(SignupPlayerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SignupPlayer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(SignupPlayerResponseObject); ok {
+		if err := validResponse.VisitSignupPlayerResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -26,6 +26,12 @@ type ServerInterface interface {
 	// (PATCH /game/{game_id}/end)
 	EndGame(w http.ResponseWriter, r *http.Request, gameId string)
 
+	// (GET /game/{game_id}/history)
+	GetGameHistory(w http.ResponseWriter, r *http.Request, gameId string)
+
+	// (POST /game/{game_id}/history)
+	CreateOrUpdateGameHistory(w http.ResponseWriter, r *http.Request, gameId string)
+
 	// (POST /game/{game_id}/steps)
 	AddGameSteps(w http.ResponseWriter, r *http.Request, gameId string)
 
@@ -68,6 +74,16 @@ func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
 // End game by setting 'isEnded' to 'true'
 // (PATCH /game/{game_id}/end)
 func (_ Unimplemented) EndGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /game/{game_id}/history)
+func (_ Unimplemented) GetGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /game/{game_id}/history)
+func (_ Unimplemented) CreateOrUpdateGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -176,6 +192,62 @@ func (siw *ServerInterfaceWrapper) EndGame(w http.ResponseWriter, r *http.Reques
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.EndGame(w, r, gameId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetGameHistory operation middleware
+func (siw *ServerInterfaceWrapper) GetGameHistory(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetGameHistory(w, r, gameId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CreateOrUpdateGameHistory operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrUpdateGameHistory(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateOrUpdateGameHistory(w, r, gameId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -539,6 +611,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/game/{game_id}/end", wrapper.EndGame)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/game/{game_id}/history", wrapper.GetGameHistory)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/game/{game_id}/history", wrapper.CreateOrUpdateGameHistory)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/game/{game_id}/steps", wrapper.AddGameSteps)
 	})
 	r.Group(func(r chi.Router) {
@@ -566,11 +644,19 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	return r
 }
 
+type CreateOrUpdateGameHistoryResponseSchemaJSONResponse struct {
+	GameHistory GameHistory `json:"game_history"`
+}
+
 type CurrentUserResponseSchemaJSONResponse struct {
 	User User `json:"user"`
 }
 
 type ErrorResponseSchemaJSONResponse Error
+
+type GetGameHistoryResponseSchemaJSONResponse struct {
+	GameHistory GameHistory `json:"game_history"`
+}
 
 type StartGame201ResponseSchemaJSONResponse struct {
 	Game  Game       `json:"game"`
@@ -658,6 +744,69 @@ type EndGamedefaultJSONResponse struct {
 }
 
 func (response EndGamedefaultJSONResponse) VisitEndGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type GetGameHistoryRequestObject struct {
+	GameId string `json:"game_id"`
+}
+
+type GetGameHistoryResponseObject interface {
+	VisitGetGameHistoryResponse(w http.ResponseWriter) error
+}
+
+type GetGameHistory200JSONResponse struct {
+	GetGameHistoryResponseSchemaJSONResponse
+}
+
+func (response GetGameHistory200JSONResponse) VisitGetGameHistoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetGameHistorydefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetGameHistorydefaultJSONResponse) VisitGetGameHistoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type CreateOrUpdateGameHistoryRequestObject struct {
+	GameId string `json:"game_id"`
+	Body   *CreateOrUpdateGameHistoryJSONRequestBody
+}
+
+type CreateOrUpdateGameHistoryResponseObject interface {
+	VisitCreateOrUpdateGameHistoryResponse(w http.ResponseWriter) error
+}
+
+type CreateOrUpdateGameHistory200JSONResponse struct {
+	CreateOrUpdateGameHistoryResponseSchemaJSONResponse
+}
+
+func (response CreateOrUpdateGameHistory200JSONResponse) VisitCreateOrUpdateGameHistoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateOrUpdateGameHistorydefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response CreateOrUpdateGameHistorydefaultJSONResponse) VisitCreateOrUpdateGameHistoryResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -895,6 +1044,12 @@ type StrictServerInterface interface {
 	// (PATCH /game/{game_id}/end)
 	EndGame(ctx context.Context, request EndGameRequestObject) (EndGameResponseObject, error)
 
+	// (GET /game/{game_id}/history)
+	GetGameHistory(ctx context.Context, request GetGameHistoryRequestObject) (GetGameHistoryResponseObject, error)
+
+	// (POST /game/{game_id}/history)
+	CreateOrUpdateGameHistory(ctx context.Context, request CreateOrUpdateGameHistoryRequestObject) (CreateOrUpdateGameHistoryResponseObject, error)
+
 	// (POST /game/{game_id}/steps)
 	AddGameSteps(ctx context.Context, request AddGameStepsRequestObject) (AddGameStepsResponseObject, error)
 
@@ -1030,6 +1185,65 @@ func (sh *strictHandler) EndGame(w http.ResponseWriter, r *http.Request, gameId 
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(EndGameResponseObject); ok {
 		if err := validResponse.VisitEndGameResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetGameHistory operation middleware
+func (sh *strictHandler) GetGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request GetGameHistoryRequestObject
+
+	request.GameId = gameId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetGameHistory(ctx, request.(GetGameHistoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetGameHistory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetGameHistoryResponseObject); ok {
+		if err := validResponse.VisitGetGameHistoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateOrUpdateGameHistory operation middleware
+func (sh *strictHandler) CreateOrUpdateGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request CreateOrUpdateGameHistoryRequestObject
+
+	request.GameId = gameId
+
+	var body CreateOrUpdateGameHistoryJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateOrUpdateGameHistory(ctx, request.(CreateOrUpdateGameHistoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateOrUpdateGameHistory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateOrUpdateGameHistoryResponseObject); ok {
+		if err := validResponse.VisitCreateOrUpdateGameHistoryResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

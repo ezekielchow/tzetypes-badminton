@@ -33,6 +33,27 @@ export const useUserStore = defineStore('user', {
         return new Error("Network error or unexpected error occurred")
       }
     },
+    async signupPlayer(email: string, password: string, passwordRepeat: string): Promise<void | Error> {
+      const myApi = new MyApi(this.backendUrl)
+
+      try {
+        const res = await myApi.signupPlayer({
+          signupRequestSchema: {
+            email: email,
+            password: password,
+            passwordRepeat: passwordRepeat
+          }
+        })
+        return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
     async logout(): Promise<void | Error> {
       const myApi = new MyApi(this.backendUrl)
 
