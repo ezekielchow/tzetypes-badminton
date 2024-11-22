@@ -15,6 +15,10 @@
         <button class="primary-button" type="submit">Login</button>
       </div>
 
+      <div class="actions mt">New here? Join us now as a player. <RouterLink to="/signup-player">Signup today!
+        </RouterLink>
+      </div>
+
       <div v-if="errorMessage" class="error">
         {{ errorMessage }}
       </div>
@@ -94,5 +98,9 @@ const submitLogin = async () => {
   color: red;
   margin-top: 1rem;
   text-align: center;
+}
+
+.mt {
+  margin-top: 10px;
 }
 </style>

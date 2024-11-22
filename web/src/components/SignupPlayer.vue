@@ -1,5 +1,6 @@
 <template>
-  <div class="signup-container">
+  <div class="signup-container mb">
+    <h2 class="title mb">Player Signup</h2>
     <form @submit.prevent="submitSignup">
       <div class="input-group">
         <label for="email">Email</label>
@@ -17,7 +18,10 @@
       </div>
 
       <div class="actions">
-        <button class="primary-button" type="submit">Signup</button>
+        <button class="primary-button" type="submit">Start as a player</button>
+      </div>
+
+      <div class="actions mt">Already have an account? <RouterLink to="/login">Login here</RouterLink>
       </div>
 
       <div v-if="errorMessage" class="error">
@@ -87,6 +91,18 @@ const submitSignup = async () => {
 .error {
   color: red;
   margin-top: 1rem;
+  text-align: center;
+}
+
+.mt {
+  margin-top: 10px;
+}
+
+.mb {
+  margin-bottom: 10px;
+}
+
+.title {
   text-align: center;
 }
 </style>
