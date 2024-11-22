@@ -1,6 +1,6 @@
 <template>
-  <div class="login-container">
-    <form @submit.prevent="submitLogin">
+  <div class="signup-container">
+    <form @submit.prevent="submitSignup">
       <div class="input-group">
         <label for="email">Email</label>
         <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
@@ -8,11 +8,16 @@
 
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" name="password" autocomplete="password" required />
+        <input type="password" id="password" v-model="password" name="password" required />
+      </div>
+
+      <div class="input-group">
+        <label for="password-repeat">Password Repeat</label>
+        <input type="password" id="password-repeat" v-model="passwordRepeat" name="password-repeat" required />
       </div>
 
       <div class="actions">
-        <button class="primary-button" type="submit">Login</button>
+        <button class="primary-button" type="submit">Signup</button>
       </div>
 
       <div v-if="errorMessage" class="error">
@@ -23,24 +28,22 @@
 </template>
 
 <script setup lang="ts">
-import { useSessionStore } from '@/stores/session-store';
 import { useUserStore } from '@/stores/user-store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const email = ref('')
 const password = ref('')
+const passwordRepeat = ref("")
 const errorMessage = ref('')
 const router = useRouter()
 
-const sessionStore = useSessionStore()
-
-const submitLogin = async () => {
+const submitSignup = async () => {
 
   const userStore = useUserStore()
 
   userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
-  const res = await userStore.login(email.value, password.value)
+  const res = await userStore.signupPlayer(email.value, password.value, passwordRepeat.value)
 
   if (res instanceof Error) {
     errorMessage.value = res.message
@@ -48,21 +51,12 @@ const submitLogin = async () => {
   }
 
   errorMessage.value = ''
-  sessionStorage.setItem('session_token', res.sessionToken);
-
-  if (sessionStore.toRedirectToUrl && sessionStore.toRedirectToUrl !== "") {
-    const to = sessionStore.toRedirectToUrl
-    sessionStore.toRedirectToUrl = ""
-    window.location.href = to
-    return
-  }
-
-  router.push('/dashboard')
+  router.push('/login')
 }
 </script>
 
 <style scoped>
-.login-container {
+.signup-container {
   max-width: 400px;
   margin: auto;
   padding: 1rem;

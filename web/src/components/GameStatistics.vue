@@ -2,7 +2,10 @@
 import userImage from '@/assets/images/user.png';
 import ShareButton from '@/components/ShareButton.vue';
 import { type GetGame200Response } from "@/repositories/clients/public";
+import router from '@/router';
 import { useGameStore } from '@/stores/game-store';
+import { useSessionStore } from '@/stores/session-store';
+import Swal from 'sweetalert2';
 import { computed, onBeforeMount, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -10,10 +13,10 @@ const route = useRoute()
 const gameData = reactive({} as GetGame200Response)
 const errorMessage = ref("")
 const winningTeam = ref("")
-const firstLeftPlayerName = ref("")
-const secondLeftPlayerName = ref("")
-const firstRightPlayerName = ref("")
-const secondRightPlayerName = ref("")
+const leftOddPlayerName = ref("")
+const leftEvenPlayerName = ref("")
+const rightEvenPlayerName = ref("")
+const rightOddPlayerName = ref("")
 const matchDuration = ref("")
 const consecutiveLeftWidth = ref("")
 const consecutiveRightWidth = ref("")
@@ -27,6 +30,8 @@ const averagePerpointRightWidth = ref("")
 const shareURL = `${window.location.href}`
 const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
+
+const sessionStore = useSessionStore()
 
 onBeforeMount(async () => {
     await getStatistics()
@@ -44,10 +49,10 @@ const updateDisplay = () => {
     }
 
     if (gameData.game) {
-        firstLeftPlayerName.value = gameData.game.leftOddPlayerName
-        secondLeftPlayerName.value = gameData.game.leftEvenPlayerName
-        firstRightPlayerName.value = gameData.game.rightEvenPlayerName
-        secondRightPlayerName.value = gameData.game.rightOddPlayerName
+        leftOddPlayerName.value = gameData.game.leftOddPlayerName
+        leftEvenPlayerName.value = gameData.game.leftEvenPlayerName
+        rightEvenPlayerName.value = gameData.game.rightEvenPlayerName
+        rightOddPlayerName.value = gameData.game.rightOddPlayerName
     }
 
     if (gameData.statistics) {
@@ -152,6 +157,36 @@ const updateMetaTags = () => {
         document.head.appendChild(meta);
     });
 }
+
+const handlePlayerIdentify = (value: string) => {
+
+    const token = sessionStorage.getItem('session_token')
+    if (!token || token === "") {
+        document.getElementsByName("player_identify").forEach((radio) => {
+            (radio as HTMLInputElement).checked = false
+        });
+
+        Swal.fire({
+            title: 'Sign up now to unlock this feature, ready to join?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+                denyButton: 'order-3',
+            },
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                sessionStore.toRedirectToUrl = shareURL
+                router.push("/signup-player")
+            }
+        })
+    }
+
+    // call api bind user to player
+
+}
 </script>
 
 <template>
@@ -164,18 +199,32 @@ const updateMetaTags = () => {
         </div>
         <div class="player-section">
             <div class="player-card">
-                <div class="user-container user-mb" v-if="firstLeftPlayerName != ''">
-                    <div class="profile-photo-container">
-                        <img :src="userImage" alt="first left player image" width="30px" height="30px">
+                <div class="user-container-box user-mb" v-if="leftOddPlayerName != ''">
+                    <div class="identify-box">
+                        <input type="radio" @change="handlePlayerIdentify('left_odd_player_identify')"
+                            name="player_identify" value="left_odd_player_identify">
+                        <label for="player_identify"> This is me</label>
                     </div>
-                    <span class="player-name">{{ firstLeftPlayerName }}</span>
+                    <div class="user-container">
+                        <div class="profile-photo-container">
+                            <img :src="userImage" alt="left odd player image" width="30px" height="30px">
+                        </div>
+                        <span class="player-name">{{ leftOddPlayerName }}</span>
+                    </div>
                 </div>
 
-                <div class="user-container" v-if="secondLeftPlayerName != ''">
-                    <div class="profile-photo-container">
-                        <img :src="userImage" alt="second left player image" width="30px" height="30px">
+                <div class="user-container-box" v-if="leftEvenPlayerName != ''">
+                    <div class="identify-box">
+                        <input type="radio" @change="handlePlayerIdentify('left_even_player_identify')"
+                            name="player_identify" value="left_even_player_identify">
+                        <label for="player_identify"> This is me</label>
                     </div>
-                    <span class="player-name">{{ secondLeftPlayerName }}</span>
+                    <div class="user-container">
+                        <div class="profile-photo-container">
+                            <img :src="userImage" alt="left even player image" width="30px" height="30px">
+                        </div>
+                        <span class="player-name">{{ leftEvenPlayerName }}</span>
+                    </div>
                 </div>
             </div>
             <div class="points-section">
@@ -189,17 +238,32 @@ const updateMetaTags = () => {
                 </div>
             </div>
             <div class="player-card">
-                <div class="user-container" v-if="firstRightPlayerName != ''">
-                    <div class="profile-photo-container">
-                        <img :src="userImage" alt="first right player image" width="30px" height="30px">
+                <div class="user-container-box" v-if="rightEvenPlayerName != ''">
+
+                    <div class="identify-box">
+                        <input type="radio" @change="handlePlayerIdentify('right_even_player_identify')"
+                            name="player_identify" value="right_even_player_identify">
+                        <label for="player_identify"> This is me</label>
                     </div>
-                    <span class="player-name">{{ firstRightPlayerName }}</span>
+                    <div class="user-container">
+                        <div class="profile-photo-container">
+                            <img :src="userImage" alt="right even player image" width="30px" height="30px">
+                        </div>
+                        <span class="player-name">{{ rightEvenPlayerName }}</span>
+                    </div>
                 </div>
-                <div class="user-container user-mt" v-if="secondRightPlayerName != ''">
-                    <div class="profile-photo-container">
-                        <img :src="userImage" alt="second right player image" width="30px" height="30px">
+                <div class="user-container-box user-mt" v-if="rightOddPlayerName != ''">
+                    <div class="identify-box">
+                        <input type="radio" @change="handlePlayerIdentify('right_odd_player_identify')"
+                            name="player_identify" value="right_odd_player_identify">
+                        <label for="player_identify"> This is me</label>
                     </div>
-                    <span class="player-name">{{ secondRightPlayerName }}</span>
+                    <div class="user-container">
+                        <div class="profile-photo-container">
+                            <img :src="userImage" alt="right odd player image" width="30px" height="30px">
+                        </div>
+                        <span class="player-name">{{ rightOddPlayerName }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -445,5 +509,16 @@ const updateMetaTags = () => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.user-container-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.identify-box {
+    margin-bottom: 10px;
 }
 </style>

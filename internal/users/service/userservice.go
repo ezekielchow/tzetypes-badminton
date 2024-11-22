@@ -18,6 +18,7 @@ type UserServiceInterface interface {
 	RefreshToken(ctx context.Context, input oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error)
 	Logout(ctx context.Context, input oapiprivate.LogoutRequestObject, session models.Session) (oapiprivate.LogoutResponseObject, error)
 	GetLoggedInUser(ctx context.Context, input oapiprivate.GetLoggedInUserRequestObject, user models.User) (oapiprivate.GetLoggedInUserResponseObject, error)
+	SignupPlayer(ctx context.Context, input oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error)
 }
 
 type UserService struct {

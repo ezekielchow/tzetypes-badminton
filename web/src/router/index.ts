@@ -1,3 +1,4 @@
+import SignupPlayer from '@/components/SignupPlayer.vue';
 import Dashboard from '@/components/TheDashboard.vue';
 import { MyApi } from '@/services/requests';
 import GameSetupView from '@/views/GameSetupView.vue';
@@ -63,6 +64,12 @@ const router = createRouter({
       path: '/game/:id/statistics',
       name: 'game/statistics',
       component: GameStatisticsView,
+    },
+    {
+      path: '/signup-player',
+      name: 'signup-player',
+      component: SignupPlayer,
+      meta: { onlyPublic: true }
     },
   ]
 })

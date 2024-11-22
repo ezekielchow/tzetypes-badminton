@@ -18,7 +18,7 @@ import type {
   LoginRequestSchema,
   LoginResponseSchema,
   RefreshTokenResponseSchema,
-  SignupClubOwnerRequestSchema,
+  SignupRequestSchema,
 } from '../models/index';
 import {
     LoginRequestSchemaFromJSON,
@@ -27,8 +27,8 @@ import {
     LoginResponseSchemaToJSON,
     RefreshTokenResponseSchemaFromJSON,
     RefreshTokenResponseSchemaToJSON,
-    SignupClubOwnerRequestSchemaFromJSON,
-    SignupClubOwnerRequestSchemaToJSON,
+    SignupRequestSchemaFromJSON,
+    SignupRequestSchemaToJSON,
 } from '../models/index';
 
 export interface LoginRequest {
@@ -36,7 +36,11 @@ export interface LoginRequest {
 }
 
 export interface SignupClubOwnerRequest {
-    signupClubOwnerRequestSchema: SignupClubOwnerRequestSchema;
+    signupRequestSchema: SignupRequestSchema;
+}
+
+export interface SignupPlayerRequest {
+    signupRequestSchema: SignupRequestSchema;
 }
 
 /**
@@ -105,10 +109,10 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      */
     async signupClubOwnerRaw(requestParameters: SignupClubOwnerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters['signupClubOwnerRequestSchema'] == null) {
+        if (requestParameters['signupRequestSchema'] == null) {
             throw new runtime.RequiredError(
-                'signupClubOwnerRequestSchema',
-                'Required parameter "signupClubOwnerRequestSchema" was null or undefined when calling signupClubOwner().'
+                'signupRequestSchema',
+                'Required parameter "signupRequestSchema" was null or undefined when calling signupClubOwner().'
             );
         }
 
@@ -123,7 +127,7 @@ export class UsersApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SignupClubOwnerRequestSchemaToJSON(requestParameters['signupClubOwnerRequestSchema']),
+            body: SignupRequestSchemaToJSON(requestParameters['signupRequestSchema']),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -133,6 +137,39 @@ export class UsersApi extends runtime.BaseAPI {
      */
     async signupClubOwner(requestParameters: SignupClubOwnerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.signupClubOwnerRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async signupPlayerRaw(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['signupRequestSchema'] == null) {
+            throw new runtime.RequiredError(
+                'signupRequestSchema',
+                'Required parameter "signupRequestSchema" was null or undefined when calling signupPlayer().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/signup-player`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SignupRequestSchemaToJSON(requestParameters['signupRequestSchema']),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async signupPlayer(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.signupPlayerRaw(requestParameters, initOverrides);
     }
 
 }

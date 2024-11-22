@@ -11,7 +11,8 @@ import {
   type GetGame200Response,
   type GetGameRequest,
   type LoginRequest,
-  type LoginResponseSchema
+  type LoginResponseSchema,
+  type SignupPlayerRequest
 } from '@/repositories/clients/public';
 
 
@@ -348,5 +349,25 @@ export class MyApi extends runtime.BaseAPI {
   async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGame200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.getGameRequest(requestParameters, initOverrides));
     return await apiResponse.value();
+  }
+
+  private async requestSignupPlayer(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    const api = new PublicUsersApi(this.getPublicConf())
+
+    try {
+      return api.signupPlayer(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof runtime.ResponseError) {
+        throw new runtime.ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to signup player');
+    }
+  }
+
+  /**
+   * Public method to access the dashboard endpoint
+   */
+  async signupPlayer(requestParameters: SignupPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    return this.requestSignupPlayer(requestParameters, initOverrides);
   }
 }

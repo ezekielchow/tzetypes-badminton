@@ -106,3 +106,7 @@ func (c Controller) EndGame(ctx context.Context, input oapiprivate.EndGameReques
 func (c Controller) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 	return c.Services.GameService.GetGame(ctx, input)
 }
+
+func (c Controller) SignupPlayer(ctx context.Context, input oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error) {
+	return c.Services.UserService.SignupPlayer(ctx, input)
+}

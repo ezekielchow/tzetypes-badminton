@@ -8,4 +8,4 @@ export * from './LoginRequestSchema';
 export * from './LoginResponseSchema';
 export * from './ModelError';
 export * from './RefreshTokenResponseSchema';
-export * from './SignupClubOwnerRequestSchema';
+export * from './SignupRequestSchema';
