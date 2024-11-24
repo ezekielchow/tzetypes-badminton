@@ -324,8 +324,8 @@ const getGameHistory = async (gameId: string) => {
             </div>
             <div class="a-statistics-body">
                 <div class="statistics-centering">
-                    <div class="percentage-bar statistic-red" :style="{ width: consecutiveLeftWidth }"></div>
-                    <div class="percentage-bar statistic-green" :style="{ width: consecutiveRightWidth }"></div>
+                    <div class="percentage-bar statistic-left" :style="{ width: consecutiveLeftWidth }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: consecutiveRightWidth }"></div>
                 </div>
             </div>
             <div class="b-statistics-title">
@@ -337,8 +337,8 @@ const getGameHistory = async (gameId: string) => {
             </div>
             <div class="b-statistics-body">
                 <div class="statistics-centering">
-                    <div class="percentage-bar statistic-red" :style="{ width: longestLeftWidth }"></div>
-                    <div class="percentage-bar statistic-green" :style="{ width: longestRightWidth }"></div>
+                    <div class="percentage-bar statistic-left" :style="{ width: longestLeftWidth }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: longestRightWidth }"></div>
                 </div>
             </div>
             <div class="c-statistics-title">
@@ -350,8 +350,8 @@ const getGameHistory = async (gameId: string) => {
             </div>
             <div class="c-statistics-body">
                 <div class="statistics-centering">
-                    <div class="percentage-bar statistic-red" :style="{ width: shortestLeftWidth }"></div>
-                    <div class="percentage-bar statistic-green" :style="{ width: shortestRightWidth }"></div>
+                    <div class="percentage-bar statistic-left" :style="{ width: shortestLeftWidth }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: shortestRightWidth }"></div>
                 </div>
             </div>
             <div class="d-statistics-title">
@@ -363,8 +363,8 @@ const getGameHistory = async (gameId: string) => {
             </div>
             <div class="d-statistics-body">
                 <div class="statistics-centering">
-                    <div class="percentage-bar statistic-red" :style="{ width: averagePerPointLeftWidth }"></div>
-                    <div class="percentage-bar statistic-green" :style="{ width: averagePerpointRightWidth }"></div>
+                    <div class="percentage-bar statistic-left" :style="{ width: averagePerPointLeftWidth }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: averagePerpointRightWidth }"></div>
                 </div>
             </div>
         </div>
@@ -375,7 +375,6 @@ const getGameHistory = async (gameId: string) => {
 .container {
     display: flex;
     flex-direction: column;
-    background-color: rgb(191, 243, 191);
 }
 
 .player-section {
@@ -430,7 +429,7 @@ const getGameHistory = async (gameId: string) => {
 }
 
 .isRed {
-    color: statistic-red;
+    color: statistic-left;
 }
 
 .pointText {
@@ -538,12 +537,12 @@ const getGameHistory = async (gameId: string) => {
     height: 100%;
 }
 
-.statistic-red {
-    background-color: red;
+.statistic-left {
+    background-color: #4A90E2;
 }
 
-.statistic-green {
-    background-color: green;
+.statistic-right {
+    background-color: #27AE60;
 }
 
 .header-section {
