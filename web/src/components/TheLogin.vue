@@ -70,6 +70,7 @@ const submitLogin = async () => {
 
 <style scoped>
 .login-container {
+  min-width: 380px;
   max-width: 400px;
   margin: auto;
   padding: 1rem;
