@@ -1,12 +1,31 @@
-.primary-button {
-  padding: 0.5rem 1rem;
-  background-color: #27ae60;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
+.button {
+   padding: 10px 15px;
+   border: none;
+   border-radius: 4px;
+   font-size: 16px;
+   cursor: pointer;
+   transition: background-color 0.3s;
 }
 
-.primary-button:hover {
-  background-color: #2ecc71;
+
+.button-primary {
+   background-color: #4A90E2; /* Primary blue */
+   color: #FFFFFF; /* White text */
+}
+
+
+.button-primary:hover {
+   background-color: #56CCF2; /* Teal for hover */
+}
+
+
+.button-secondary {
+   background-color: #BDBDBD; /* Gray for secondary buttons */
+   color: #333333; /* Dark text */
+}
+
+
+.button-secondary:hover {
+   background-color: #EB5757; /* Red for hover on secondary */
+   color: #FFFFFF;
 }

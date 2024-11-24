@@ -297,14 +297,18 @@ const handleEndGame = async () => {
         <div v-else class="main-content">
             <div class="header-actions">
                 <div class="points-control">
-                    <button class="points-control-button" @click="handlePointsOrientation('equal')">{{ "O : O"
-                        }}</button>
-                    <button class="points-control-button" @click="handlePointsOrientation('left')">{{ "O : [ ]"
-                        }}</button>
-                    <button class="points-control-button" @click="handlePointsOrientation('right')">{{ "[ ] : O"
-                        }}</button>
+                    <button class="button-secondary points-control-button" @click="handlePointsOrientation('equal')">
+                        {{ "O : O" }}
+                    </button>
+                    <button class="button-secondary points-control-button" @click="handlePointsOrientation('left')">
+                        {{ "O : []" }}
+                    </button>
+                    <button class="button-secondary points-control-button" @click="handlePointsOrientation('right')">
+                        {{ "[] : O" }}
+                    </button>
                 </div>
-                <div class="points">{{ `${currentCourtState.teamLeftScore} : ${currentCourtState.teamRightScore}` }}
+                <div class="points">
+                    {{ `${currentCourtState.teamLeftScore} : ${currentCourtState.teamRightScore}` }}
                 </div>
                 <div></div>
             </div>
@@ -387,12 +391,14 @@ const handleEndGame = async () => {
                 <div class="push-end">
                     <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
                     <div>
-                        <button class="footer-buttons" @click="handleEndGame()" :disabled="isLoading">{{ isLoading ?
-                            "Loading.." : "End Game"
+                        <button class="button-secondary footer-buttons" @click="handleEndGame()"
+                            :disabled="isLoading">{{ isLoading ?
+                                "Loading.." : "End Game"
                             }}
                         </button>
                     </div>
-                    <button class="undo-button footer-buttons" @click="handleUndo()" :disabled="isLoading">Undo</button>
+                    <button class="button-secondary undo-button footer-buttons" @click="handleUndo()"
+                        :disabled="isLoading">Undo</button>
                 </div>
             </div>
         </div>
@@ -427,7 +433,7 @@ const handleEndGame = async () => {
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(4, 1fr);
         width: 75vw;
-        height: 70vh;
+        height: 66vh;
         background-color: green;
         position: relative;
         border: 4px solid white;
@@ -486,45 +492,49 @@ const handleEndGame = async () => {
     }
 
     .left-top-player {
+        background-color: #4A90E2;
         grid-column: 2 / span 3;
         grid-row: 1 / span 2;
     }
 
     .left-bottom-player {
+        background-color: #4A90E2;
         grid-column: 2 / span 3;
         grid-row: 3 / span 2;
     }
 
     .right-top-player {
-        background-color: #D32F2F;
+        background-color: #27AE60;
         grid-column: 5 / span 3;
         grid-row: 1 / span 2;
     }
 
     .right-bottom-player {
-        background-color: #D32F2F;
+        background-color: #27AE60;
         grid-column: 5 / span 3;
         grid-row: 3 / span 2;
     }
 
     .left-top-backline {
+        background-color: #4A90E2;
         grid-column: 1 / span 1;
         grid-row: 1 / span 2;
     }
 
     .left-bottom-backline {
+        background-color: #4A90E2;
         grid-column: 1 / span 1;
         grid-row: 3 / span 2;
     }
 
     .right-top-backline {
-        background-color: #D32F2F;
+        background-color: #27AE60;
         grid-column: 8 / span 1;
         grid-row: 1 / span 2;
     }
 
     .right-bottom-backline {
-        background-color: #D32F2F;
+        background-color: #27AE60;
         grid-column: 8 / span 1;
         grid-row: 3 / span 2;
     }
@@ -571,7 +581,7 @@ const handleEndGame = async () => {
     }
 
     .add-button {
-        background-color: green;
+        background-color: #4A90E2;
         color: white;
         border: none;
         border-radius: 4px;
@@ -593,7 +603,7 @@ const handleEndGame = async () => {
     }
 
     .add-button.red {
-        background-color: #D32F2F;
+        background-color: #27AE60;
     }
 
     .player-names {
@@ -618,8 +628,6 @@ const handleEndGame = async () => {
     }
 
     .footer-buttons {
-        background-color: #000080;
-        color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
@@ -643,8 +651,6 @@ const handleEndGame = async () => {
 
     .points-control-button {
         margin-left: 0.5rem;
-        background-color: #000080;
-        color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
@@ -662,6 +668,7 @@ const handleEndGame = async () => {
     .points {
         display: flex;
         justify-content: center;
+        font-size: 2rem;
     }
 }
 </style>

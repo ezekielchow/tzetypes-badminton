@@ -1,33 +1,35 @@
 <template>
-  <div class="signup-container mb">
-    <h2 class="title mb">Player Signup</h2>
-    <form @submit.prevent="submitSignup">
-      <div class="input-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
-      </div>
+  <div class="signup-root">
+    <div class="signup-container">
+      <h2 class="title mb headlines">Player Signup</h2>
+      <form @submit.prevent="submitSignup">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
+        </div>
 
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" name="password" required />
-      </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" v-model="password" name="password" required />
+        </div>
 
-      <div class="input-group">
-        <label for="password-repeat">Password Repeat</label>
-        <input type="password" id="password-repeat" v-model="passwordRepeat" name="password-repeat" required />
-      </div>
+        <div class="input-group">
+          <label for="password-repeat">Password Repeat</label>
+          <input type="password" id="password-repeat" v-model="passwordRepeat" name="password-repeat" required />
+        </div>
 
-      <div class="actions">
-        <button class="primary-button" type="submit">Start as a player</button>
-      </div>
+        <div class="actions">
+          <button class="button button-primary" type="submit">Start as a player</button>
+        </div>
 
-      <div class="actions mt">Already have an account? <RouterLink to="/login">Login here</RouterLink>
-      </div>
+        <div class="actions mt">Already have an account? <RouterLink to="/login">Login here</RouterLink>
+        </div>
 
-      <div v-if="errorMessage" class="error">
-        {{ errorMessage }}
-      </div>
-    </form>
+        <div v-if="errorMessage" class="error">
+          {{ errorMessage }}
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -61,6 +63,7 @@ const submitSignup = async () => {
 
 <style scoped>
 .signup-container {
+  min-width: 380px;
   max-width: 400px;
   margin: auto;
   padding: 1rem;
@@ -104,5 +107,12 @@ const submitSignup = async () => {
 
 .title {
   text-align: center;
+}
+
+.signup-root {
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 </style>

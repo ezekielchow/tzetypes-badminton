@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import homeImage from '@/assets/images/home.png';
 import loadingImage from '@/assets/images/loading.png';
 import shuttlecock from '@/assets/images/shuttlecock.png';
 import { CurrentServer, GameTypes } from '@/enums/game';
@@ -64,18 +65,19 @@ const handleStartGame = async () => {
         body.rightOddPlayerName = rightOddPlayer.value
     }
 
+    // store loaded after request right away
     const res = await gameStore.startGame({
         gameStartRequestSchema: body
     })
 
     if (res instanceof Error) {
+        // to make sure a new game is always started
+        localStorage.removeItem("game")
+
         formIsLoading.value = false
         errorMessage.value = res.message
         return
     }
-
-    // to make sure a new game is always started
-    localStorage.removeItem("game")
 
     router.push({
         name: 'game/playing',
@@ -90,6 +92,11 @@ const handleStartGame = async () => {
             Please rotate your device to landscape orientation.
         </div>
         <div v-else class="main-content">
+            <div class="home-section">
+                <RouterLink to="/dashboard"> <img class="back-link" :src="homeImage" alt="home button image"
+                        width="30px" height="30px">
+                </RouterLink>
+            </div>
             <div class="court">
                 <div class="sideline sideline-left squares"></div>
                 <div class="top-court squares">
@@ -159,7 +166,7 @@ const handleStartGame = async () => {
                             <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_SINGLES" v-model="gameType"
                                 :disabled="formIsLoading" />
                             Singles
-                        </label>
+                        </label><br />
                         <label>
                             <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_DOUBLES" v-model="gameType"
                                 default :disabled="formIsLoading" />
@@ -180,11 +187,11 @@ const handleStartGame = async () => {
                             Right
                         </label>
                     </fieldset>
-
-                    <button type="button" @click="switchSides" class="primary-button mt-1"
-                        :disabled="formIsLoading">Switch Sides</button>
                 </form>
-                <button type="button" class="primary-button mb-1" :disabled="formIsLoading"
+                <button type="button" @click="switchSides" class="button button-primary mb-1"
+                    :disabled="formIsLoading">Switch Sides</button>
+
+                <button type="button" class="button button-primary mb-1" :disabled="formIsLoading"
                     @click="handleStartGame">Start Game</button>
             </fieldset>
         </div>
@@ -352,5 +359,9 @@ const handleStartGame = async () => {
     .shuttle-wrapper {
         padding: 0.5rem;
     }
+}
+
+.back-link {
+    margin: 5px;
 }
 </style>
