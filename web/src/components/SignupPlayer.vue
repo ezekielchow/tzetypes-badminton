@@ -1,7 +1,7 @@
 <template>
   <div class="signup-root">
     <div class="signup-container">
-      <h2 class="title mb">Player Signup</h2>
+      <h2 class="title mb headlines">Player Signup</h2>
       <form @submit.prevent="submitSignup">
         <div class="input-group">
           <label for="email">Email</label>

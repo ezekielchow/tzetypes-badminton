@@ -37,7 +37,7 @@ getUserEmail()
     <div class="dashboard-container">
         <div class="header">
             <div>
-                <h2><b>Dashboard</b></h2>
+                <h2 class="headlines"><b>Dashboard</b></h2>
                 <h5>Welcome {{ userEmail }},</h5>
 
             </div>
