@@ -19,7 +19,7 @@
         </div>
 
         <div class="actions">
-          <button class="primary-button" type="submit">Start as a player</button>
+          <button class="button button-primary" type="submit">Start as a player</button>
         </div>
 
         <div class="actions mt">Already have an account? <RouterLink to="/login">Login here</RouterLink>

@@ -45,7 +45,7 @@ getUserEmail()
             <form @submit.prevent="submitLogout">
 
                 <div class="actions">
-                    <button type="submit" class="primary-button">Logout</button>
+                    <button type="submit" class="button button-secondary">Logout</button>
                 </div>
 
                 <div v-if="errorMessage" class="error">
@@ -61,7 +61,7 @@ getUserEmail()
                 </button>
             </RouterLink> -->
             <RouterLink to="/game/setup" class="mt">
-                <button class="primary-button">
+                <button class="button button-primary">
                     New Game
                 </button>
             </RouterLink>

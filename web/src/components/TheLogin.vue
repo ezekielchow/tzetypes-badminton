@@ -14,7 +14,7 @@
         </div>
 
         <div class="actions">
-          <button class="primary-button" type="submit">Login</button>
+          <button class="button button-primary" type="submit">Login</button>
         </div>
 
         <div class="actions mt">New here? Join us now as a player. <RouterLink to="/signup-player">Signup today!

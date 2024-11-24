@@ -317,7 +317,7 @@ const getGameHistory = async (gameId: string) => {
             <div class="a-statistics-title">
                 <div class="statistics-centering">
                     <div>{{ gameData.statistics ? gameData.statistics.leftConsecutivePoints : "" }}</div>
-                    <div class="grow center">CONSECUTIVE POINTS</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">CONSECUTIVE POINTS</div>
                     <div>{{ gameData.statistics ? gameData.statistics.rightConsecutivePoints : "" }}</div>
                 </div>
 
@@ -331,7 +331,7 @@ const getGameHistory = async (gameId: string) => {
             <div class="b-statistics-title">
                 <div class="statistics-centering">
                     <div>{{ gameData.statistics ? gameData.statistics.leftLongestPoint : "" }}</div>
-                    <div class="grow center">LONGEST POINT</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">LONGEST POINT</div>
                     <div>{{ gameData.statistics ? gameData.statistics.rightLongestPoint : "" }}</div>
                 </div>
             </div>
@@ -344,7 +344,7 @@ const getGameHistory = async (gameId: string) => {
             <div class="c-statistics-title">
                 <div class="statistics-centering">
                     <div>{{ gameData.statistics ? gameData.statistics.leftShortestPoint : "" }}</div>
-                    <div class="grow center">SHORTEST POINT</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">SHORTEST POINT</div>
                     <div>{{ gameData.statistics ? gameData.statistics.rightShortestPoint : "" }}</div>
                 </div>
             </div>
@@ -357,7 +357,7 @@ const getGameHistory = async (gameId: string) => {
             <div class="d-statistics-title">
                 <div class="statistics-centering">
                     <div>{{ gameData.statistics ? gameData.statistics.leftAveragePerPoint : "" }}</div>
-                    <div class="grow center">AVERAGE TIME / POINT</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">AVERAGE TIME / POINT</div>
                     <div>{{ gameData.statistics ? gameData.statistics.rightAveragePerPoint : "" }}</div>
                 </div>
             </div>
@@ -443,11 +443,11 @@ const getGameHistory = async (gameId: string) => {
 }
 
 .user-mt {
-    margin-top: 15px;
+    margin-top: 30px;
 }
 
 .user-mb {
-    margin-bottom: 15px;
+    margin-bottom: 30px;
 }
 
 .player-name {
@@ -466,6 +466,7 @@ const getGameHistory = async (gameId: string) => {
     background-color: aqua;
     width: 95%;
     height: 35vh;
+    flex: 1
 }
 
 .a-statistics-title {

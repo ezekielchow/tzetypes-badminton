@@ -65,18 +65,19 @@ const handleStartGame = async () => {
         body.rightOddPlayerName = rightOddPlayer.value
     }
 
+    // store loaded after request right away
     const res = await gameStore.startGame({
         gameStartRequestSchema: body
     })
 
     if (res instanceof Error) {
+        // to make sure a new game is always started
+        localStorage.removeItem("game")
+
         formIsLoading.value = false
         errorMessage.value = res.message
         return
     }
-
-    // to make sure a new game is always started
-    localStorage.removeItem("game")
 
     router.push({
         name: 'game/playing',
@@ -165,7 +166,7 @@ const handleStartGame = async () => {
                             <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_SINGLES" v-model="gameType"
                                 :disabled="formIsLoading" />
                             Singles
-                        </label>
+                        </label><br />
                         <label>
                             <input type="radio" name="gameType" :value="GameTypes.GAME_TYPE_DOUBLES" v-model="gameType"
                                 default :disabled="formIsLoading" />
@@ -186,11 +187,11 @@ const handleStartGame = async () => {
                             Right
                         </label>
                     </fieldset>
-
-                    <button type="button" @click="switchSides" class="primary-button mt-1"
-                        :disabled="formIsLoading">Switch Sides</button>
                 </form>
-                <button type="button" class="primary-button mb-1" :disabled="formIsLoading"
+                <button type="button" @click="switchSides" class="button button-primary mb-1"
+                    :disabled="formIsLoading">Switch Sides</button>
+
+                <button type="button" class="button button-primary mb-1" :disabled="formIsLoading"
                     @click="handleStartGame">Start Game</button>
             </fieldset>
         </div>
