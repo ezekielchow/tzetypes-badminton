@@ -115,7 +115,7 @@ const playerScoreText = computed(() => {
 
         let rightPlayers = gameData.game.rightEvenPlayerName
         if (gameData.game.rightOddPlayerName !== "") {
-            rightPlayers = `${leftPlayers},${gameData.game.rightOddPlayerName}`
+            rightPlayers = `${rightPlayers},${gameData.game.rightOddPlayerName}`
         }
 
         let leftWinner = "", rightWinner = ""
