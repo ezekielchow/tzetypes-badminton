@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import homeImage from '@/assets/images/home.png';
 import loadingImage from '@/assets/images/loading.png';
 import shuttlecock from '@/assets/images/shuttlecock.png';
 import { CurrentServer, GameTypes } from '@/enums/game';
@@ -90,6 +91,11 @@ const handleStartGame = async () => {
             Please rotate your device to landscape orientation.
         </div>
         <div v-else class="main-content">
+            <div class="home-section">
+                <RouterLink to="/dashboard"> <img class="back-link" :src="homeImage" alt="home button image"
+                        width="30px" height="30px">
+                </RouterLink>
+            </div>
             <div class="court">
                 <div class="sideline sideline-left squares"></div>
                 <div class="top-court squares">
@@ -352,5 +358,9 @@ const handleStartGame = async () => {
     .shuttle-wrapper {
         padding: 0.5rem;
     }
+}
+
+.back-link {
+    margin: 5px;
 }
 </style>
