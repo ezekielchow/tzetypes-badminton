@@ -1,28 +1,31 @@
 <template>
-  <div class="login-container">
-    <form @submit.prevent="submitLogin">
-      <div class="input-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
-      </div>
+  <div class="login-root">
+    <div class="login-container">
+      <h2 class="title mb">Login</h2>
+      <form @submit.prevent="submitLogin">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
+        </div>
 
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" name="password" autocomplete="password" required />
-      </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" v-model="password" name="password" autocomplete="password" required />
+        </div>
 
-      <div class="actions">
-        <button class="primary-button" type="submit">Login</button>
-      </div>
+        <div class="actions">
+          <button class="primary-button" type="submit">Login</button>
+        </div>
 
-      <div class="actions mt">New here? Join us now as a player. <RouterLink to="/signup-player">Signup today!
-        </RouterLink>
-      </div>
+        <div class="actions mt">New here? Join us now as a player. <RouterLink to="/signup-player">Signup today!
+          </RouterLink>
+        </div>
 
-      <div v-if="errorMessage" class="error">
-        {{ errorMessage }}
-      </div>
-    </form>
+        <div v-if="errorMessage" class="error">
+          {{ errorMessage }}
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -102,5 +105,20 @@ const submitLogin = async () => {
 
 .mt {
   margin-top: 10px;
+}
+
+.mb {
+  margin-bottom: 10px;
+}
+
+.title {
+  text-align: center;
+}
+
+.login-root {
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 </style>
