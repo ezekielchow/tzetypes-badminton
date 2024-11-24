@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import homeImage from '@/assets/images/home.png';
 import userImage from '@/assets/images/user.png';
 import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
@@ -38,6 +39,13 @@ const sessionStore = useSessionStore()
 onBeforeMount(async () => {
     await getStatistics()
 })
+
+let isLoggedIn = false
+const sessionToken = sessionStorage.getItem('session_token')
+if (sessionToken && sessionToken !== "") {
+    isLoggedIn = true
+}
+
 
 const updateDisplay = () => {
 
@@ -225,7 +233,11 @@ const getGameHistory = async (gameId: string) => {
 <template>
     <div class="container">
         <div class="header-section">
-            <div></div>
+            <div>
+                <RouterLink v-if="isLoggedIn" to="/dashboard"> <img class="back-link" :src="homeImage"
+                        alt="home button image" width="30px" height="30px">
+                </RouterLink>
+            </div>
             <div>
                 <ShareButton :title="'🏸 Badminton Game Results 🏸'" :text="playerScoreText" :url="shareURL" />
             </div>
