@@ -109,7 +109,7 @@ const playerScoreText = computed(() => {
             rightPlayers = `${leftPlayers},${gameData.game.rightOddPlayerName}`
         }
 
-        let leftWinner, rightWinner = ""
+        let leftWinner = "", rightWinner = ""
         if (last.teamLeftScore > last.teamRightScore) {
             leftWinner = "\uD83C\uDFC6"
         } else {
