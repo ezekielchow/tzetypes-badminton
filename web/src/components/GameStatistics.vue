@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import homeImage from '@/assets/images/home.png';
+import trophyImage from '@/assets/images/trophy.png';
 import userImage from '@/assets/images/user.png';
 import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
@@ -146,12 +147,10 @@ const rightPoint = computed(() => {
 })
 
 const leftPointsClass = computed(() => ({
-    isRed: winningTeam.value == "left",
     pointText: true
 }))
 
 const rightPointsClass = computed(() => ({
-    isRed: winningTeam.value == "right",
     pointText: true
 }))
 
@@ -275,9 +274,13 @@ const getGameHistory = async (gameId: string) => {
             </div>
             <div class="points-section">
                 <div class="points-box">
+                    <div v-if="winningTeam == 'right'" :style="{ width: '30px', height: '30px' }"></div>
+                    <img v-if="winningTeam == 'left'" :src="trophyImage" width="30" height="30">
                     <span :class="leftPointsClass">{{ leftPoint }}</span>
                     <span class="point-seperator"> : </span>
                     <span :class="rightPointsClass">{{ rightPoint }}</span>
+                    <img v-if="winningTeam == 'right'" :src="trophyImage" width="30" height="30" />
+                    <div v-if="winningTeam == 'left'" :style="{ width: '30px', height: '30px' }"></div>
                 </div>
                 <div class="time-container">
                     <span>{{ matchDuration }}</span>
@@ -314,58 +317,41 @@ const getGameHistory = async (gameId: string) => {
             </div>
         </div>
         <div class="statistics-section">
-            <div class="a-statistics-title">
-                <div class="statistics-centering">
-                    <div>{{ gameData.statistics ? gameData.statistics.leftConsecutivePoints : "" }}</div>
-                    <div class="grow center" :style="{ fontWeight: 'bold' }">CONSECUTIVE POINTS</div>
-                    <div>{{ gameData.statistics ? gameData.statistics.rightConsecutivePoints : "" }}</div>
-                </div>
-
+            <div class="statistics-title">
+                <div>{{ gameData.statistics ? gameData.statistics.leftConsecutivePoints : "" }}</div>
+                <div class="grow center" :style="{ fontWeight: 'bold' }">CONSECUTIVE POINTS</div>
+                <div>{{ gameData.statistics ? gameData.statistics.rightConsecutivePoints : "" }}</div>
             </div>
-            <div class="a-statistics-body">
-                <div class="statistics-centering">
-                    <div class="percentage-bar statistic-left" :style="{ width: consecutiveLeftWidth }"></div>
-                    <div class="percentage-bar statistic-right" :style="{ width: consecutiveRightWidth }"></div>
-                </div>
+            <div class="statistics-body">
+                <div class="percentage-bar statistic-left" :style="{ width: consecutiveLeftWidth }"></div>
+                <div class="percentage-bar statistic-right" :style="{ width: consecutiveRightWidth }"></div>
             </div>
-            <div class="b-statistics-title">
-                <div class="statistics-centering">
-                    <div>{{ gameData.statistics ? gameData.statistics.leftLongestPoint : "" }}</div>
-                    <div class="grow center" :style="{ fontWeight: 'bold' }">LONGEST POINT</div>
-                    <div>{{ gameData.statistics ? gameData.statistics.rightLongestPoint : "" }}</div>
-                </div>
+            <div class="statistics-title">
+                <div>{{ gameData.statistics ? gameData.statistics.leftLongestPoint : "" }}</div>
+                <div class="grow center" :style="{ fontWeight: 'bold' }">LONGEST POINT</div>
+                <div>{{ gameData.statistics ? gameData.statistics.rightLongestPoint : "" }}</div>
             </div>
-            <div class="b-statistics-body">
-                <div class="statistics-centering">
-                    <div class="percentage-bar statistic-left" :style="{ width: longestLeftWidth }"></div>
-                    <div class="percentage-bar statistic-right" :style="{ width: longestRightWidth }"></div>
-                </div>
+            <div class="statistics-body">
+                <div class="percentage-bar statistic-left" :style="{ width: longestLeftWidth }"></div>
+                <div class="percentage-bar statistic-right" :style="{ width: longestRightWidth }"></div>
             </div>
-            <div class="c-statistics-title">
-                <div class="statistics-centering">
-                    <div>{{ gameData.statistics ? gameData.statistics.leftShortestPoint : "" }}</div>
-                    <div class="grow center" :style="{ fontWeight: 'bold' }">SHORTEST POINT</div>
-                    <div>{{ gameData.statistics ? gameData.statistics.rightShortestPoint : "" }}</div>
-                </div>
+            <div class="statistics-title">
+                <div>{{ gameData.statistics ? gameData.statistics.leftShortestPoint : "" }}</div>
+                <div class="grow center" :style="{ fontWeight: 'bold' }">SHORTEST POINT</div>
+                <div>{{ gameData.statistics ? gameData.statistics.rightShortestPoint : "" }}</div>
             </div>
-            <div class="c-statistics-body">
-                <div class="statistics-centering">
-                    <div class="percentage-bar statistic-left" :style="{ width: shortestLeftWidth }"></div>
-                    <div class="percentage-bar statistic-right" :style="{ width: shortestRightWidth }"></div>
-                </div>
+            <div class="statistics-body">
+                <div class="percentage-bar statistic-left" :style="{ width: shortestLeftWidth }"></div>
+                <div class="percentage-bar statistic-right" :style="{ width: shortestRightWidth }"></div>
             </div>
-            <div class="d-statistics-title">
-                <div class="statistics-centering">
-                    <div>{{ gameData.statistics ? gameData.statistics.leftAveragePerPoint : "" }}</div>
-                    <div class="grow center" :style="{ fontWeight: 'bold' }">AVERAGE TIME / POINT</div>
-                    <div>{{ gameData.statistics ? gameData.statistics.rightAveragePerPoint : "" }}</div>
-                </div>
+            <div class="statistics-title">
+                <div>{{ gameData.statistics ? gameData.statistics.leftAveragePerPoint : "" }}</div>
+                <div class="grow center" :style="{ fontWeight: 'bold' }">AVERAGE TIME / POINT</div>
+                <div>{{ gameData.statistics ? gameData.statistics.rightAveragePerPoint : "" }}</div>
             </div>
-            <div class="d-statistics-body">
-                <div class="statistics-centering">
-                    <div class="percentage-bar statistic-left" :style="{ width: averagePerPointLeftWidth }"></div>
-                    <div class="percentage-bar statistic-right" :style="{ width: averagePerpointRightWidth }"></div>
-                </div>
+            <div class="statistics-body">
+                <div class="percentage-bar statistic-left" :style="{ width: averagePerPointLeftWidth }"></div>
+                <div class="percentage-bar statistic-right" :style="{ width: averagePerpointRightWidth }"></div>
             </div>
         </div>
     </div>
@@ -375,13 +361,14 @@ const getGameHistory = async (gameId: string) => {
 .container {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 .player-section {
     display: flex;
     justify-content: center;
     width: 100vw;
-    height: 30vh;
+    min-height: 30vh;
 }
 
 .player-card {
@@ -428,8 +415,11 @@ const getGameHistory = async (gameId: string) => {
     padding: 10px;
 }
 
-.isRed {
-    color: statistic-left;
+.isWinner {
+    background-image: url('@/assets/images/trophy.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .pointText {
@@ -455,73 +445,14 @@ const getGameHistory = async (gameId: string) => {
 }
 
 .statistics-section {
-    margin: 10px;
+    margin-top: 30px;
     padding: 10px;
-    background-color: lightgray;
+    background-color: #DCEBFF;
     border-radius: 10px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(8, 1fr);
-    background-color: aqua;
-    width: 95%;
-    height: 35vh;
-    flex: 1
-}
-
-.a-statistics-title {
-    grid-column: 1 / span 6;
-    grid-row: 1 / span 1;
-    background-color: lightgray;
-}
-
-.a-statistics-body {
-    grid-column: 1 / span 6;
-    grid-row: 2 / span 1;
-    background-color: lightgray;
-}
-
-.b-statistics-title {
-    grid-column: 1 / span 6;
-    grid-row: 3 / span 1;
-    background-color: lightgray;
-}
-
-.b-statistics-body {
-    grid-column: 1 / span 6;
-    grid-row: 4 / span 1;
-    background-color: lightgray;
-}
-
-.c-statistics-title {
-    grid-column: 1 / span 6;
-    grid-row: 5 / span 1;
-    background-color: lightgray;
-}
-
-.c-statistics-body {
-    grid-column: 1 / span 6;
-    grid-row: 6 / span 1;
-    background-color: lightgray;
-}
-
-.d-statistics-title {
-    grid-column: 1 / span 6;
-    grid-row: 7 / span 1;
-    background-color: lightgray;
-}
-
-.d-statistics-body {
-    grid-column: 1 / span 6;
-    grid-row: 8 / span 1;
-    background-color: lightgray;
-}
-
-.statistics-centering {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 0 10px;
+    flex-direction: column;
+    width: 100%;
+    min-height: 35vh;
 }
 
 .grow {
@@ -534,7 +465,7 @@ const getGameHistory = async (gameId: string) => {
 }
 
 .percentage-bar {
-    height: 100%;
+    min-height: 20px;
 }
 
 .statistic-left {
@@ -566,5 +497,16 @@ const getGameHistory = async (gameId: string) => {
 
 .identify-box {
     margin-bottom: 10px;
+}
+
+.statistics-title {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.statistics-body {
+    display: flex;
+    min-width: 100%;
+    margin-bottom: 20px;
 }
 </style>
