@@ -15,22 +15,18 @@
     <table class="game-listing-table">
       <thead>
         <tr>
-          <th>Club ID</th>
-          <th>Game Type</th>
-          <th>Serving Side</th>
-          <th>Players</th>
-          <th>Created At</th>
-          <th>Ended</th>
+          <th @click="setSortKey('club_id')">Club ID</th>
+          <th @click="setSortKey('game_type')">Game Type</th>
+          <th @click="setSortKey('createdAt')">Created At</th>
+          <th @click="setSortKey('isEnded')">Ended</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="game in filteredGames"
+       <tr
+          v-for="game in sortedGames"
           :key="game.id"
-          :class="{
-            'ongoing': !game.isEnded,
-            'ended': game.isEnded
-          }"
+          :class="{ ongoing: !game.isEnded, ended: game.isEnded }"
+          @click="goToStatistics(game.id)"
         >
           <td>{{ game.club_id }}</td>
           <td>{{ game.game_type }}</td>
@@ -52,12 +48,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router'; // For navigation
 
 // fake data
 const games = ref([
   {
     id: '1',
-    club_id: 'club-123',
+    club_id: 'clubowner-123',
     game_type: 'Singles',
     serving_side: 'Left',
     createdAt: '2024-11-01,10:00:00',
@@ -69,7 +66,7 @@ const games = ref([
   },
   {
     id: '2',
-    club_id: 'club-124',
+    club_id: 'clubowner-124',
     game_type: 'Doubles',
     serving_side: 'Right',
     createdAt: '2024-11-02,11:30:00',
@@ -83,6 +80,9 @@ const games = ref([
 
 // Search query for filtering games by player name
 const searchQuery = ref('');
+const sortKey = ref('createdAt'); // default sort
+const sortOrder = ref(1); // set 1 for ascending
+const router = useRouter();
 
 // format date
 const formatDate = (dateString: string) => {
@@ -105,6 +105,33 @@ const filteredGames = computed(() => {
     return allPlayers.includes(searchQuery.value.toLowerCase());
   });
 });
+
+// sort games based on sortKey
+const sortedGames = computed(() => {
+  return filteredGames.value.slice().sort((a, b) => {
+    const aKey = a[sortKey.value];
+    const bKey = b[sortKey.value];
+
+    if (aKey < bKey) return -1 * sortOrder.value;
+    if (aKey > bKey) return 1 * sortOrder.value;
+    return 0;
+  });
+});
+
+// set sort key and toggle sort order
+const setSortKey = (key: string) => {
+  if (sortKey.value === key) {
+    sortOrder.value *= -1; // toggle order
+  } else {
+    sortKey.value = key;
+    sortOrder.value = 1; // set ascending to default
+  }
+};
+
+// navigate to statistics screen
+const goToStatistics = (gameId: string) => {
+  router.push(`/statistics/${gameId}`); 
+};
 </script>
 
 <style scoped>
