@@ -32,6 +32,31 @@ export interface GetGameRequest {
 export class GameApi extends runtime.BaseAPI {
 
     /**
+     * Generate statistics for players that has latest game in timespan
+     */
+    async generateRecentStatisticsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/generate-recent-statistics`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Generate statistics for players that has latest game in timespan
+     */
+    async generateRecentStatistics(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.generateRecentStatisticsRaw(initOverrides);
+    }
+
+    /**
      * Get game and steps given id
      */
     async getGameRaw(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGame200Response>> {

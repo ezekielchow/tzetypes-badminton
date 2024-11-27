@@ -101,6 +101,34 @@ func (_m *GameRepository) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx
 	return r0, r1
 }
 
+// CreateOrUpdateGameRecentStatistic provides a mock function with given fields: ctx, tx, toCreate
+func (_m *GameRepository) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx *pgx.Tx, toCreate models.GameRecentStatistic) (models.GameRecentStatistic, error) {
+	ret := _m.Called(ctx, tx, toCreate)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOrUpdateGameRecentStatistic")
+	}
+
+	var r0 models.GameRecentStatistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, models.GameRecentStatistic) (models.GameRecentStatistic, error)); ok {
+		return rf(ctx, tx, toCreate)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, models.GameRecentStatistic) models.GameRecentStatistic); ok {
+		r0 = rf(ctx, tx, toCreate)
+	} else {
+		r0 = ret.Get(0).(models.GameRecentStatistic)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, models.GameRecentStatistic) error); ok {
+		r1 = rf(ctx, tx, toCreate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateStatistic provides a mock function with given fields: ctx, tx, gameID, toCreate
 func (_m *GameRepository) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error) {
 	ret := _m.Called(ctx, tx, gameID, toCreate)
@@ -221,6 +249,64 @@ func (_m *GameRepository) GetGameHistoryGivenUserIdAndGameId(ctx context.Context
 	return r0, r1
 }
 
+// GetGameRecentStatisticThatNeedsRegeneration provides a mock function with given fields: ctx, tx
+func (_m *GameRepository) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context, tx *pgx.Tx) ([]models.GameRecentStatistic, error) {
+	ret := _m.Called(ctx, tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameRecentStatisticThatNeedsRegeneration")
+	}
+
+	var r0 []models.GameRecentStatistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) ([]models.GameRecentStatistic, error)); ok {
+		return rf(ctx, tx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) []models.GameRecentStatistic); ok {
+		r0 = rf(ctx, tx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.GameRecentStatistic)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx) error); ok {
+		r1 = rf(ctx, tx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameRecentStatisticWithUserId provides a mock function with given fields: ctx, tx, userID
+func (_m *GameRepository) GetGameRecentStatisticWithUserId(ctx context.Context, tx *pgx.Tx, userID string) (models.GameRecentStatistic, error) {
+	ret := _m.Called(ctx, tx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameRecentStatisticWithUserId")
+	}
+
+	var r0 models.GameRecentStatistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) (models.GameRecentStatistic, error)); ok {
+		return rf(ctx, tx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) models.GameRecentStatistic); ok {
+		r0 = rf(ctx, tx, userID)
+	} else {
+		r0 = ret.Get(0).(models.GameRecentStatistic)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetGameSteps provides a mock function with given fields: ctx, tx, gameID
 func (_m *GameRepository) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error) {
 	ret := _m.Called(ctx, tx, gameID)
@@ -244,6 +330,66 @@ func (_m *GameRepository) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID s
 
 	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
 		r1 = rf(ctx, tx, gameID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameStepsGivenGameIds provides a mock function with given fields: ctx, tx, gameIDs
+func (_m *GameRepository) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error) {
+	ret := _m.Called(ctx, tx, gameIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameStepsGivenGameIds")
+	}
+
+	var r0 []models.GameStep
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, []string) ([]models.GameStep, error)); ok {
+		return rf(ctx, tx, gameIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, []string) []models.GameStep); ok {
+		r0 = rf(ctx, tx, gameIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.GameStep)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, []string) error); ok {
+		r1 = rf(ctx, tx, gameIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetMostRecentGameHistories provides a mock function with given fields: ctx, tx, userID
+func (_m *GameRepository) GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error) {
+	ret := _m.Called(ctx, tx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMostRecentGameHistories")
+	}
+
+	var r0 []models.GameHistory
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) ([]models.GameHistory, error)); ok {
+		return rf(ctx, tx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) []models.GameHistory); ok {
+		r0 = rf(ctx, tx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.GameHistory)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

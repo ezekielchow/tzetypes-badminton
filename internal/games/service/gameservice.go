@@ -19,6 +19,7 @@ type GameServiceInterface interface {
 	GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error)
 	CreateOrUpdateGameHistory(ctx context.Context, input oapiprivate.CreateOrUpdateGameHistoryRequestObject, user models.User) (oapiprivate.CreateOrUpdateGameHistoryResponseObject, error)
 	GetGameHistory(ctx context.Context, input oapiprivate.GetGameHistoryRequestObject, user models.User) (oapiprivate.GetGameHistoryResponseObject, error)
+	GenerateRecentStatistics(ctx context.Context, input oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error)
 }
 
 type GameService struct {

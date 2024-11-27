@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -12,4 +14,14 @@ func StringToPgId(id string) (pgtype.UUID, error) {
 	}
 
 	return pgID, err
+}
+
+func TimeToPgTimestamp(time time.Time) (pgtype.Timestamp, error) {
+	pgTimestamp := pgtype.Timestamp{}
+	err := pgTimestamp.Scan(time)
+	if err != nil {
+		return pgTimestamp, err
+	}
+
+	return pgTimestamp, nil
 }

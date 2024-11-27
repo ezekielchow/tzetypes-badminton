@@ -175,7 +175,16 @@ func main() {
 
 	logrus.Info("Starting HTTP server")
 
-	err = http.ListenAndServe(":"+os.Getenv("APP_PORT"), rootRouter)
+	server := &http.Server{
+		Addr:              ":" + os.Getenv("APP_PORT"),
+		Handler:           rootRouter,
+		ReadTimeout:       10 * time.Second, // Allows time for reading typical requests
+		WriteTimeout:      15 * time.Second, // Enough time to send responses
+		IdleTimeout:       60 * time.Second, // Keeps connections alive for persistent clients
+		ReadHeaderTimeout: 2 * time.Second,
+	}
+
+	err = server.ListenAndServe()
 	if err != nil {
 		logrus.WithError(err).Panic("Unable to start HTTP server")
 	}

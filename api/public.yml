@@ -116,6 +116,19 @@ paths:
                     $ref: "#/components/schemas/GameStatistic"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
+
+  /generate-recent-statistics:
+    get:
+      summary: Generate statistics for players that has latest game in timespan
+      operationId: generateRecentStatistics
+      tags:
+        - game
+      responses:
+        "200":
+          description: Generated statistics successfully
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
   schemas:
     LoginRequestSchema:

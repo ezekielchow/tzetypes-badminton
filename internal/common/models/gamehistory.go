@@ -9,12 +9,25 @@ import (
 )
 
 type GameHistory struct {
-	ID             string
-	UserID         string
-	GameID         string
-	PlayerPosition string
-	CreatedAt      time.Time
-	UpdatedAt      *time.Time
+	ID                             string
+	UserID                         string
+	GameID                         string
+	PlayerPosition                 string
+	GameStartedAt                  time.Time
+	GameWonBy                      string
+	TotalPoints                    int
+	PointsWon                      int
+	PointsLost                     int
+	AverageTimePerPointSeconds     int
+	AverageTimePerPointWonSeconds  int
+	AverageTimePerPointLostSeconds int
+	LongestRallySeconds            int
+	LongestRallyIsWon              int
+	ShortestRallySeconds           int
+	ShortestRallyIsWon             int
+	IsGameWon                      int
+	CreatedAt                      time.Time
+	UpdatedAt                      *time.Time
 }
 
 func (gh *GameHistory) PostgresToModel(fromDb database.GameHistory) error {
@@ -37,6 +50,19 @@ func (gh *GameHistory) PostgresToModel(fromDb database.GameHistory) error {
 	gh.UserID = userID.String()
 	gh.GameID = gameID.String()
 	gh.PlayerPosition = fromDb.PlayerPosition
+	gh.GameStartedAt = fromDb.GameStartedAt.Time
+	gh.GameWonBy = fromDb.GameWonBy
+	gh.TotalPoints = int(fromDb.TotalPoints)
+	gh.PointsWon = int(fromDb.PointsWon)
+	gh.PointsLost = int(fromDb.PointsLost)
+	gh.AverageTimePerPointSeconds = int(fromDb.AverageTimePerPointSeconds)
+	gh.AverageTimePerPointWonSeconds = int(fromDb.AverageTimePerPointWonSeconds)
+	gh.AverageTimePerPointLostSeconds = int(fromDb.AverageTimePerPointLostSeconds)
+	gh.LongestRallySeconds = int(fromDb.LongestRallySeconds)
+	gh.LongestRallyIsWon = int(fromDb.LongestRallyIsWon)
+	gh.ShortestRallySeconds = int(fromDb.ShortestRallySeconds)
+	gh.ShortestRallyIsWon = int(fromDb.ShortestRallyIsWon)
+	gh.IsGameWon = int(fromDb.IsGameWon)
 	gh.CreatedAt = fromDb.CreatedAt.Time
 	gh.UpdatedAt = &fromDb.UpdatedAt.Time
 	return nil

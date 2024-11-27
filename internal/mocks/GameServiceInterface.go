@@ -139,6 +139,36 @@ func (_m *GameServiceInterface) EndGame(ctx context.Context, input oapiprivate.E
 	return r0, r1
 }
 
+// GenerateRecentStatistics provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) GenerateRecentStatistics(ctx context.Context, input oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateRecentStatistics")
+	}
+
+	var r0 oapipublic.GenerateRecentStatisticsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GenerateRecentStatisticsRequestObject) oapipublic.GenerateRecentStatisticsResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.GenerateRecentStatisticsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GenerateRecentStatisticsRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetGame provides a mock function with given fields: ctx, input
 func (_m *GameServiceInterface) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 	ret := _m.Called(ctx, input)

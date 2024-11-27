@@ -92,6 +92,9 @@ type ClientInterface interface {
 	// GetGame request
 	GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GenerateRecentStatistics request
+	GenerateRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// LoginWithBody request with any body
 	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -113,6 +116,18 @@ type ClientInterface interface {
 
 func (c *Client) GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetGameRequest(c.Server, gameId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GenerateRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGenerateRecentStatisticsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -224,6 +239,33 @@ func NewGetGameRequest(server string, gameId string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/game/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGenerateRecentStatisticsRequest generates requests for GenerateRecentStatistics
+func NewGenerateRecentStatisticsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/generate-recent-statistics")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -434,6 +476,9 @@ type ClientWithResponsesInterface interface {
 	// GetGameWithResponse request
 	GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error)
 
+	// GenerateRecentStatisticsWithResponse request
+	GenerateRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GenerateRecentStatisticsResponse, error)
+
 	// LoginWithBodyWithResponse request with any body
 	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error)
 
@@ -474,6 +519,28 @@ func (r GetGameResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetGameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GenerateRecentStatisticsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r GenerateRecentStatisticsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GenerateRecentStatisticsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -579,6 +646,15 @@ func (c *ClientWithResponses) GetGameWithResponse(ctx context.Context, gameId st
 	return ParseGetGameResponse(rsp)
 }
 
+// GenerateRecentStatisticsWithResponse request returning *GenerateRecentStatisticsResponse
+func (c *ClientWithResponses) GenerateRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GenerateRecentStatisticsResponse, error) {
+	rsp, err := c.GenerateRecentStatistics(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGenerateRecentStatisticsResponse(rsp)
+}
+
 // LoginWithBodyWithResponse request with arbitrary body returning *LoginResponse
 func (c *ClientWithResponses) LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResponse, error) {
 	rsp, err := c.LoginWithBody(ctx, contentType, body, reqEditors...)
@@ -664,6 +740,32 @@ func ParseGetGameResponse(rsp *http.Response) (*GetGameResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGenerateRecentStatisticsResponse parses an HTTP response from a GenerateRecentStatisticsWithResponse call
+func ParseGenerateRecentStatisticsResponse(rsp *http.Response) (*GenerateRecentStatisticsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GenerateRecentStatisticsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest ErrorResponseSchema
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
