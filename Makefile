@@ -23,7 +23,7 @@ sqlc-gen: ## Generate golang code from sqlc queries
 	docker run --rm -v $(PWD):/src -w /src sqlc/sqlc generate --file internal/database/sqlc.yml
 
 create-migration: ## Create migration file; Usage: make create-migration table_name=your_table_name
-	migrate create -ext sql -dir ./internal/database/migrations -seq $(table_name)
+	docker run --rm -v $(PWD)/internal/database/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq ${table_name}
 
 gen-mocks:  ## Generate mocks to help in testing
 	docker run -v ./internal:/src -w /src vektra/mockery --all
