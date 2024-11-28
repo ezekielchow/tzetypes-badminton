@@ -1,6 +1,6 @@
 import SignupPlayer from '@/components/SignupPlayer.vue';
 import Dashboard from '@/components/TheDashboard.vue';
-import { MyApi } from '@/services/requests';
+import { MyPublicApi } from '@/services/requests-public';
 import GameSetupView from '@/views/GameSetupView.vue';
 import GameStatisticsView from '@/views/GameStatisticsView.vue';
 import LoginView from '@/views/LoginView.vue';
@@ -80,10 +80,10 @@ router.beforeEach(async (to, from, next) => {
 
   // first time browsing
   if (!isAuthenticated) {
-    const api = new MyApi(import.meta.env.VITE_PROXY_URL)
+    const publicApi = new MyPublicApi(import.meta.env.VITE_PROXY_URL)
 
     try {
-      await api.refreshToken()
+      await publicApi.refreshToken()
       isAuthenticated = !!sessionStorage.getItem('session_token');
     } catch (error) {
       console.log(error);

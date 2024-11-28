@@ -25,7 +25,6 @@ type PlayerPostgres struct {
 func (pp PlayerPostgres) CreatePlayer(ctx context.Context, tx *pgx.Tx, toCreate models.Player, passwordHash string) (models.Player, error) {
 
 	queries := pp.Queries
-
 	if tx != nil {
 		queries = queries.WithTx(*tx)
 	}
@@ -102,7 +101,12 @@ func (pp PlayerPostgres) ListPlayers(ctx context.Context, tx *pgx.Tx, ownerID *s
 }
 
 func (pp PlayerPostgres) FindUserWithName(ctx context.Context, tx *pgx.Tx, name string) (models.Player, error) {
-	dbPlayer, err := pp.Queries.FindPlayerWithName(ctx, name)
+	queries := pp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	dbPlayer, err := queries.FindPlayerWithName(ctx, name)
 	if err != nil {
 		return models.Player{}, err
 	}
@@ -117,7 +121,12 @@ func (pp PlayerPostgres) FindUserWithName(ctx context.Context, tx *pgx.Tx, name 
 }
 
 func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.Player, error) {
-	dbPlayers, err := pp.Queries.AllPlayers(ctx)
+	queries := pp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	dbPlayers, err := queries.AllPlayers(ctx)
 	if err != nil {
 		return []models.Player{}, err
 	}
@@ -137,6 +146,11 @@ func (pp PlayerPostgres) AllPlayers(ctx context.Context, tx *pgx.Tx) ([]models.P
 }
 
 func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate models.Player) (models.Player, error) {
+	queries := pp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID, err := utils.StringToPgId(toUpdate.ID)
 	if err != nil {
 		return models.Player{}, err
@@ -148,7 +162,7 @@ func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate 
 		return models.Player{}, err
 	}
 
-	dbPlayer, err := pp.Queries.UpdatePlayer(ctx, database.UpdatePlayerParams{
+	dbPlayer, err := queries.UpdatePlayer(ctx, database.UpdatePlayerParams{
 		ID:        pgID,
 		Name:      toUpdate.Name,
 		UpdatedAt: pgUpdated,
@@ -167,12 +181,17 @@ func (pp PlayerPostgres) UpdatePlayer(ctx context.Context, tx *pgx.Tx, toUpdate 
 }
 
 func (pp PlayerPostgres) GetPlayerWithId(ctx context.Context, tx *pgx.Tx, id string) (models.Player, error) {
+	queries := pp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return models.Player{}, err
 	}
 
-	dbPlayer, err := pp.Queries.GetPlayerWithId(ctx, pgID)
+	dbPlayer, err := queries.GetPlayerWithId(ctx, pgID)
 	if err != nil {
 		return models.Player{}, err
 	}

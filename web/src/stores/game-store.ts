@@ -1,7 +1,8 @@
 import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type StartGameRequest } from "@/repositories/clients/private";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
 import type { GetGame200Response, GetGameRequest } from "@/repositories/clients/public";
-import { MyApi } from "@/services/requests";
+import { MyPrivateApi } from "@/services/requests-private";
+import { MyPublicApi } from "@/services/requests-public";
 import type { LocalGameStep } from "@/types/game";
 import { defineStore } from "pinia";
 
@@ -34,10 +35,10 @@ export const useGameStore = defineStore('game', {
     },
     async startGame(params: StartGameRequest
     ): Promise<StartGame201Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.startGame(params)
+        const res = await privateApi.startGame(params)
 
         this.currentGameSettings = res.game
         this.currentGameProgress = []
@@ -60,10 +61,10 @@ export const useGameStore = defineStore('game', {
     },
     async addGameSteps(params: AddGameStepsRequest
     ): Promise<AddGameSteps201Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.addGameSteps(params)
+        const res = await privateApi.addGameSteps(params)
 
         for (let i = 0; i < res.gameSteps.length; i++) {
           const step = res.gameSteps[i];
@@ -92,10 +93,10 @@ export const useGameStore = defineStore('game', {
     },
     async deleteGameSteps(params: DeleteGameStepsRequest
     ): Promise<void | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.deleteGameSteps(params)
+        const res = await privateApi.deleteGameSteps(params)
         return res
 
       } catch (error: any) {
@@ -108,10 +109,10 @@ export const useGameStore = defineStore('game', {
     },
     async endGame(params: EndGameOperationRequest
     ): Promise<void | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.endGame(params)
+        const res = await privateApi.endGame(params)
         this.currentGameSettings.isEnded = true
         return res
 
@@ -125,10 +126,10 @@ export const useGameStore = defineStore('game', {
     },
     async getGameStatistics(params: GetGameRequest
     ): Promise<GetGame200Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const publicApi = new MyPublicApi(this.backendUrl)
 
       try {
-        const res = await myApi.getGame(params)
+        const res = await publicApi.getGame(params)
         return res
 
       } catch (error: any) {
@@ -141,14 +142,18 @@ export const useGameStore = defineStore('game', {
     },
     async createOrUpdateGameHistory(params: CreateOrUpdateGameHistoryRequest
     ): Promise<GetGameHistory200Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.createOrUpdateGameHistory(params)
+        const res = await privateApi.createOrUpdateGameHistory(params)
         return res
 
       } catch (error: any) {
         if (error.response) {
+          if (error.response.statusText) {
+            return new Error(`Error: ${error.response.statusText || 'Something went wrong'}`)
+          }
+
           const errorBody = await error.response.json() // Parse the error response body as JSON
           return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
         }
@@ -157,10 +162,10 @@ export const useGameStore = defineStore('game', {
     },
     async getGameHistory(params: GetGameHistoryRequest
     ): Promise<GetGameHistory200Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.getGameHistory(params)
+        const res = await privateApi.getGameHistory(params)
         return res
 
       } catch (error: any) {

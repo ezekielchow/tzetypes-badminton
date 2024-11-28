@@ -15,5 +15,6 @@ CREATE TABLE IF NOT EXISTS game_recent_statistics(
     shortest_rally_is_won int,
     needs_regenerating int,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp 
+    updated_at timestamp,
+    UNIQUE (user_id)
 )

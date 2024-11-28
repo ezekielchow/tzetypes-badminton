@@ -1,6 +1,6 @@
 
 import * as runtime from '@/repositories/clients/private';
-import { MyApi } from '@/services/requests';
+import { MyPrivateApi } from '@/services/requests-private';
 import { defineStore } from 'pinia';
 
 export const usePlayerStore = defineStore('player', {
@@ -13,10 +13,10 @@ export const usePlayerStore = defineStore('player', {
     },
     async listPlayers(params: runtime.ListPlayersRequest
     ): Promise<runtime.ListPlayers200Response | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.listPlayers(params)
+        const res = await privateApi.listPlayers(params)
         return res
 
       } catch (error: any) {
@@ -28,10 +28,10 @@ export const usePlayerStore = defineStore('player', {
       }
     },
     async addPlayer(params: runtime.AddPlayerRequest): Promise<runtime.Player | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.addPlayer(params)
+        const res = await privateApi.addPlayer(params)
         return res
 
       } catch (error: any) {
@@ -43,10 +43,10 @@ export const usePlayerStore = defineStore('player', {
       }
     },
     async getPlayer(params: runtime.GetPlayerWithIdRequest): Promise<runtime.Player | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.getPlayer(params)
+        const res = await privateApi.getPlayer(params)
         return res
 
       } catch (error: any) {
@@ -58,10 +58,10 @@ export const usePlayerStore = defineStore('player', {
       }
     },
     async updatePlayer(params: runtime.UpdatePlayerWithIdOperationRequest): Promise<runtime.Player | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.updatePlayer(params)
+        const res = await privateApi.updatePlayer(params)
         return res
 
       } catch (error: any) {
