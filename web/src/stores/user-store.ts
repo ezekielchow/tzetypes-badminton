@@ -1,7 +1,8 @@
 
 import type { User } from '@/repositories/clients/private'
 import type { LoginResponseSchema } from '@/repositories/clients/public'
-import { MyApi } from '@/services/requests'
+import { MyPrivateApi } from '@/services/requests-private'
+import { MyPublicApi } from '@/services/requests-public'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
@@ -14,10 +15,10 @@ export const useUserStore = defineStore('user', {
       this.backendUrl = backendUrl
     },
     async login(email: string, password: string): Promise<LoginResponseSchema | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const publicApi = new MyPublicApi(this.backendUrl)
 
       try {
-        const res = await myApi.login({
+        const res = await publicApi.login({
           loginRequestSchema: {
             email: email,
             password: password
@@ -34,10 +35,10 @@ export const useUserStore = defineStore('user', {
       }
     },
     async signupPlayer(email: string, password: string, passwordRepeat: string): Promise<void | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const publicApi = new MyPublicApi(this.backendUrl)
 
       try {
-        const res = await myApi.signupPlayer({
+        const res = await publicApi.signupPlayer({
           signupRequestSchema: {
             email: email,
             password: password,
@@ -55,11 +56,11 @@ export const useUserStore = defineStore('user', {
       }
     },
     async logout(): Promise<void | Error> {
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.logoutRequest()
-        myApi.deleteSession()
+        const res = await privateApi.logoutRequest()
+        privateApi.deleteSession()
 
         return res
 
@@ -76,10 +77,10 @@ export const useUserStore = defineStore('user', {
         return this.currentUser
       }
 
-      const myApi = new MyApi(this.backendUrl)
+      const privateApi = new MyPrivateApi(this.backendUrl)
 
       try {
-        const res = await myApi.currentUser()
+        const res = await privateApi.currentUser()
         this.currentUser = res.user
 
         return this.currentUser

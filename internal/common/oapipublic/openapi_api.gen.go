@@ -108,7 +108,6 @@ func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Reques
 
 // GenerateRecentStatistics operation middleware
 func (siw *ServerInterfaceWrapper) GenerateRecentStatistics(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GenerateRecentStatistics(w, r)
@@ -118,7 +117,7 @@ func (siw *ServerInterfaceWrapper) GenerateRecentStatistics(w http.ResponseWrite
 		handler = middleware(handler)
 	}
 
-	handler.ServeHTTP(w, r.WithContext(ctx))
+	handler.ServeHTTP(w, r)
 }
 
 // Login operation middleware
