@@ -4,7 +4,6 @@ import (
 	"common/models"
 	"common/utils"
 	"context"
-	"log"
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
@@ -346,8 +345,6 @@ func (gp GamePostgres) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx
 	if tx != nil {
 		queries = queries.WithTx(*tx)
 	}
-
-	log.Printf("eh???? %+v", toCreate)
 
 	pgUserID, err := utils.StringToPgId(toCreate.UserID)
 	if err != nil {

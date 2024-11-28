@@ -11,10 +11,12 @@ models/CreateOrUpdateGameHistoryRequestSchema.ts
 models/EndGameRequest.ts
 models/Game.ts
 models/GameHistory.ts
+models/GameRecentStatistic.ts
 models/GameStartRequestSchema.ts
 models/GameStep.ts
 models/GetGameHistory200Response.ts
 models/GetLoggedInUser200Response.ts
+models/GetRecentStatistics200Response.ts
 models/ListPlayers200Response.ts
 models/ListPlayers200ResponsePagination.ts
 models/ModelError.ts

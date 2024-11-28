@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/oapiprivate"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -55,4 +56,25 @@ func (grs *GameRecentStatistic) PostgresToModel(fromDb database.GameRecentStatis
 	grs.CreatedAt = fromDb.CreatedAt.Time
 	grs.UpdatedAt = &fromDb.UpdatedAt.Time
 	return nil
+}
+
+func (grs *GameRecentStatistic) ModelToAPI() oapiprivate.GameRecentStatistic {
+	return oapiprivate.GameRecentStatistic{
+		AverageTimePerPointLostSeconds: grs.AverageTimePerPointLostSeconds,
+		AverageTimePerPointSeconds:     grs.AverageTimePerPointSeconds,
+		AverageTimePerPointWonSeconds:  grs.AverageTimePerPointWonSeconds,
+		CreatedAt:                      grs.CreatedAt.String(),
+		GameCount:                      grs.GameCount,
+		Id:                             grs.ID,
+		LongestRallyIsWon:              grs.LongestRallyIsWon,
+		LongestRallySeconds:            grs.LongestRallySeconds,
+		Losses:                         grs.Losses,
+		PointsWon:                      grs.PointsWon,
+		ShortestRallyIsWon:             grs.ShortestRallyIsWon,
+		ShortestRallySeconds:           grs.ShortestRallySeconds,
+		TotalPoints:                    grs.TotalPoints,
+		UpdatedAt:                      grs.UpdatedAt.String(),
+		UserId:                         grs.UserID,
+		Wins:                           grs.Wins,
+	}
 }

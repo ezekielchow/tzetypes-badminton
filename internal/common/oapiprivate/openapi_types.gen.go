@@ -75,6 +75,26 @@ type GameHistory struct {
 	UserId         string `json:"user_id"`
 }
 
+// GameRecentStatistic defines model for GameRecentStatistic.
+type GameRecentStatistic struct {
+	AverageTimePerPointLostSeconds int    `json:"average_time_per_point_lost_seconds"`
+	AverageTimePerPointSeconds     int    `json:"average_time_per_point_seconds"`
+	AverageTimePerPointWonSeconds  int    `json:"average_time_per_point_won_seconds"`
+	CreatedAt                      string `json:"created_at"`
+	GameCount                      int    `json:"game_count"`
+	Id                             string `json:"id"`
+	LongestRallyIsWon              int    `json:"longest_rally_is_won"`
+	LongestRallySeconds            int    `json:"longest_rally_seconds"`
+	Losses                         int    `json:"losses"`
+	PointsWon                      int    `json:"points_won"`
+	ShortestRallyIsWon             int    `json:"shortest_rally_is_won"`
+	ShortestRallySeconds           int    `json:"shortest_rally_seconds"`
+	TotalPoints                    int    `json:"total_points"`
+	UpdatedAt                      string `json:"updated_at"`
+	UserId                         string `json:"user_id"`
+	Wins                           int    `json:"wins"`
+}
+
 // GameStartRequestSchema defines model for GameStartRequestSchema.
 type GameStartRequestSchema struct {
 	GameType            GameStartRequestSchemaGameType    `json:"game_type"`
@@ -148,6 +168,11 @@ type ErrorResponseSchema = Error
 // GetGameHistoryResponseSchema defines model for GetGameHistoryResponseSchema.
 type GetGameHistoryResponseSchema struct {
 	GameHistory GameHistory `json:"game_history"`
+}
+
+// GetRecentStatisticsResponseSchema defines model for GetRecentStatisticsResponseSchema.
+type GetRecentStatisticsResponseSchema struct {
+	GameRecentStatistics GameRecentStatistic `json:"game_recent_statistics"`
 }
 
 // StartGame201ResponseSchema defines model for StartGame201ResponseSchema.

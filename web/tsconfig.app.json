@@ -18,6 +18,8 @@
       "@/*": [
         "./src/*"
       ],
-    }
+    },
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
   }
 }

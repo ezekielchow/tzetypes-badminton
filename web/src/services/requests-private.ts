@@ -19,6 +19,7 @@ import {
   type GetGameHistoryRequest,
   type GetLoggedInUser200Response,
   type GetPlayerWithIdRequest,
+  type GetRecentStatistics200Response,
   type InitOverrideFunction,
   type ListPlayers200Response,
   type ListPlayersRequest,
@@ -339,6 +340,24 @@ export class MyPrivateApi extends BaseAPI {
 
   async getGameHistory(requestParameters: GetGameHistoryRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGameHistory200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.getGameHistoryRequest(requestParameters, initOverrides));
+    return await apiResponse.value();
+  }
+
+  private async getRecentStatisticsRequest(initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetRecentStatistics200Response>> {
+    const api = new GameApi(this.getPrivateConf())
+
+    try {
+      return await api.getRecentStatisticsRaw(initOverrides)
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get recent statistics');
+    }
+  }
+
+  async getRecentStatistics(initOverrides?: RequestInit | InitOverrideFunction): Promise<GetRecentStatistics200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.getRecentStatisticsRequest(initOverrides));
     return await apiResponse.value();
   }
 }
