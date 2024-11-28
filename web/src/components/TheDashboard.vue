@@ -8,6 +8,15 @@ import { computed, onMounted, reactive, ref } from 'vue';
 const errorMessage = ref('')
 const userEmail = ref('')
 const recentStatistics = reactive({} as GetRecentStatistics200Response)
+const winsWidth = ref(0)
+const lossWidth = ref(0)
+const pointsWonWidth = ref(0)
+const pointsLossWidth = ref(0)
+const shortestRallyWidth = ref(0)
+const longestRallyWidth = ref(0)
+const avgTimePerPointDecorated = ref("")
+const avgTimePerPointWonDecorated = ref("")
+const avgTimePerPointLostDecorated = ref("")
 
 const userStore = useUserStore()
 userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
@@ -54,8 +63,18 @@ const getRecentStatistics = async () => {
 
     recentStatistics.gameRecentStatistics = data.gameRecentStatistics
 
-    console.log(recentStatistics.gameRecentStatistics);
+    winsWidth.value = recentStatistics.gameRecentStatistics.wins / (recentStatistics.gameRecentStatistics.wins + recentStatistics.gameRecentStatistics.losses) * 100
+    lossWidth.value = 100 - winsWidth.value
 
+    pointsWonWidth.value = (recentStatistics.gameRecentStatistics.pointsWon / recentStatistics.gameRecentStatistics.totalPoints) * 100
+    pointsLossWidth.value = 100 - pointsWonWidth.value
+
+    shortestRallyWidth.value = recentStatistics.gameRecentStatistics.shortestRallySeconds / (recentStatistics.gameRecentStatistics.shortestRallySeconds + recentStatistics.gameRecentStatistics.longestRallySeconds) * 100
+    longestRallyWidth.value = 100 - shortestRallyWidth.value
+
+    avgTimePerPointDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointSeconds)
+    avgTimePerPointWonDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointWonSeconds)
+    avgTimePerPointLostDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointLostSeconds)
 }
 
 const updatedAtDecorated = computed(() => {
@@ -70,6 +89,35 @@ const updatedAtDecorated = computed(() => {
 
     return ""
 })
+
+const shortestRallyDecorated = computed(() => {
+    if (recentStatistics?.gameRecentStatistics?.shortestRallySeconds) {
+        const timeText = decorateSeconds(recentStatistics.gameRecentStatistics.shortestRallySeconds)
+        const wonText = recentStatistics.gameRecentStatistics.shortestRallyIsWon ? 'win' : 'lost'
+
+        return `${timeText} (${wonText})`
+    }
+
+    return ""
+})
+
+const longestRallyDecorated = computed(() => {
+    if (recentStatistics?.gameRecentStatistics?.longestRallySeconds) {
+        const timeText = decorateSeconds(recentStatistics.gameRecentStatistics.longestRallySeconds)
+        const wonText = recentStatistics.gameRecentStatistics.longestRallyIsWon ? 'win' : 'lost'
+
+        return `${timeText} (${wonText})`
+    }
+
+    return ""
+})
+
+const decorateSeconds = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const leftoverSeconds = seconds % 60
+
+    return `${minutes}m ${leftoverSeconds}s`
+}
 
 </script>
 
@@ -111,6 +159,53 @@ const updatedAtDecorated = computed(() => {
                         recentStatistics.gameRecentStatistics.gameCount : ""} GAME(S)` }}</span>
                     <span>{{ `LAST UPDATED: ${updatedAtDecorated}` }}</span>
                 </div>
+                <div class="statistics-title">
+                    <div :style="{ fontWeight: 'bold' }">{{ recentStatistics?.gameRecentStatistics?.wins ?
+                        recentStatistics.gameRecentStatistics.wins :
+                        "0" }}</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">WINS / LOSSES</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ recentStatistics?.gameRecentStatistics?.losses ?
+                        recentStatistics.gameRecentStatistics.losses : "0" }}</div>
+                </div>
+                <div class="statistics-body">
+                    <div class="percentage-bar statistic-left" :style="{ width: `${winsWidth}%` }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: `${lossWidth}%` }"></div>
+                </div>
+                <div class="statistics-title">
+                    <div :style="{ fontWeight: 'bold' }">{{ recentStatistics?.gameRecentStatistics?.pointsWon ?
+                        recentStatistics.gameRecentStatistics.pointsWon :
+                        "0" }}</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold' }">POINTS WON / LOST</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ recentStatistics?.gameRecentStatistics?.totalPoints ?
+                        recentStatistics.gameRecentStatistics.totalPoints -
+                        recentStatistics.gameRecentStatistics.pointsWon : "0" }}</div>
+                </div>
+                <div class="statistics-body">
+                    <div class="percentage-bar statistic-left" :style="{ width: `${pointsWonWidth}%` }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: `${pointsLossWidth}%` }"></div>
+                </div>
+                <div class="statistics-title">
+                    <div :style="{ fontWeight: 'bold' }">{{ shortestRallyDecorated }}</div>
+                    <div class="grow center" :style="{ fontWeight: 'bold', textAlign: 'center' }">SHORTEST / LONGEST
+                        RALLY</div>
+                    <div :style="{ fontWeight: 'bold', textAlign: 'right' }">{{ longestRallyDecorated }}</div>
+                </div>
+                <div class="statistics-body">
+                    <div class="percentage-bar statistic-left" :style="{ width: `${shortestRallyWidth}%` }"></div>
+                    <div class="percentage-bar statistic-right" :style="{ width: `${longestRallyWidth}%` }"></div>
+                </div>
+                <div class="statistics-title" :style="{ justifyContent: 'space-between' }">
+                    <div :style="{ fontWeight: 'bold' }">AVG TIME / POINT:</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ avgTimePerPointDecorated }}</div>
+                </div>
+                <div class="statistics-title" :style="{ justifyContent: 'space-between' }">
+                    <div :style="{ fontWeight: 'bold' }">AVG TIME / POINT WON:</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ avgTimePerPointWonDecorated }}</div>
+                </div>
+                <div class="statistics-title" :style="{ justifyContent: 'space-between' }">
+                    <div :style="{ fontWeight: 'bold' }">AVG TIME / POINT LOST:</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ avgTimePerPointLostDecorated }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,11 +243,55 @@ const updatedAtDecorated = computed(() => {
 .statistic-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: bold;
+    text-decoration: underline;
 }
 
 .mt {
     margin-top: 2rem;
+}
+
+.comparison-container {
+    display: flex;
+    width: 100%;
+    margin-top: 10px;
+    color: #DCEBFF;
+}
+
+.comparison-bar {
+    padding: 2px;
+}
+
+.statistics-title {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 15px;
+}
+
+.statistics-body {
+    display: flex;
+    min-width: 100%;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.percentage-bar {
+    min-height: 20px;
+}
+
+.statistic-left {
+    background-color: #4A90E2;
+}
+
+.statistic-right {
+    background-color: #27AE60;
 }
 </style>
