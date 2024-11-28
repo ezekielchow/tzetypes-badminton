@@ -5,6 +5,7 @@ import (
 	"common/oapiprivate"
 	"context"
 	"database/sql"
+	"log"
 	"strings"
 	"time"
 )
@@ -38,6 +39,13 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 	}
 	gh.GameWonBy = string(wonBy)
 
+	// Did win game
+	if (strings.Contains(playerPosition, "right") && strings.Contains(gh.GameWonBy, "right")) || (strings.Contains(playerPosition, "left") && strings.Contains(gh.GameWonBy, "left")) {
+		gh.IsGameWon = 1
+	} else {
+		gh.IsGameWon = 0
+	}
+
 	// Initialize variables
 	totalTimeWinningPoints := 0
 	totalWinningPoints := 0
@@ -53,8 +61,8 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 		step := gameSteps[i]
 		diffSeconds := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
 
-		isPlayerWinningPoint := (playerPosition == "left" && step.TeamLeftScore > previous.TeamLeftScore) ||
-			(playerPosition == "right" && step.TeamRightScore > previous.TeamRightScore)
+		isPlayerWinningPoint := (strings.Contains(playerPosition, "left") && step.TeamLeftScore > previous.TeamLeftScore) ||
+			(strings.Contains(playerPosition, "right") && step.TeamRightScore > previous.TeamRightScore)
 
 		// Track points won and lost
 		if isPlayerWinningPoint {
@@ -69,6 +77,7 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 
 		// Track longest rally
 		if diffSeconds > gh.LongestRallySeconds {
+			log.Println("helo?", isPlayerWinningPoint, playerPosition)
 			gh.LongestRallySeconds = diffSeconds
 			gh.LongestRallyIsWon = boolToInt(isPlayerWinningPoint)
 		}
@@ -136,6 +145,7 @@ func (gs GameService) CreateOrUpdateGameHistory(ctx context.Context, input oapip
 	now := time.Now()
 	grs.NeedsRegenerating = 1
 	grs.UpdatedAt = &now
+	grs.UserID = user.ID
 
 	_, err = gs.GameStore.CreateOrUpdateGameRecentStatistic(ctx, &tx, grs)
 	if err != nil {

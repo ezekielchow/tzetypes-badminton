@@ -19,6 +19,8 @@ func getRecentStatistics(ctx context.Context, gs GameService, userId string) (mo
 		return models.GameRecentStatistic{}, err
 	}
 
+	grs.NeedsRegenerating = 0
+	grs.UserID = userId
 	grs.GameCount = len(histories)
 
 	totalTimePerPoints := 0

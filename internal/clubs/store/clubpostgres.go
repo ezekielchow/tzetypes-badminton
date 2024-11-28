@@ -14,13 +14,17 @@ type ClubPostgres struct {
 }
 
 func (cp ClubPostgres) CreateClub(ctx context.Context, tx *pgx.Tx, toCreate models.Club) (models.Club, error) {
+	queries := cp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgOwnerID, err := utils.StringToPgId(toCreate.OwnerID)
 	if err != nil {
 		return models.Club{}, err
 	}
 
-	created, err := cp.Queries.CreateClub(ctx, database.CreateClubParams{
+	created, err := queries.CreateClub(ctx, database.CreateClubParams{
 		OwnerID: pgOwnerID,
 		Name:    toCreate.Name,
 	})
@@ -39,6 +43,11 @@ func (cp ClubPostgres) CreateClub(ctx context.Context, tx *pgx.Tx, toCreate mode
 }
 
 func (cp ClubPostgres) AddPlayerToClub(ctx context.Context, tx *pgx.Tx, playerID string, clubID string) error {
+	queries := cp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgPlayerID, err := utils.StringToPgId(playerID)
 	if err != nil {
 		return err
@@ -49,7 +58,7 @@ func (cp ClubPostgres) AddPlayerToClub(ctx context.Context, tx *pgx.Tx, playerID
 		return err
 	}
 
-	err = cp.Queries.AddPlayerToClub(ctx, database.AddPlayerToClubParams{
+	err = queries.AddPlayerToClub(ctx, database.AddPlayerToClubParams{
 		PlayerID: pgPlayerID,
 		ClubID:   pgClubID,
 	})
@@ -62,12 +71,17 @@ func (cp ClubPostgres) AddPlayerToClub(ctx context.Context, tx *pgx.Tx, playerID
 }
 
 func (cp ClubPostgres) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
+	queries := cp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgOwnerID, err := utils.StringToPgId(ownerID)
 	if err != nil {
 		return models.Club{}, err
 	}
 
-	pgClub, err := cp.Queries.GetClubGivenOwnerId(ctx, pgOwnerID)
+	pgClub, err := queries.GetClubGivenOwnerId(ctx, pgOwnerID)
 	if err != nil {
 		return models.Club{}, err
 	}
@@ -82,6 +96,11 @@ func (cp ClubPostgres) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, owne
 }
 
 func (cp ClubPostgres) FindPlayerInClub(ctx context.Context, tx *pgx.Tx, clubID string, playerID string) (models.PlayerClub, error) {
+	queries := cp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgClubID, err := utils.StringToPgId(clubID)
 	if err != nil {
 		return models.PlayerClub{}, err
@@ -92,7 +111,7 @@ func (cp ClubPostgres) FindPlayerInClub(ctx context.Context, tx *pgx.Tx, clubID 
 		return models.PlayerClub{}, err
 	}
 
-	dbPlayerClub, err := cp.Queries.FindPlayerInClub(ctx, database.FindPlayerInClubParams{
+	dbPlayerClub, err := queries.FindPlayerInClub(ctx, database.FindPlayerInClubParams{
 		ClubID:   pgClubID,
 		PlayerID: pgPlayerID,
 	})

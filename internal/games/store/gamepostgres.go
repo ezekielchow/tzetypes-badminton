@@ -4,6 +4,7 @@ import (
 	"common/models"
 	"common/utils"
 	"context"
+	"log"
 	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
@@ -15,6 +16,11 @@ type GamePostgres struct {
 }
 
 func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate models.Game) (models.Game, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgClubID, err := utils.StringToPgId(toCreate.ClubID)
 	if err != nil {
 		return models.Game{}, err
@@ -25,7 +31,7 @@ func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate mode
 		return models.Game{}, err
 	}
 
-	dbGame, err := gp.Queries.CreateGame(ctx, database.CreateGameParams{
+	dbGame, err := queries.CreateGame(ctx, database.CreateGameParams{
 		ClubID:              pgClubID,
 		LeftOddPlayerName:   *toCreate.LeftOddPlayerName,
 		LeftEvenPlayerName:  toCreate.LeftEvenPlayerName,
@@ -50,6 +56,10 @@ func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate mode
 }
 
 func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate models.GameStep) (models.GameStep, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgGameID, err := utils.StringToPgId(toCreate.GameID)
 	if err != nil {
@@ -62,7 +72,7 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 		return models.GameStep{}, err
 	}
 
-	dbGameStep, err := gp.Queries.CreateGameStep(ctx, database.CreateGameStepParams{
+	dbGameStep, err := queries.CreateGameStep(ctx, database.CreateGameStepParams{
 		GameID:              pgGameID,
 		TeamLeftScore:       int32(toCreate.TeamLeftScore),
 		TeamRightScore:      int32(toCreate.TeamRightScore),
@@ -89,12 +99,17 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 }
 
 func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string) error {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return err
 	}
 
-	err = gp.Queries.DeleteGameStep(ctx, pgID)
+	err = queries.DeleteGameStep(ctx, pgID)
 	if err != nil {
 		return err
 	}
@@ -103,12 +118,17 @@ func (gp GamePostgres) DeleteGameStep(ctx context.Context, tx *pgx.Tx, id string
 }
 
 func (gp GamePostgres) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnded bool) error {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return err
 	}
 
-	err = gp.Queries.EndGame(ctx, database.EndGameParams{
+	err = queries.EndGame(ctx, database.EndGameParams{
 		IsEnded: isEnded,
 		ID:      pgID,
 	})
@@ -120,13 +140,17 @@ func (gp GamePostgres) EndGame(ctx context.Context, tx *pgx.Tx, id string, isEnd
 }
 
 func (gp GamePostgres) GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgID, err := utils.StringToPgId(id)
 	if err != nil {
 		return models.Game{}, err
 	}
 
-	res, err := gp.Queries.GetGameWithID(ctx, pgID)
+	res, err := queries.GetGameWithID(ctx, pgID)
 	if err != nil {
 		return models.Game{}, err
 	}
@@ -141,12 +165,17 @@ func (gp GamePostgres) GetGame(ctx context.Context, tx *pgx.Tx, id string) (mode
 }
 
 func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID string) ([]models.GameStep, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgGameID, err := utils.StringToPgId(gameID)
 	if err != nil {
 		return []models.GameStep{}, err
 	}
 
-	res, err := gp.Queries.GetGameStepsWithGameID(ctx, pgGameID)
+	res, err := queries.GetGameStepsWithGameID(ctx, pgGameID)
 	if err != nil {
 		return []models.GameStep{}, err
 	}
@@ -166,12 +195,17 @@ func (gp GamePostgres) GetGameSteps(ctx context.Context, tx *pgx.Tx, gameID stri
 }
 
 func (gp GamePostgres) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID string, toCreate models.GameStatistic) (models.GameStatistic, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgGameID, err := utils.StringToPgId(gameID)
 	if err != nil {
 		return models.GameStatistic{}, err
 	}
 
-	dbRes, err := gp.Queries.CreateGameStatistic(ctx, database.CreateGameStatisticParams{
+	dbRes, err := queries.CreateGameStatistic(ctx, database.CreateGameStatisticParams{
 		GameID:                          pgGameID,
 		TotalGameTimeSeconds:            int32(toCreate.TotalGameTimeSeconds),
 		RightConsecutivePoints:          int32(toCreate.RightConsecutivePoints),
@@ -198,13 +232,17 @@ func (gp GamePostgres) CreateStatistic(ctx context.Context, tx *pgx.Tx, gameID s
 }
 
 func (gp GamePostgres) GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, gameID string) (models.GameStatistic, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgGameID, err := utils.StringToPgId(gameID)
 	if err != nil {
 		return models.GameStatistic{}, err
 	}
 
-	dbRes, err := gp.Queries.GetGameStatisticsWithGameID(ctx, pgGameID)
+	dbRes, err := queries.GetGameStatisticsWithGameID(ctx, pgGameID)
 	if err != nil {
 		return models.GameStatistic{}, err
 	}
@@ -219,6 +257,11 @@ func (gp GamePostgres) GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, 
 }
 
 func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx, toCreate models.GameHistory) (models.GameHistory, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgUserID, err := utils.StringToPgId(toCreate.UserID)
 	if err != nil {
 		return models.GameHistory{}, err
@@ -234,7 +277,7 @@ func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx
 		return models.GameHistory{}, err
 	}
 
-	dbRes, err := gp.Queries.CreateOrUpdateGameHistory(ctx, database.CreateOrUpdateGameHistoryParams{
+	dbRes, err := queries.CreateOrUpdateGameHistory(ctx, database.CreateOrUpdateGameHistoryParams{
 		UserID:                         pgUserID,
 		GameID:                         pgGameID,
 		PlayerPosition:                 toCreate.PlayerPosition,
@@ -266,6 +309,10 @@ func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx
 }
 
 func (gp GamePostgres) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, tx *pgx.Tx, userID string, gameID string) (models.GameHistory, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
 
 	pgUserID, err := utils.StringToPgId(userID)
 	if err != nil {
@@ -277,7 +324,7 @@ func (gp GamePostgres) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, t
 		return models.GameHistory{}, err
 	}
 
-	dbRes, err := gp.Queries.GetGameHistoryGivenUserIdAndGameId(ctx, database.GetGameHistoryGivenUserIdAndGameIdParams{
+	dbRes, err := queries.GetGameHistoryGivenUserIdAndGameId(ctx, database.GetGameHistoryGivenUserIdAndGameIdParams{
 		UserID: pgUserID,
 		GameID: pgGameID,
 	})
@@ -295,12 +342,19 @@ func (gp GamePostgres) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, t
 }
 
 func (gp GamePostgres) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx *pgx.Tx, toCreate models.GameRecentStatistic) (models.GameRecentStatistic, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	log.Printf("eh???? %+v", toCreate)
+
 	pgUserID, err := utils.StringToPgId(toCreate.UserID)
 	if err != nil {
 		return models.GameRecentStatistic{}, err
 	}
 
-	dbRes, err := gp.Queries.CreateOrUpdateGameRecentStatistic(ctx, database.CreateOrUpdateGameRecentStatisticParams{
+	dbRes, err := queries.CreateOrUpdateGameRecentStatistic(ctx, database.CreateOrUpdateGameRecentStatisticParams{
 		UserID:                         pgUserID,
 		GameCount:                      int32(toCreate.GameCount),
 		Wins:                           int32(toCreate.Wins),
@@ -330,12 +384,17 @@ func (gp GamePostgres) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx
 }
 
 func (gp GamePostgres) GetGameRecentStatisticWithUserId(ctx context.Context, tx *pgx.Tx, userID string) (models.GameRecentStatistic, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgUserID, err := utils.StringToPgId(userID)
 	if err != nil {
 		return models.GameRecentStatistic{}, err
 	}
 
-	dbRes, err := gp.Queries.GetGameRecentStatisticWithUserId(ctx, pgUserID)
+	dbRes, err := queries.GetGameRecentStatisticWithUserId(ctx, pgUserID)
 	if err != nil {
 		return models.GameRecentStatistic{}, err
 	}
@@ -350,7 +409,12 @@ func (gp GamePostgres) GetGameRecentStatisticWithUserId(ctx context.Context, tx 
 }
 
 func (gp GamePostgres) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context, tx *pgx.Tx) ([]models.GameRecentStatistic, error) {
-	dbRes, err := gp.Queries.GetGameRecentStatisticThatNeedsRegeneration(ctx)
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	dbRes, err := queries.GetGameRecentStatisticThatNeedsRegeneration(ctx)
 	if err != nil {
 		return []models.GameRecentStatistic{}, err
 	}
@@ -369,12 +433,17 @@ func (gp GamePostgres) GetGameRecentStatisticThatNeedsRegeneration(ctx context.C
 }
 
 func (gp GamePostgres) GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	pgUserID, err := utils.StringToPgId(userID)
 	if err != nil {
 		return []models.GameHistory{}, err
 	}
 
-	dbRes, err := gp.Queries.GetMostRecentGameHistories(ctx, pgUserID)
+	dbRes, err := queries.GetMostRecentGameHistories(ctx, pgUserID)
 	if err != nil {
 		return []models.GameHistory{}, err
 	}
@@ -393,6 +462,11 @@ func (gp GamePostgres) GetMostRecentGameHistories(ctx context.Context, tx *pgx.T
 }
 
 func (gp GamePostgres) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
 	ids := []pgtype.UUID{}
 	for _, gameId := range gameIDs {
 		id, err := utils.StringToPgId(gameId)
@@ -403,7 +477,7 @@ func (gp GamePostgres) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx,
 		ids = append(ids, id)
 	}
 
-	dbRes, err := gp.Queries.GetGameStepsGivenGameIds(ctx, ids)
+	dbRes, err := queries.GetGameStepsGivenGameIds(ctx, ids)
 	if err != nil {
 		return []models.GameStep{}, nil
 	}

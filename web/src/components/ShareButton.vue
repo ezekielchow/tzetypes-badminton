@@ -15,7 +15,6 @@ const shareContent = async () => {
                 text: props.text,
                 url: props.url,
             });
-            console.log("Content shared successfully!");
         } catch (err) {
             console.error("Error sharing:", err);
         }
