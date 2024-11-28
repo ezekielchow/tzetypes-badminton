@@ -18,4 +18,9 @@ type GameRepository interface {
 	GetStatisticsWithGameId(ctx context.Context, tx *pgx.Tx, gameID string) (models.GameStatistic, error)
 	CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx, toCreate models.GameHistory) (models.GameHistory, error)
 	GetGameHistoryGivenUserIdAndGameId(ctx context.Context, tx *pgx.Tx, userID string, gameID string) (models.GameHistory, error)
+	CreateOrUpdateGameRecentStatistic(ctx context.Context, tx *pgx.Tx, toCreate models.GameRecentStatistic) (models.GameRecentStatistic, error)
+	GetGameRecentStatisticWithUserId(ctx context.Context, tx *pgx.Tx, userID string) (models.GameRecentStatistic, error)
+	GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context, tx *pgx.Tx) ([]models.GameRecentStatistic, error)
+	GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error)
+	GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error)
 }

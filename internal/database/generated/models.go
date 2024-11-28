@@ -31,12 +31,45 @@ type Game struct {
 }
 
 type GameHistory struct {
-	ID             pgtype.UUID
-	UserID         pgtype.UUID
-	GameID         pgtype.UUID
-	PlayerPosition string
-	CreatedAt      pgtype.Timestamp
-	UpdatedAt      pgtype.Timestamp
+	ID                             pgtype.UUID
+	UserID                         pgtype.UUID
+	GameID                         pgtype.UUID
+	PlayerPosition                 string
+	IsGameWon                      int32
+	GameStartedAt                  pgtype.Timestamp
+	GameWonBy                      string
+	TotalPoints                    int32
+	PointsWon                      int32
+	PointsLost                     int32
+	AverageTimePerPointSeconds     int32
+	AverageTimePerPointWonSeconds  int32
+	AverageTimePerPointLostSeconds int32
+	LongestRallySeconds            int32
+	LongestRallyIsWon              int32
+	ShortestRallySeconds           int32
+	ShortestRallyIsWon             int32
+	CreatedAt                      pgtype.Timestamp
+	UpdatedAt                      pgtype.Timestamp
+}
+
+type GameRecentStatistic struct {
+	ID                             pgtype.UUID
+	UserID                         pgtype.UUID
+	GameCount                      *int32
+	Wins                           *int32
+	Losses                         *int32
+	TotalPoints                    *int32
+	PointsWon                      *int32
+	AverageTimePerPointSeconds     *int32
+	AverageTimePerPointWonSeconds  *int32
+	AverageTimePerPointLostSeconds *int32
+	LongestRallySeconds            *int32
+	LongestRallyIsWon              *int32
+	ShortestRallySeconds           *int32
+	ShortestRallyIsWon             *int32
+	NeedsRegenerating              *int32
+	CreatedAt                      pgtype.Timestamp
+	UpdatedAt                      pgtype.Timestamp
 }
 
 type GameStatistic struct {

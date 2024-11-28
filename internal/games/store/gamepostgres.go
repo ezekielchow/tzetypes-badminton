@@ -20,6 +20,11 @@ func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate mode
 		return models.Game{}, err
 	}
 
+	pgCreatedAt, err := utils.TimeToPgTimestamp(toCreate.CreatedAt)
+	if err != nil {
+		return models.Game{}, err
+	}
+
 	dbGame, err := gp.Queries.CreateGame(ctx, database.CreateGameParams{
 		ClubID:              pgClubID,
 		LeftOddPlayerName:   *toCreate.LeftOddPlayerName,
@@ -28,6 +33,7 @@ func (gp GamePostgres) CreateGame(ctx context.Context, tx *pgx.Tx, toCreate mode
 		RightEvenPlayerName: toCreate.RightEvenPlayerName,
 		GameType:            toCreate.GameType,
 		ServingSide:         toCreate.ServingSide,
+		CreatedAt:           pgCreatedAt,
 	})
 
 	if err != nil {
@@ -223,10 +229,28 @@ func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx
 		return models.GameHistory{}, err
 	}
 
+	pgGameStartedAt, err := utils.TimeToPgTimestamp(toCreate.GameStartedAt)
+	if err != nil {
+		return models.GameHistory{}, err
+	}
+
 	dbRes, err := gp.Queries.CreateOrUpdateGameHistory(ctx, database.CreateOrUpdateGameHistoryParams{
-		UserID:         pgUserID,
-		GameID:         pgGameID,
-		PlayerPosition: toCreate.PlayerPosition,
+		UserID:                         pgUserID,
+		GameID:                         pgGameID,
+		PlayerPosition:                 toCreate.PlayerPosition,
+		GameStartedAt:                  pgGameStartedAt,
+		GameWonBy:                      toCreate.GameWonBy,
+		TotalPoints:                    int32(toCreate.TotalPoints),
+		PointsWon:                      int32(toCreate.PointsWon),
+		PointsLost:                     int32(toCreate.PointsLost),
+		AverageTimePerPointSeconds:     int32(toCreate.AverageTimePerPointSeconds),
+		AverageTimePerPointWonSeconds:  int32(toCreate.AverageTimePerPointWonSeconds),
+		AverageTimePerPointLostSeconds: int32(toCreate.AverageTimePerPointLostSeconds),
+		LongestRallySeconds:            int32(toCreate.LongestRallySeconds),
+		LongestRallyIsWon:              int32(toCreate.LongestRallyIsWon),
+		ShortestRallySeconds:           int32(toCreate.ShortestRallySeconds),
+		ShortestRallyIsWon:             int32(toCreate.ShortestRallyIsWon),
+		IsGameWon:                      int32(toCreate.IsGameWon),
 	})
 	if err != nil {
 		return models.GameHistory{}, err
@@ -268,4 +292,131 @@ func (gp GamePostgres) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, t
 	}
 
 	return gameHistory, nil
+}
+
+func (gp GamePostgres) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx *pgx.Tx, toCreate models.GameRecentStatistic) (models.GameRecentStatistic, error) {
+	pgUserID, err := utils.StringToPgId(toCreate.UserID)
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	dbRes, err := gp.Queries.CreateOrUpdateGameRecentStatistic(ctx, database.CreateOrUpdateGameRecentStatisticParams{
+		UserID:                         pgUserID,
+		GameCount:                      int32(toCreate.GameCount),
+		Wins:                           int32(toCreate.Wins),
+		Losses:                         int32(toCreate.Losses),
+		TotalPoints:                    int32(toCreate.TotalPoints),
+		PointsWon:                      int32(toCreate.PointsWon),
+		AverageTimePerPointSeconds:     int32(toCreate.AverageTimePerPointSeconds),
+		AverageTimePerPointWonSeconds:  int32(toCreate.AverageTimePerPointWonSeconds),
+		AverageTimePerPointLostSeconds: int32(toCreate.AverageTimePerPointLostSeconds),
+		LongestRallySeconds:            int32(toCreate.LongestRallySeconds),
+		LongestRallyIsWon:              int32(toCreate.LongestRallyIsWon),
+		ShortestRallySeconds:           int32(toCreate.ShortestRallySeconds),
+		ShortestRallyIsWon:             int32(toCreate.ShortestRallyIsWon),
+		NeedsRegenerating:              int32(toCreate.NeedsRegenerating),
+	})
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	grs := models.GameRecentStatistic{}
+	err = grs.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	return grs, nil
+}
+
+func (gp GamePostgres) GetGameRecentStatisticWithUserId(ctx context.Context, tx *pgx.Tx, userID string) (models.GameRecentStatistic, error) {
+	pgUserID, err := utils.StringToPgId(userID)
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	dbRes, err := gp.Queries.GetGameRecentStatisticWithUserId(ctx, pgUserID)
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	grs := models.GameRecentStatistic{}
+	err = grs.PostgresToModel(dbRes)
+	if err != nil {
+		return models.GameRecentStatistic{}, err
+	}
+
+	return grs, nil
+}
+
+func (gp GamePostgres) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context, tx *pgx.Tx) ([]models.GameRecentStatistic, error) {
+	dbRes, err := gp.Queries.GetGameRecentStatisticThatNeedsRegeneration(ctx)
+	if err != nil {
+		return []models.GameRecentStatistic{}, err
+	}
+
+	grsArray := []models.GameRecentStatistic{}
+	for _, res := range dbRes {
+		grs := models.GameRecentStatistic{}
+		err = grs.PostgresToModel(res)
+		if err != nil {
+			return []models.GameRecentStatistic{}, err
+		}
+
+		grsArray = append(grsArray, grs)
+	}
+	return grsArray, nil
+}
+
+func (gp GamePostgres) GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error) {
+	pgUserID, err := utils.StringToPgId(userID)
+	if err != nil {
+		return []models.GameHistory{}, err
+	}
+
+	dbRes, err := gp.Queries.GetMostRecentGameHistories(ctx, pgUserID)
+	if err != nil {
+		return []models.GameHistory{}, err
+	}
+
+	ghArray := []models.GameHistory{}
+	for _, res := range dbRes {
+		gh := models.GameHistory{}
+		err = gh.PostgresToModel(res)
+		if err != nil {
+			return []models.GameHistory{}, err
+		}
+
+		ghArray = append(ghArray, gh)
+	}
+	return ghArray, nil
+}
+
+func (gp GamePostgres) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error) {
+	ids := []pgtype.UUID{}
+	for _, gameId := range gameIDs {
+		id, err := utils.StringToPgId(gameId)
+		if err != nil {
+			return []models.GameStep{}, nil
+		}
+
+		ids = append(ids, id)
+	}
+
+	dbRes, err := gp.Queries.GetGameStepsGivenGameIds(ctx, ids)
+	if err != nil {
+		return []models.GameStep{}, nil
+	}
+
+	gsArray := []models.GameStep{}
+	for _, res := range dbRes {
+		gs := models.GameStep{}
+		err = gs.PostgresToModel(res)
+		if err != nil {
+			return []models.GameStep{}, err
+		}
+
+		gsArray = append(gsArray, gs)
+	}
+	return gsArray, nil
 }

@@ -128,3 +128,7 @@ func (c Controller) GetGameHistory(ctx context.Context, input oapiprivate.GetGam
 
 	return c.Services.GameService.GetGameHistory(ctx, input, user)
 }
+
+func (c Controller) GenerateRecentStatistics(ctx context.Context, input oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error) {
+	return c.Services.GameService.GenerateRecentStatistics(ctx, input)
+}

@@ -62,6 +62,8 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 		rightOddPlayerName = *input.Body.RightOddPlayerName
 	}
 
+	gameStartedAt := time.Now()
+
 	game, err := gs.GameStore.CreateGame(ctx, &tx, models.Game{
 		ClubID:              club.ID,
 		LeftOddPlayerName:   &leftOddPlayerName,
@@ -70,6 +72,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 		RightEvenPlayerName: input.Body.RightEvenPlayerName,
 		GameType:            string(input.Body.GameType),
 		ServingSide:         string(input.Body.ServingSide),
+		CreatedAt:           gameStartedAt,
 	})
 	if err != nil {
 		return nil, err
@@ -79,7 +82,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 		GameID:              game.ID,
 		TeamLeftScore:       0,
 		TeamRightScore:      0,
-		ScoreAt:             time.Now(),
+		ScoreAt:             gameStartedAt,
 		StepNum:             1,
 		CurrentServer:       string(input.Body.ServingSide),
 		LeftOddPlayerName:   &leftOddPlayerName,

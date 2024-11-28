@@ -19,7 +19,8 @@ INSERT INTO games (
     right_odd_player_name,
     right_even_player_name,
     game_type,
-    serving_side
+    serving_side,
+    created_at
 ) VALUES (
     $1::uuid,
     $2::text,
@@ -27,7 +28,8 @@ INSERT INTO games (
     $4::text,
     $5::text,
     $6::text,
-    $7::text
+    $7::text,
+    $8
 ) RETURNING id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, is_ended, created_at, updated_at
 `
 
@@ -39,6 +41,7 @@ type CreateGameParams struct {
 	RightEvenPlayerName string
 	GameType            string
 	ServingSide         string
+	CreatedAt           pgtype.Timestamp
 }
 
 func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, error) {
@@ -50,6 +53,7 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 		arg.RightEvenPlayerName,
 		arg.GameType,
 		arg.ServingSide,
+		arg.CreatedAt,
 	)
 	var i Game
 	err := row.Scan(
@@ -225,33 +229,223 @@ const createOrUpdateGameHistory = `-- name: CreateOrUpdateGameHistory :one
 INSERT INTO game_histories(
     user_id,
     game_id,
-    player_position
+    player_position,
+    game_started_at,
+    game_won_by,
+    total_points,
+    points_won,
+    points_lost,
+    average_time_per_point_seconds,
+    average_time_per_point_won_seconds,
+    average_time_per_point_lost_seconds,
+    longest_rally_seconds,
+    longest_rally_is_won,
+    shortest_rally_seconds,
+    shortest_rally_is_won,
+    is_game_won
 ) VALUES (
     $1::uuid,
     $2::uuid,
-    $3::text
+    $3::text,
+    $4,
+    $5::text,
+    $6::int,
+    $7::int,
+    $8::int,
+    $9::int,
+    $10::int,
+    $11::int,
+    $12::int,
+    $13::int,
+    $14::int,
+    $15::int,
+    $16::int
 ) 
 ON CONFLICT (user_id,game_id) DO UPDATE
     SET 
     player_position = EXCLUDED.player_position,
+    game_started_at = EXCLUDED.game_started_at,
+    game_won_by = EXCLUDED.game_won_by,
+    total_points = EXCLUDED.total_points,
+    points_won = EXCLUDED.points_won,
+    points_lost = EXCLUDED.points_lost,
+    average_time_per_point_seconds = EXCLUDED.average_time_per_point_seconds,
+    average_time_per_point_won_seconds = EXCLUDED.average_time_per_point_won_seconds,
+    average_time_per_point_lost_seconds = EXCLUDED.average_time_per_point_lost_seconds,
+    longest_rally_seconds = EXCLUDED.longest_rally_seconds,
+    longest_rally_is_won = EXCLUDED.longest_rally_is_won,
+    shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
+    shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
+    is_game_won = EXCLUDED.is_game_won,
     updated_at = now()
-RETURNING id, user_id, game_id, player_position, created_at, updated_at
+RETURNING id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at
 `
 
 type CreateOrUpdateGameHistoryParams struct {
-	UserID         pgtype.UUID
-	GameID         pgtype.UUID
-	PlayerPosition string
+	UserID                         pgtype.UUID
+	GameID                         pgtype.UUID
+	PlayerPosition                 string
+	GameStartedAt                  pgtype.Timestamp
+	GameWonBy                      string
+	TotalPoints                    int32
+	PointsWon                      int32
+	PointsLost                     int32
+	AverageTimePerPointSeconds     int32
+	AverageTimePerPointWonSeconds  int32
+	AverageTimePerPointLostSeconds int32
+	LongestRallySeconds            int32
+	LongestRallyIsWon              int32
+	ShortestRallySeconds           int32
+	ShortestRallyIsWon             int32
+	IsGameWon                      int32
 }
 
 func (q *Queries) CreateOrUpdateGameHistory(ctx context.Context, arg CreateOrUpdateGameHistoryParams) (GameHistory, error) {
-	row := q.db.QueryRow(ctx, createOrUpdateGameHistory, arg.UserID, arg.GameID, arg.PlayerPosition)
+	row := q.db.QueryRow(ctx, createOrUpdateGameHistory,
+		arg.UserID,
+		arg.GameID,
+		arg.PlayerPosition,
+		arg.GameStartedAt,
+		arg.GameWonBy,
+		arg.TotalPoints,
+		arg.PointsWon,
+		arg.PointsLost,
+		arg.AverageTimePerPointSeconds,
+		arg.AverageTimePerPointWonSeconds,
+		arg.AverageTimePerPointLostSeconds,
+		arg.LongestRallySeconds,
+		arg.LongestRallyIsWon,
+		arg.ShortestRallySeconds,
+		arg.ShortestRallyIsWon,
+		arg.IsGameWon,
+	)
 	var i GameHistory
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.GameID,
 		&i.PlayerPosition,
+		&i.IsGameWon,
+		&i.GameStartedAt,
+		&i.GameWonBy,
+		&i.TotalPoints,
+		&i.PointsWon,
+		&i.PointsLost,
+		&i.AverageTimePerPointSeconds,
+		&i.AverageTimePerPointWonSeconds,
+		&i.AverageTimePerPointLostSeconds,
+		&i.LongestRallySeconds,
+		&i.LongestRallyIsWon,
+		&i.ShortestRallySeconds,
+		&i.ShortestRallyIsWon,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createOrUpdateGameRecentStatistic = `-- name: CreateOrUpdateGameRecentStatistic :one
+INSERT INTO game_recent_statistics(
+    user_id,
+    game_count,
+    wins,
+    losses,
+    total_points,
+    points_won,
+    average_time_per_point_seconds,
+    average_time_per_point_won_seconds,
+    average_time_per_point_lost_seconds,
+    longest_rally_seconds,
+    longest_rally_is_won,
+    shortest_rally_seconds,
+    shortest_rally_is_won,
+    needs_regenerating
+) VALUES (
+    $1::uuid,
+    $2::int,
+    $3::int,
+    $4::int,
+    $5::int,
+    $6::int,
+    $7::int,
+    $8::int,
+    $9::int,
+    $10::int,
+    $11::int,
+    $12::int,
+    $13::int,
+    $14::int
+) 
+ON CONFLICT (user_id) DO UPDATE
+    SET 
+    game_count = EXCLUDED.game_count,
+    wins = EXCLUDED.wins,
+    losses = EXCLUDED.losses,
+    total_points = EXCLUDED.total_points,
+    points_won = EXCLUDED.points_won,
+    average_time_per_point_seconds = EXCLUDED.average_time_per_point_seconds, 
+    average_time_per_point_won_seconds = EXCLUDED.average_time_per_point_won_seconds,
+    average_time_per_point_lost_seconds = EXCLUDED.average_time_per_point_lost_seconds,
+    longest_rally_seconds = EXCLUDED.longest_rally_seconds,
+    longest_rally_is_won = EXCLUDED.longest_rally_is_won,
+    shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
+    shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
+    needs_regenerating = EXCLUDED.needs_regenerating,
+    updated_at = now()
+RETURNING id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at
+`
+
+type CreateOrUpdateGameRecentStatisticParams struct {
+	UserID                         pgtype.UUID
+	GameCount                      int32
+	Wins                           int32
+	Losses                         int32
+	TotalPoints                    int32
+	PointsWon                      int32
+	AverageTimePerPointSeconds     int32
+	AverageTimePerPointWonSeconds  int32
+	AverageTimePerPointLostSeconds int32
+	LongestRallySeconds            int32
+	LongestRallyIsWon              int32
+	ShortestRallySeconds           int32
+	ShortestRallyIsWon             int32
+	NeedsRegenerating              int32
+}
+
+func (q *Queries) CreateOrUpdateGameRecentStatistic(ctx context.Context, arg CreateOrUpdateGameRecentStatisticParams) (GameRecentStatistic, error) {
+	row := q.db.QueryRow(ctx, createOrUpdateGameRecentStatistic,
+		arg.UserID,
+		arg.GameCount,
+		arg.Wins,
+		arg.Losses,
+		arg.TotalPoints,
+		arg.PointsWon,
+		arg.AverageTimePerPointSeconds,
+		arg.AverageTimePerPointWonSeconds,
+		arg.AverageTimePerPointLostSeconds,
+		arg.LongestRallySeconds,
+		arg.LongestRallyIsWon,
+		arg.ShortestRallySeconds,
+		arg.ShortestRallyIsWon,
+		arg.NeedsRegenerating,
+	)
+	var i GameRecentStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.GameCount,
+		&i.Wins,
+		&i.Losses,
+		&i.TotalPoints,
+		&i.PointsWon,
+		&i.AverageTimePerPointSeconds,
+		&i.AverageTimePerPointWonSeconds,
+		&i.AverageTimePerPointLostSeconds,
+		&i.LongestRallySeconds,
+		&i.LongestRallyIsWon,
+		&i.ShortestRallySeconds,
+		&i.ShortestRallyIsWon,
+		&i.NeedsRegenerating,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -283,7 +477,7 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 }
 
 const getGameHistoryGivenUserIdAndGameId = `-- name: GetGameHistoryGivenUserIdAndGameId :one
-SELECT id, user_id, game_id, player_position, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
+SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
 `
 
 type GetGameHistoryGivenUserIdAndGameIdParams struct {
@@ -299,6 +493,90 @@ func (q *Queries) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, arg Ge
 		&i.UserID,
 		&i.GameID,
 		&i.PlayerPosition,
+		&i.IsGameWon,
+		&i.GameStartedAt,
+		&i.GameWonBy,
+		&i.TotalPoints,
+		&i.PointsWon,
+		&i.PointsLost,
+		&i.AverageTimePerPointSeconds,
+		&i.AverageTimePerPointWonSeconds,
+		&i.AverageTimePerPointLostSeconds,
+		&i.LongestRallySeconds,
+		&i.LongestRallyIsWon,
+		&i.ShortestRallySeconds,
+		&i.ShortestRallyIsWon,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getGameRecentStatisticThatNeedsRegeneration = `-- name: GetGameRecentStatisticThatNeedsRegeneration :many
+SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE needs_regenerating = 1 limit 10
+`
+
+func (q *Queries) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context) ([]GameRecentStatistic, error) {
+	rows, err := q.db.Query(ctx, getGameRecentStatisticThatNeedsRegeneration)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameRecentStatistic
+	for rows.Next() {
+		var i GameRecentStatistic
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.GameCount,
+			&i.Wins,
+			&i.Losses,
+			&i.TotalPoints,
+			&i.PointsWon,
+			&i.AverageTimePerPointSeconds,
+			&i.AverageTimePerPointWonSeconds,
+			&i.AverageTimePerPointLostSeconds,
+			&i.LongestRallySeconds,
+			&i.LongestRallyIsWon,
+			&i.ShortestRallySeconds,
+			&i.ShortestRallyIsWon,
+			&i.NeedsRegenerating,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameRecentStatisticWithUserId = `-- name: GetGameRecentStatisticWithUserId :one
+SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE user_id = $1::uuid limit 1
+`
+
+func (q *Queries) GetGameRecentStatisticWithUserId(ctx context.Context, userID pgtype.UUID) (GameRecentStatistic, error) {
+	row := q.db.QueryRow(ctx, getGameRecentStatisticWithUserId, userID)
+	var i GameRecentStatistic
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.GameCount,
+		&i.Wins,
+		&i.Losses,
+		&i.TotalPoints,
+		&i.PointsWon,
+		&i.AverageTimePerPointSeconds,
+		&i.AverageTimePerPointWonSeconds,
+		&i.AverageTimePerPointLostSeconds,
+		&i.LongestRallySeconds,
+		&i.LongestRallyIsWon,
+		&i.ShortestRallySeconds,
+		&i.ShortestRallyIsWon,
+		&i.NeedsRegenerating,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -329,6 +607,45 @@ func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getGameStepsGivenGameIds = `-- name: GetGameStepsGivenGameIds :many
+SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at from game_steps WHERE game_id = ANY($1::uuid[])
+`
+
+func (q *Queries) GetGameStepsGivenGameIds(ctx context.Context, gameIds []pgtype.UUID) ([]GameStep, error) {
+	rows, err := q.db.Query(ctx, getGameStepsGivenGameIds, gameIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameStep
+	for rows.Next() {
+		var i GameStep
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.TeamLeftScore,
+			&i.TeamRightScore,
+			&i.ScoreAt,
+			&i.StepNum,
+			&i.CurrentServer,
+			&i.LeftOddPlayerName,
+			&i.LeftEvenPlayerName,
+			&i.RightOddPlayerName,
+			&i.RightEvenPlayerName,
+			&i.SyncID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
@@ -392,4 +709,48 @@ func (q *Queries) GetGameWithID(ctx context.Context, id pgtype.UUID) (Game, erro
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getMostRecentGameHistories = `-- name: GetMostRecentGameHistories :many
+SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at from game_histories WHERE user_id = $1::uuid ORDER BY game_started_at DESC limit 12
+`
+
+func (q *Queries) GetMostRecentGameHistories(ctx context.Context, userID pgtype.UUID) ([]GameHistory, error) {
+	rows, err := q.db.Query(ctx, getMostRecentGameHistories, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameHistory
+	for rows.Next() {
+		var i GameHistory
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.GameID,
+			&i.PlayerPosition,
+			&i.IsGameWon,
+			&i.GameStartedAt,
+			&i.GameWonBy,
+			&i.TotalPoints,
+			&i.PointsWon,
+			&i.PointsLost,
+			&i.AverageTimePerPointSeconds,
+			&i.AverageTimePerPointWonSeconds,
+			&i.AverageTimePerPointLostSeconds,
+			&i.LongestRallySeconds,
+			&i.LongestRallyIsWon,
+			&i.ShortestRallySeconds,
+			&i.ShortestRallyIsWon,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
