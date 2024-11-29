@@ -48,6 +48,7 @@ type GameHistory struct {
 	LongestRallyIsWon              int32
 	ShortestRallySeconds           int32
 	ShortestRallyIsWon             int32
+	TotalGameTimeSeconds           int32
 	CreatedAt                      pgtype.Timestamp
 	UpdatedAt                      pgtype.Timestamp
 }
@@ -67,6 +68,7 @@ type GameRecentStatistic struct {
 	LongestRallyIsWon              *int32
 	ShortestRallySeconds           *int32
 	ShortestRallyIsWon             *int32
+	AverageTimePerGameSeconds      *int32
 	NeedsRegenerating              *int32
 	CreatedAt                      pgtype.Timestamp
 	UpdatedAt                      pgtype.Timestamp

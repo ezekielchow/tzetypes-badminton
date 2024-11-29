@@ -105,6 +105,12 @@ export interface GameRecentStatistic {
     shortestRallyIsWon: number;
     /**
      * 
+     * @type {number}
+     * @memberof GameRecentStatistic
+     */
+    averageTimePerGameSeconds: number;
+    /**
+     * 
      * @type {string}
      * @memberof GameRecentStatistic
      */
@@ -135,6 +141,7 @@ export function instanceOfGameRecentStatistic(value: object): value is GameRecen
     if (!('longestRallyIsWon' in value) || value['longestRallyIsWon'] === undefined) return false;
     if (!('shortestRallySeconds' in value) || value['shortestRallySeconds'] === undefined) return false;
     if (!('shortestRallyIsWon' in value) || value['shortestRallyIsWon'] === undefined) return false;
+    if (!('averageTimePerGameSeconds' in value) || value['averageTimePerGameSeconds'] === undefined) return false;
     if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
@@ -164,6 +171,7 @@ export function GameRecentStatisticFromJSONTyped(json: any, ignoreDiscriminator:
         'longestRallyIsWon': json['longest_rally_is_won'],
         'shortestRallySeconds': json['shortest_rally_seconds'],
         'shortestRallyIsWon': json['shortest_rally_is_won'],
+        'averageTimePerGameSeconds': json['average_time_per_game_seconds'],
         'createdAt': json['created_at'],
         'updatedAt': json['updated_at'],
     };
@@ -189,6 +197,7 @@ export function GameRecentStatisticToJSON(value?: GameRecentStatistic | null): a
         'longest_rally_is_won': value['longestRallyIsWon'],
         'shortest_rally_seconds': value['shortestRallySeconds'],
         'shortest_rally_is_won': value['shortestRallyIsWon'],
+        'average_time_per_game_seconds': value['averageTimePerGameSeconds'],
         'created_at': value['createdAt'],
         'updated_at': value['updatedAt'],
     };

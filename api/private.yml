@@ -452,6 +452,7 @@ components:
         - longest_rally_is_won
         - shortest_rally_seconds
         - shortest_rally_is_won
+        - average_time_per_game_seconds
         - created_at
         - updated_at
       properties:
@@ -482,6 +483,8 @@ components:
         shortest_rally_seconds:
           type: integer
         shortest_rally_is_won:
+          type: integer
+        average_time_per_game_seconds:
           type: integer
         created_at:
           type: string

@@ -17,6 +17,7 @@ const longestRallyWidth = ref(0)
 const avgTimePerPointDecorated = ref("")
 const avgTimePerPointWonDecorated = ref("")
 const avgTimePerPointLostDecorated = ref("")
+const avgTimePerGameDecorated = ref("")
 const showRecentStatisticsHint = ref(false)
 
 
@@ -59,6 +60,10 @@ const getRecentStatistics = async () => {
         const res = await gameStore.getRecentStatistics()
 
         const data = res as GetRecentStatistics200Response
+        if (data.gameRecentStatistics.wins === 0 && data.gameRecentStatistics.losses === 0) {
+            showRecentStatisticsHint.value = true
+            return
+        }
 
         recentStatistics.gameRecentStatistics = data.gameRecentStatistics
 
@@ -74,6 +79,7 @@ const getRecentStatistics = async () => {
         avgTimePerPointDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointSeconds)
         avgTimePerPointWonDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointWonSeconds)
         avgTimePerPointLostDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointLostSeconds)
+        avgTimePerGameDecorated.value = decorateSecondsWithHour(recentStatistics.gameRecentStatistics.averageTimePerGameSeconds)
 
     } catch (error: any) {
         showRecentStatisticsHint.value = true
@@ -121,6 +127,14 @@ const decorateSeconds = (seconds: number) => {
     const leftoverSeconds = seconds % 60
 
     return `${minutes}m ${leftoverSeconds}s`
+}
+
+const decorateSecondsWithHour = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const leftoverSeconds = seconds % 60
+
+    return hours > 0 ? `${hours}h ${minutes}m ${leftoverSeconds}s` : `${minutes}m ${leftoverSeconds}s`
 }
 
 </script>
@@ -201,6 +215,10 @@ const decorateSeconds = (seconds: number) => {
                 <div class="statistics-body">
                     <div class="percentage-bar statistic-left" :style="{ width: `${shortestRallyWidth}%` }"></div>
                     <div class="percentage-bar statistic-right" :style="{ width: `${longestRallyWidth}%` }"></div>
+                </div>
+                <div class="statistics-title" :style="{ justifyContent: 'space-between' }">
+                    <div :style="{ fontWeight: 'bold' }">AVG TIME / GAME:</div>
+                    <div :style="{ fontWeight: 'bold' }">{{ avgTimePerGameDecorated }}</div>
                 </div>
                 <div class="statistics-title" :style="{ justifyContent: 'space-between' }">
                     <div :style="{ fontWeight: 'bold' }">AVG TIME / POINT:</div>

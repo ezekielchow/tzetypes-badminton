@@ -24,6 +24,7 @@ type GameRecentStatistic struct {
 	ShortestRallySeconds           int
 	ShortestRallyIsWon             int
 	NeedsRegenerating              int
+	AverageTimePerGameSeconds      int
 	CreatedAt                      time.Time
 	UpdatedAt                      *time.Time
 }
@@ -54,6 +55,7 @@ func (grs *GameRecentStatistic) PostgresToModel(fromDb database.GameRecentStatis
 	grs.ShortestRallySeconds = int(*fromDb.ShortestRallySeconds)
 	grs.ShortestRallyIsWon = int(*fromDb.ShortestRallyIsWon)
 	grs.NeedsRegenerating = int(*fromDb.NeedsRegenerating)
+	grs.AverageTimePerGameSeconds = int(*fromDb.AverageTimePerGameSeconds)
 	grs.CreatedAt = fromDb.CreatedAt.Time
 	grs.UpdatedAt = &fromDb.UpdatedAt.Time
 	return nil
@@ -77,5 +79,6 @@ func (grs *GameRecentStatistic) ModelToAPI() oapiprivate.GameRecentStatistic {
 		UpdatedAt:                      grs.UpdatedAt.String(),
 		UserId:                         grs.UserID,
 		Wins:                           grs.Wins,
+		AverageTimePerGameSeconds:      grs.AverageTimePerGameSeconds,
 	}
 }

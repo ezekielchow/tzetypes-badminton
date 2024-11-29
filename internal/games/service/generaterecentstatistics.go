@@ -28,6 +28,7 @@ func getRecentStatistics(ctx context.Context, gs GameService, userId string) (mo
 	totalTimePerPointsLost := 0
 	grs.LongestRallySeconds = 0
 	grs.ShortestRallySeconds = int(^uint(0) >> 1)
+	grs.AverageTimePerGameSeconds = 0
 
 	for _, history := range histories {
 
@@ -39,6 +40,7 @@ func getRecentStatistics(ctx context.Context, gs GameService, userId string) (mo
 
 		grs.TotalPoints += history.TotalPoints
 		grs.PointsWon += history.PointsWon
+		grs.AverageTimePerGameSeconds += history.TotalGameTimeSeconds
 
 		totalTimePerPoints += history.AverageTimePerPointSeconds
 		totalTimePerPointsWon += history.AverageTimePerPointWonSeconds
@@ -55,6 +57,9 @@ func getRecentStatistics(ctx context.Context, gs GameService, userId string) (mo
 		}
 	}
 
+	if grs.AverageTimePerGameSeconds > 0 {
+		grs.AverageTimePerGameSeconds = grs.AverageTimePerGameSeconds / grs.GameCount
+	}
 	if totalTimePerPoints > 0 {
 		grs.AverageTimePerPointSeconds = totalTimePerPoints / grs.GameCount
 	}

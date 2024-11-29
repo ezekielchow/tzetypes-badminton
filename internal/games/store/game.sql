@@ -108,7 +108,8 @@ INSERT INTO game_histories(
     longest_rally_is_won,
     shortest_rally_seconds,
     shortest_rally_is_won,
-    is_game_won
+    is_game_won,
+    total_game_time_seconds
 ) VALUES (
     @user_id::uuid,
     @game_id::uuid,
@@ -125,7 +126,8 @@ INSERT INTO game_histories(
     @longest_rally_is_won::int,
     @shortest_rally_seconds::int,
     @shortest_rally_is_won::int,
-    @is_game_won::int
+    @is_game_won::int,
+    @total_game_time_seconds::int
 ) 
 ON CONFLICT (user_id,game_id) DO UPDATE
     SET 
@@ -143,6 +145,7 @@ ON CONFLICT (user_id,game_id) DO UPDATE
     shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
     shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
     is_game_won = EXCLUDED.is_game_won,
+    total_game_time_seconds = EXCLUDED.total_game_time_seconds,
     updated_at = now()
 RETURNING *;
 
@@ -164,6 +167,7 @@ INSERT INTO game_recent_statistics(
     longest_rally_is_won,
     shortest_rally_seconds,
     shortest_rally_is_won,
+    average_time_per_game_seconds,
     needs_regenerating
 ) VALUES (
     @user_id::uuid,
@@ -179,6 +183,7 @@ INSERT INTO game_recent_statistics(
     @longest_rally_is_won::int,
     @shortest_rally_seconds::int,
     @shortest_rally_is_won::int,
+    @average_time_per_game_seconds::int,
     @needs_regenerating::int
 ) 
 ON CONFLICT (user_id) DO UPDATE
@@ -195,6 +200,7 @@ ON CONFLICT (user_id) DO UPDATE
     longest_rally_is_won = EXCLUDED.longest_rally_is_won,
     shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
     shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
+    average_time_per_game_seconds = EXCLUDED.average_time_per_game_seconds,
     needs_regenerating = EXCLUDED.needs_regenerating,
     updated_at = now()
 RETURNING *;

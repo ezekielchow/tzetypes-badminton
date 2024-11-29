@@ -293,6 +293,7 @@ func (gp GamePostgres) CreateOrUpdateGameHistory(ctx context.Context, tx *pgx.Tx
 		ShortestRallySeconds:           int32(toCreate.ShortestRallySeconds),
 		ShortestRallyIsWon:             int32(toCreate.ShortestRallyIsWon),
 		IsGameWon:                      int32(toCreate.IsGameWon),
+		TotalGameTimeSeconds:           int32(toCreate.TotalGameTimeSeconds),
 	})
 	if err != nil {
 		return models.GameHistory{}, err
@@ -365,6 +366,7 @@ func (gp GamePostgres) CreateOrUpdateGameRecentStatistic(ctx context.Context, tx
 		LongestRallyIsWon:              int32(toCreate.LongestRallyIsWon),
 		ShortestRallySeconds:           int32(toCreate.ShortestRallySeconds),
 		ShortestRallyIsWon:             int32(toCreate.ShortestRallyIsWon),
+		AverageTimePerGameSeconds:      int32(toCreate.AverageTimePerGameSeconds),
 		NeedsRegenerating:              int32(toCreate.NeedsRegenerating),
 	})
 	if err != nil {

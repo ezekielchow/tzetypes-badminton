@@ -77,6 +77,7 @@ type GameHistory struct {
 
 // GameRecentStatistic defines model for GameRecentStatistic.
 type GameRecentStatistic struct {
+	AverageTimePerGameSeconds      int    `json:"average_time_per_game_seconds"`
 	AverageTimePerPointLostSeconds int    `json:"average_time_per_point_lost_seconds"`
 	AverageTimePerPointSeconds     int    `json:"average_time_per_point_seconds"`
 	AverageTimePerPointWonSeconds  int    `json:"average_time_per_point_won_seconds"`
