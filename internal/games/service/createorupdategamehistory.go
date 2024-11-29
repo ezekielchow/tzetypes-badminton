@@ -139,7 +139,7 @@ func (gs GameService) CreateOrUpdateGameHistory(ctx context.Context, input oapip
 	}
 
 	grs := models.GameRecentStatistic{}
-	if grs.ID != "" {
+	if dbGrs.ID != "" {
 		grs = dbGrs
 	}
 	now := time.Now()

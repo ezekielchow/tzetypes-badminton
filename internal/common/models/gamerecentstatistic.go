@@ -48,6 +48,7 @@ func (grs *GameRecentStatistic) PostgresToModel(fromDb database.GameRecentStatis
 	grs.PointsWon = int(*fromDb.PointsWon)
 	grs.AverageTimePerPointSeconds = int(*fromDb.AverageTimePerPointSeconds)
 	grs.AverageTimePerPointWonSeconds = int(*fromDb.AverageTimePerPointWonSeconds)
+	grs.AverageTimePerPointLostSeconds = int(*fromDb.AverageTimePerPointLostSeconds)
 	grs.LongestRallySeconds = int(*fromDb.LongestRallySeconds)
 	grs.LongestRallyIsWon = int(*fromDb.LongestRallyIsWon)
 	grs.ShortestRallySeconds = int(*fromDb.ShortestRallySeconds)
