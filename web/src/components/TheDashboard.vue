@@ -17,6 +17,8 @@ const longestRallyWidth = ref(0)
 const avgTimePerPointDecorated = ref("")
 const avgTimePerPointWonDecorated = ref("")
 const avgTimePerPointLostDecorated = ref("")
+const showRecentStatisticsHint = ref(false)
+
 
 const userStore = useUserStore()
 userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
@@ -52,29 +54,31 @@ const getUserEmail = async () => {
 }
 
 const getRecentStatistics = async () => {
-    const res = await gameStore.getRecentStatistics()
+    try {
 
-    if (res instanceof Error) {
-        errorMessage.value = res.message
+        const res = await gameStore.getRecentStatistics()
+
+        const data = res as GetRecentStatistics200Response
+
+        recentStatistics.gameRecentStatistics = data.gameRecentStatistics
+
+        winsWidth.value = recentStatistics.gameRecentStatistics.wins / (recentStatistics.gameRecentStatistics.wins + recentStatistics.gameRecentStatistics.losses) * 100
+        lossWidth.value = 100 - winsWidth.value
+
+        pointsWonWidth.value = (recentStatistics.gameRecentStatistics.pointsWon / recentStatistics.gameRecentStatistics.totalPoints) * 100
+        pointsLossWidth.value = 100 - pointsWonWidth.value
+
+        shortestRallyWidth.value = recentStatistics.gameRecentStatistics.shortestRallySeconds / (recentStatistics.gameRecentStatistics.shortestRallySeconds + recentStatistics.gameRecentStatistics.longestRallySeconds) * 100
+        longestRallyWidth.value = 100 - shortestRallyWidth.value
+
+        avgTimePerPointDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointSeconds)
+        avgTimePerPointWonDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointWonSeconds)
+        avgTimePerPointLostDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointLostSeconds)
+
+    } catch (error: any) {
+        showRecentStatisticsHint.value = true
         return
     }
-
-    const data = res as GetRecentStatistics200Response
-
-    recentStatistics.gameRecentStatistics = data.gameRecentStatistics
-
-    winsWidth.value = recentStatistics.gameRecentStatistics.wins / (recentStatistics.gameRecentStatistics.wins + recentStatistics.gameRecentStatistics.losses) * 100
-    lossWidth.value = 100 - winsWidth.value
-
-    pointsWonWidth.value = (recentStatistics.gameRecentStatistics.pointsWon / recentStatistics.gameRecentStatistics.totalPoints) * 100
-    pointsLossWidth.value = 100 - pointsWonWidth.value
-
-    shortestRallyWidth.value = recentStatistics.gameRecentStatistics.shortestRallySeconds / (recentStatistics.gameRecentStatistics.shortestRallySeconds + recentStatistics.gameRecentStatistics.longestRallySeconds) * 100
-    longestRallyWidth.value = 100 - shortestRallyWidth.value
-
-    avgTimePerPointDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointSeconds)
-    avgTimePerPointWonDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointWonSeconds)
-    avgTimePerPointLostDecorated.value = decorateSeconds(recentStatistics.gameRecentStatistics.averageTimePerPointLostSeconds)
 }
 
 const updatedAtDecorated = computed(() => {
@@ -153,7 +157,11 @@ const decorateSeconds = (seconds: number) => {
                     New Game
                 </button>
             </RouterLink>
-            <div class="recent-statistics">
+            <div class="recent-statistics" v-if="showRecentStatisticsHint">
+                <h5>Recent Statistics</h5>
+                <span>Bookmark Games to start!</span>
+            </div>
+            <div class="recent-statistics" v-if="!showRecentStatisticsHint">
                 <div class="statistic-header">
                     <span>{{ `MOST RECENT ${recentStatistics?.gameRecentStatistics?.gameCount ?
                         recentStatistics.gameRecentStatistics.gameCount : ""} GAME(S)` }}</span>
