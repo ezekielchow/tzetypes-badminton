@@ -129,6 +129,18 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /end-abandoned-games:
+    get:
+      summary: End games which are abandoned after a time
+      operationId: endAbandonedGames
+      tags:
+        - game
+      responses:
+        "200":
+          description: Successfully ended games
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
   schemas:
     LoginRequestSchema:

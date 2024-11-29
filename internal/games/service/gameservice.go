@@ -21,6 +21,7 @@ type GameServiceInterface interface {
 	GetGameHistory(ctx context.Context, input oapiprivate.GetGameHistoryRequestObject, user models.User) (oapiprivate.GetGameHistoryResponseObject, error)
 	GenerateRecentStatistics(ctx context.Context, input oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error)
 	GetRecentStatistics(ctx context.Context, input oapiprivate.GetRecentStatisticsRequestObject, user models.User) (oapiprivate.GetRecentStatisticsResponseObject, error)
+	EndAbandonedGames(ctx context.Context, input oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error)
 }
 
 type GameService struct {

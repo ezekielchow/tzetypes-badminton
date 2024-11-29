@@ -23,4 +23,6 @@ type GameRepository interface {
 	GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context, tx *pgx.Tx) ([]models.GameRecentStatistic, error)
 	GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error)
 	GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error)
+	GetAbandonedGames(ctx context.Context, tx *pgx.Tx) ([]string, error)
+	EndGames(ctx context.Context, tx *pgx.Tx, ids []string) error
 }

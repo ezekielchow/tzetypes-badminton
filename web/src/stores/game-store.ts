@@ -191,6 +191,23 @@ export const useGameStore = defineStore('game', {
         return new Error("Network error or unexpected error occurred")
       }
     },
+    loadGame(oldData: GetGame200Response) {
+      this.stepsToRemove = []
+      this.currentGameSettings = oldData.game
+
+      const steps: LocalGameStep[] = []
+
+      for (let i = 0; i < oldData.steps.length; i++) {
+        const step = oldData.steps[i];
+
+        steps.push({
+          ...step,
+          isSynced: true
+        } as LocalGameStep)
+      }
+
+      this.currentGameProgress = steps
+    }
   },
   persist: true
 })

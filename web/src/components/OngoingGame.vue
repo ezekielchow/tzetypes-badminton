@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import shuttlecock from '@/assets/images/shuttlecock.png';
 import { CurrentServer, GameTypes } from '@/enums/game';
+import type { GetGame200Response } from '@/repositories/clients/public';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
 import Swal from 'sweetalert2';
 import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
+const route = useRoute()
 const router = useRouter()
 const errorMessage = ref("")
 const isLoading = ref(false)
@@ -31,12 +33,34 @@ gameStore.$subscribe(() => {
     updateCourtState()
 })
 
+onMounted(async () => {
+    const gameId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
-onMounted(() => {
+    if (gameId == "") {
+        router.back()
+        return
+    }
+
+    const res = await gameStore.getGameStatistics({
+        gameId: gameId
+    })
+
+    if (res instanceof Error) {
+        errorMessage.value = res.message
+        return
+    }
+
+    const data = res as GetGame200Response
+
+    if (data.game.isEnded) {
+        router.back()
+        return
+    }
+
+    gameStore.loadGame(data)
+
     handleOrientationChange();
     window.addEventListener('resize', handleOrientationChange);
-
-    updateCourtState()
 })
 
 onBeforeUnmount(() => {

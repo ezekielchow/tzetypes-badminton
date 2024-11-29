@@ -488,6 +488,39 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 	return err
 }
 
+const endGames = `-- name: EndGames :exec
+UPDATE games SET is_ended = true WHERE id = ANY($1::uuid[])
+`
+
+func (q *Queries) EndGames(ctx context.Context, gameIds []pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, endGames, gameIds)
+	return err
+}
+
+const getAbandonedGames = `-- name: GetAbandonedGames :many
+SELECT DISTINCT game_id from game_steps WHERE score_at < NOW() - INTERVAL '5 hours'
+`
+
+func (q *Queries) GetAbandonedGames(ctx context.Context) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, getAbandonedGames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var game_id pgtype.UUID
+		if err := rows.Scan(&game_id); err != nil {
+			return nil, err
+		}
+		items = append(items, game_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGameHistoryGivenUserIdAndGameId = `-- name: GetGameHistoryGivenUserIdAndGameId :one
 SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
 `

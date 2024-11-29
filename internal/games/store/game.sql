@@ -216,3 +216,9 @@ SELECT * from game_histories WHERE user_id = @user_id::uuid ORDER BY game_starte
 
 -- name: GetGameStepsGivenGameIds :many
 SELECT * from game_steps WHERE game_id = ANY(@game_ids::uuid[]);
+
+-- name: GetAbandonedGames :many
+SELECT DISTINCT game_id from game_steps WHERE score_at < NOW() - INTERVAL '5 hours';
+
+-- name: EndGames :exec
+UPDATE games SET is_ended = true WHERE id = ANY(@game_ids::uuid[]);

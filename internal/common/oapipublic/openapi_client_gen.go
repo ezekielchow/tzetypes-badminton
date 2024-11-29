@@ -89,6 +89,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// EndAbandonedGames request
+	EndAbandonedGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetGame request
 	GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -112,6 +115,18 @@ type ClientInterface interface {
 	SignupPlayerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SignupPlayer(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) EndAbandonedGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEndAbandonedGamesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -220,6 +235,33 @@ func (c *Client) SignupPlayer(ctx context.Context, body SignupPlayerJSONRequestB
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewEndAbandonedGamesRequest generates requests for EndAbandonedGames
+func NewEndAbandonedGamesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/end-abandoned-games")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetGameRequest generates requests for GetGame
@@ -473,6 +515,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// EndAbandonedGamesWithResponse request
+	EndAbandonedGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*EndAbandonedGamesResponse, error)
+
 	// GetGameWithResponse request
 	GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error)
 
@@ -496,6 +541,28 @@ type ClientWithResponsesInterface interface {
 	SignupPlayerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error)
 
 	SignupPlayerWithResponse(ctx context.Context, body SignupPlayerJSONRequestBody, reqEditors ...RequestEditorFn) (*SignupPlayerResponse, error)
+}
+
+type EndAbandonedGamesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r EndAbandonedGamesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EndAbandonedGamesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetGameResponse struct {
@@ -637,6 +704,15 @@ func (r SignupPlayerResponse) StatusCode() int {
 	return 0
 }
 
+// EndAbandonedGamesWithResponse request returning *EndAbandonedGamesResponse
+func (c *ClientWithResponses) EndAbandonedGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*EndAbandonedGamesResponse, error) {
+	rsp, err := c.EndAbandonedGames(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEndAbandonedGamesResponse(rsp)
+}
+
 // GetGameWithResponse request returning *GetGameResponse
 func (c *ClientWithResponses) GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error) {
 	rsp, err := c.GetGame(ctx, gameId, reqEditors...)
@@ -713,6 +789,32 @@ func (c *ClientWithResponses) SignupPlayerWithResponse(ctx context.Context, body
 		return nil, err
 	}
 	return ParseSignupPlayerResponse(rsp)
+}
+
+// ParseEndAbandonedGamesResponse parses an HTTP response from a EndAbandonedGamesWithResponse call
+func ParseEndAbandonedGamesResponse(rsp *http.Response) (*EndAbandonedGamesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EndAbandonedGamesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetGameResponse parses an HTTP response from a GetGameWithResponse call
