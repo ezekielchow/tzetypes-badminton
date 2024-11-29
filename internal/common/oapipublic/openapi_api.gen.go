@@ -16,6 +16,9 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// End games which are abandoned after a time
+	// (GET /end-abandoned-games)
+	EndAbandonedGames(w http.ResponseWriter, r *http.Request)
 	// Get game and steps given id
 	// (GET /game/{game_id})
 	GetGame(w http.ResponseWriter, r *http.Request, gameId string)
@@ -39,6 +42,12 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// End games which are abandoned after a time
+// (GET /end-abandoned-games)
+func (_ Unimplemented) EndAbandonedGames(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // Get game and steps given id
 // (GET /game/{game_id})
@@ -80,6 +89,20 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// EndAbandonedGames operation middleware
+func (siw *ServerInterfaceWrapper) EndAbandonedGames(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.EndAbandonedGames(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetGame operation middleware
 func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Request) {
@@ -290,6 +313,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/end-abandoned-games", wrapper.EndAbandonedGames)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/game/{game_id}", wrapper.GetGame)
 	})
 	r.Group(func(r chi.Router) {
@@ -312,6 +338,33 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 }
 
 type ErrorResponseSchemaJSONResponse Error
+
+type EndAbandonedGamesRequestObject struct {
+}
+
+type EndAbandonedGamesResponseObject interface {
+	VisitEndAbandonedGamesResponse(w http.ResponseWriter) error
+}
+
+type EndAbandonedGames200Response struct {
+}
+
+func (response EndAbandonedGames200Response) VisitEndAbandonedGamesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type EndAbandonedGamesdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response EndAbandonedGamesdefaultJSONResponse) VisitEndAbandonedGamesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
 
 type GetGameRequestObject struct {
 	GameId string `json:"game_id"`
@@ -488,6 +541,9 @@ func (response SignupPlayerdefaultJSONResponse) VisitSignupPlayerResponse(w http
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// End games which are abandoned after a time
+	// (GET /end-abandoned-games)
+	EndAbandonedGames(ctx context.Context, request EndAbandonedGamesRequestObject) (EndAbandonedGamesResponseObject, error)
 	// Get game and steps given id
 	// (GET /game/{game_id})
 	GetGame(ctx context.Context, request GetGameRequestObject) (GetGameResponseObject, error)
@@ -535,6 +591,30 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// EndAbandonedGames operation middleware
+func (sh *strictHandler) EndAbandonedGames(w http.ResponseWriter, r *http.Request) {
+	var request EndAbandonedGamesRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.EndAbandonedGames(ctx, request.(EndAbandonedGamesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "EndAbandonedGames")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(EndAbandonedGamesResponseObject); ok {
+		if err := validResponse.VisitEndAbandonedGamesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // GetGame operation middleware

@@ -6,6 +6,7 @@ import (
 	"context"
 	database "tzetypes-badminton/database/generated"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -492,4 +493,52 @@ func (gp GamePostgres) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx,
 		gsArray = append(gsArray, gs)
 	}
 	return gsArray, nil
+}
+
+func (gp GamePostgres) GetAbandonedGames(ctx context.Context, tx *pgx.Tx) ([]string, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	dbRes, err := queries.GetAbandonedGames(ctx)
+	if err != nil {
+		return []string{}, nil
+	}
+
+	ids := []string{}
+	for _, pgID := range dbRes {
+		id, err := uuid.FromBytes(pgID.Bytes[:])
+		if err != nil {
+			return []string{}, nil
+		}
+
+		ids = append(ids, id.String())
+	}
+
+	return ids, nil
+}
+
+func (gp GamePostgres) EndGames(ctx context.Context, tx *pgx.Tx, ids []string) error {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	pgIds := []pgtype.UUID{}
+	for _, id := range ids {
+		pgId, err := utils.StringToPgId(id)
+		if err != nil {
+			return err
+		}
+
+		pgIds = append(pgIds, pgId)
+	}
+
+	err := queries.EndGames(ctx, pgIds)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

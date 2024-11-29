@@ -109,6 +109,36 @@ func (_m *GameServiceInterface) DeleteGameSteps(ctx context.Context, input oapip
 	return r0, r1
 }
 
+// EndAbandonedGames provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) EndAbandonedGames(ctx context.Context, input oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndAbandonedGames")
+	}
+
+	var r0 oapipublic.EndAbandonedGamesResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.EndAbandonedGamesRequestObject) oapipublic.EndAbandonedGamesResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.EndAbandonedGamesResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.EndAbandonedGamesRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // EndGame provides a mock function with given fields: ctx, input
 func (_m *GameServiceInterface) EndGame(ctx context.Context, input oapiprivate.EndGameRequestObject) (oapiprivate.EndGameResponseObject, error) {
 	ret := _m.Called(ctx, input)

@@ -32,6 +32,31 @@ export interface GetGameRequest {
 export class GameApi extends runtime.BaseAPI {
 
     /**
+     * End games which are abandoned after a time
+     */
+    async endAbandonedGamesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/end-abandoned-games`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * End games which are abandoned after a time
+     */
+    async endAbandonedGames(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.endAbandonedGamesRaw(initOverrides);
+    }
+
+    /**
      * Generate statistics for players that has latest game in timespan
      */
     async generateRecentStatisticsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {

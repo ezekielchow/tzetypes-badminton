@@ -193,6 +193,54 @@ func (_m *GameRepository) EndGame(ctx context.Context, tx *pgx.Tx, id string, is
 	return r0
 }
 
+// EndGames provides a mock function with given fields: ctx, tx, ids
+func (_m *GameRepository) EndGames(ctx context.Context, tx *pgx.Tx, ids []string) error {
+	ret := _m.Called(ctx, tx, ids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndGames")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, []string) error); ok {
+		r0 = rf(ctx, tx, ids)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetAbandonedGames provides a mock function with given fields: ctx, tx
+func (_m *GameRepository) GetAbandonedGames(ctx context.Context, tx *pgx.Tx) ([]string, error) {
+	ret := _m.Called(ctx, tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAbandonedGames")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) ([]string, error)); ok {
+		return rf(ctx, tx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) []string); ok {
+		r0 = rf(ctx, tx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx) error); ok {
+		r1 = rf(ctx, tx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetGame provides a mock function with given fields: ctx, tx, id
 func (_m *GameRepository) GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error) {
 	ret := _m.Called(ctx, tx, id)

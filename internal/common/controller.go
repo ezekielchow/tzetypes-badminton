@@ -141,3 +141,7 @@ func (c Controller) GetRecentStatistics(ctx context.Context, input oapiprivate.G
 
 	return c.Services.GameService.GetRecentStatistics(ctx, input, user)
 }
+
+func (c Controller) EndAbandonedGames(ctx context.Context, input oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error) {
+	return c.Services.GameService.EndAbandonedGames(ctx, input)
+}
