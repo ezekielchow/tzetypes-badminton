@@ -26,6 +26,7 @@ type GameHistory struct {
 	ShortestRallySeconds           int
 	ShortestRallyIsWon             int
 	IsGameWon                      int
+	TotalGameTimeSeconds           int
 	CreatedAt                      time.Time
 	UpdatedAt                      *time.Time
 }
@@ -63,6 +64,7 @@ func (gh *GameHistory) PostgresToModel(fromDb database.GameHistory) error {
 	gh.ShortestRallySeconds = int(fromDb.ShortestRallySeconds)
 	gh.ShortestRallyIsWon = int(fromDb.ShortestRallyIsWon)
 	gh.IsGameWon = int(fromDb.IsGameWon)
+	gh.TotalGameTimeSeconds = int(fromDb.TotalGameTimeSeconds)
 	gh.CreatedAt = fromDb.CreatedAt.Time
 	gh.UpdatedAt = &fromDb.UpdatedAt.Time
 	return nil

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"common/oapiprivate"
 	"time"
 	database "tzetypes-badminton/database/generated"
 
@@ -23,6 +24,7 @@ type GameRecentStatistic struct {
 	ShortestRallySeconds           int
 	ShortestRallyIsWon             int
 	NeedsRegenerating              int
+	AverageTimePerGameSeconds      int
 	CreatedAt                      time.Time
 	UpdatedAt                      *time.Time
 }
@@ -47,12 +49,36 @@ func (grs *GameRecentStatistic) PostgresToModel(fromDb database.GameRecentStatis
 	grs.PointsWon = int(*fromDb.PointsWon)
 	grs.AverageTimePerPointSeconds = int(*fromDb.AverageTimePerPointSeconds)
 	grs.AverageTimePerPointWonSeconds = int(*fromDb.AverageTimePerPointWonSeconds)
+	grs.AverageTimePerPointLostSeconds = int(*fromDb.AverageTimePerPointLostSeconds)
 	grs.LongestRallySeconds = int(*fromDb.LongestRallySeconds)
 	grs.LongestRallyIsWon = int(*fromDb.LongestRallyIsWon)
 	grs.ShortestRallySeconds = int(*fromDb.ShortestRallySeconds)
 	grs.ShortestRallyIsWon = int(*fromDb.ShortestRallyIsWon)
 	grs.NeedsRegenerating = int(*fromDb.NeedsRegenerating)
+	grs.AverageTimePerGameSeconds = int(*fromDb.AverageTimePerGameSeconds)
 	grs.CreatedAt = fromDb.CreatedAt.Time
 	grs.UpdatedAt = &fromDb.UpdatedAt.Time
 	return nil
+}
+
+func (grs *GameRecentStatistic) ModelToAPI() oapiprivate.GameRecentStatistic {
+	return oapiprivate.GameRecentStatistic{
+		AverageTimePerPointLostSeconds: grs.AverageTimePerPointLostSeconds,
+		AverageTimePerPointSeconds:     grs.AverageTimePerPointSeconds,
+		AverageTimePerPointWonSeconds:  grs.AverageTimePerPointWonSeconds,
+		CreatedAt:                      grs.CreatedAt.String(),
+		GameCount:                      grs.GameCount,
+		Id:                             grs.ID,
+		LongestRallyIsWon:              grs.LongestRallyIsWon,
+		LongestRallySeconds:            grs.LongestRallySeconds,
+		Losses:                         grs.Losses,
+		PointsWon:                      grs.PointsWon,
+		ShortestRallyIsWon:             grs.ShortestRallyIsWon,
+		ShortestRallySeconds:           grs.ShortestRallySeconds,
+		TotalPoints:                    grs.TotalPoints,
+		UpdatedAt:                      grs.UpdatedAt.String(),
+		UserId:                         grs.UserID,
+		Wins:                           grs.Wins,
+		AverageTimePerGameSeconds:      grs.AverageTimePerGameSeconds,
+	}
 }

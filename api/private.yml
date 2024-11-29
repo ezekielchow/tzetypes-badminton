@@ -333,6 +333,18 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/recent-statistics:
+    get:
+      operationId: getRecentStatistics
+      tags:
+        - game
+      responses:
+        "200":
+          description: get user recent statistics
+          $ref: "#/components/responses/GetRecentStatisticsResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
   securitySchemes: # Added missing security scheme
     BearerAuth:
@@ -418,6 +430,62 @@ components:
           type: string
         email:
           type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    GameRecentStatistic:
+      type: object
+      required:
+        - id
+        - user_id
+        - game_count
+        - wins
+        - losses
+        - total_points
+        - points_won
+        - average_time_per_point_seconds
+        - average_time_per_point_won_seconds
+        - average_time_per_point_lost_seconds
+        - longest_rally_seconds
+        - longest_rally_is_won
+        - shortest_rally_seconds
+        - shortest_rally_is_won
+        - average_time_per_game_seconds
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        game_count:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        total_points:
+          type: integer
+        points_won:
+          type: integer
+        average_time_per_point_seconds:
+          type: integer
+        average_time_per_point_won_seconds:
+          type: integer
+        average_time_per_point_lost_seconds:
+          type: integer
+        longest_rally_seconds:
+          type: integer
+        longest_rally_is_won:
+          type: integer
+        shortest_rally_seconds:
+          type: integer
+        shortest_rally_is_won:
+          type: integer
+        average_time_per_game_seconds:
+          type: integer
         created_at:
           type: string
         updated_at:
@@ -625,3 +693,14 @@ components:
             properties:
               game_history:
                 $ref: "#/components/schemas/GameHistory"
+    GetRecentStatisticsResponseSchema:
+      description: recent statistics success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - game_recent_statistics
+            properties:
+              game_recent_statistics:
+                $ref: "#/components/schemas/GameRecentStatistic"

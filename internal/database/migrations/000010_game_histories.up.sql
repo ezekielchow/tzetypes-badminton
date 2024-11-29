@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS game_histories(
     longest_rally_is_won int NOT NULL,
     shortest_rally_seconds int NOT NULL,
     shortest_rally_is_won int NOT NULL,
+    total_game_time_seconds int NOT NULL,
     created_at timestamp DEFAULT now(),
     updated_at timestamp 
 );

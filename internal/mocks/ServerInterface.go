@@ -59,6 +59,11 @@ func (_m *ServerInterface) GetPlayerWithId(w http.ResponseWriter, r *http.Reques
 	_m.Called(w, r, id)
 }
 
+// GetRecentStatistics provides a mock function with given fields: w, r
+func (_m *ServerInterface) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
 // ListPlayers provides a mock function with given fields: w, r, params
 func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
 	_m.Called(w, r, params)

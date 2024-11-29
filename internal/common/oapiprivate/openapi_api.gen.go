@@ -22,6 +22,9 @@ type ServerInterface interface {
 
 	// (POST /game)
 	StartGame(w http.ResponseWriter, r *http.Request)
+
+	// (GET /game/recent-statistics)
+	GetRecentStatistics(w http.ResponseWriter, r *http.Request)
 	// End game by setting 'isEnded' to 'true'
 	// (PATCH /game/{game_id}/end)
 	EndGame(w http.ResponseWriter, r *http.Request, gameId string)
@@ -68,6 +71,11 @@ func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 // (POST /game)
 func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /game/recent-statistics)
+func (_ Unimplemented) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -170,6 +178,26 @@ func (siw *ServerInterfaceWrapper) StartGame(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartGame(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetRecentStatistics operation middleware
+func (siw *ServerInterfaceWrapper) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetRecentStatistics(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -647,6 +675,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/game", wrapper.StartGame)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/game/recent-statistics", wrapper.GetRecentStatistics)
+	})
+	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/game/{game_id}/end", wrapper.EndGame)
 	})
 	r.Group(func(r chi.Router) {
@@ -695,6 +726,10 @@ type ErrorResponseSchemaJSONResponse Error
 
 type GetGameHistoryResponseSchemaJSONResponse struct {
 	GameHistory GameHistory `json:"game_history"`
+}
+
+type GetRecentStatisticsResponseSchemaJSONResponse struct {
+	GameRecentStatistics GameRecentStatistic `json:"game_recent_statistics"`
 }
 
 type StartGame201ResponseSchemaJSONResponse struct {
@@ -754,6 +789,36 @@ type StartGamedefaultJSONResponse struct {
 }
 
 func (response StartGamedefaultJSONResponse) VisitStartGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type GetRecentStatisticsRequestObject struct {
+}
+
+type GetRecentStatisticsResponseObject interface {
+	VisitGetRecentStatisticsResponse(w http.ResponseWriter) error
+}
+
+type GetRecentStatistics200JSONResponse struct {
+	GetRecentStatisticsResponseSchemaJSONResponse
+}
+
+func (response GetRecentStatistics200JSONResponse) VisitGetRecentStatisticsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetRecentStatisticsdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetRecentStatisticsdefaultJSONResponse) VisitGetRecentStatisticsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -1079,6 +1144,9 @@ type StrictServerInterface interface {
 
 	// (POST /game)
 	StartGame(ctx context.Context, request StartGameRequestObject) (StartGameResponseObject, error)
+
+	// (GET /game/recent-statistics)
+	GetRecentStatistics(ctx context.Context, request GetRecentStatisticsRequestObject) (GetRecentStatisticsResponseObject, error)
 	// End game by setting 'isEnded' to 'true'
 	// (PATCH /game/{game_id}/end)
 	EndGame(ctx context.Context, request EndGameRequestObject) (EndGameResponseObject, error)
@@ -1191,6 +1259,30 @@ func (sh *strictHandler) StartGame(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartGameResponseObject); ok {
 		if err := validResponse.VisitStartGameResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetRecentStatistics operation middleware
+func (sh *strictHandler) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
+	var request GetRecentStatisticsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetRecentStatistics(ctx, request.(GetRecentStatisticsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetRecentStatistics")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetRecentStatisticsResponseObject); ok {
+		if err := validResponse.VisitGetRecentStatisticsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

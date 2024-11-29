@@ -4,7 +4,6 @@ import {
   GameApi,
   Configuration as PrivateConf,
   PlayersApi as PrivatePlayersApi,
-  ResponseError as PrivateResponseError,
   UsersApi as PrivateUsersApi,
   ResponseError,
   VoidApiResponse,
@@ -19,6 +18,7 @@ import {
   type GetGameHistoryRequest,
   type GetLoggedInUser200Response,
   type GetPlayerWithIdRequest,
+  type GetRecentStatistics200Response,
   type InitOverrideFunction,
   type ListPlayers200Response,
   type ListPlayersRequest,
@@ -107,8 +107,8 @@ export class MyPrivateApi extends BaseAPI {
     try {
       await api.logout(initOverrides)
     } catch (error) {
-      if (error instanceof PrivateResponseError) {
-        throw new PrivateResponseError(error.response, error.message)
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
       }
       throw new Error('Failed to logout');
     }
@@ -144,8 +144,8 @@ export class MyPrivateApi extends BaseAPI {
     try {
       return await api.getLoggedInUserRaw(initOverrides)
     } catch (error) {
-      if (error instanceof PrivateResponseError) {
-        throw new PrivateResponseError(error.response, error.message)
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
       }
       throw new Error('Failed to get current user');
     }
@@ -165,8 +165,8 @@ export class MyPrivateApi extends BaseAPI {
     try {
       return await api.listPlayersRaw(requestParameters, initOverrides)
     } catch (error) {
-      if (error instanceof PrivateResponseError) {
-        throw new PrivateResponseError(error.response, error.message)
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
       }
       throw new Error('Failed to list players');
     }
@@ -186,8 +186,8 @@ export class MyPrivateApi extends BaseAPI {
     try {
       return await api.addPlayerRaw(requestParameters, initOverrides)
     } catch (error) {
-      if (error instanceof PrivateResponseError) {
-        throw new PrivateResponseError(error.response, error.message)
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
       }
       throw new Error('Failed to add player');
     }
@@ -340,5 +340,28 @@ export class MyPrivateApi extends BaseAPI {
   async getGameHistory(requestParameters: GetGameHistoryRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGameHistory200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.getGameHistoryRequest(requestParameters, initOverrides));
     return await apiResponse.value();
+  }
+
+  private async getRecentStatisticsRequest(initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetRecentStatistics200Response>> {
+    const api = new GameApi(this.getPrivateConf())
+
+    try {
+      return await api.getRecentStatisticsRaw(initOverrides)
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get recent statistics');
+    }
+  }
+
+  async getRecentStatistics(initOverrides?: RequestInit | InitOverrideFunction): Promise<GetRecentStatistics200Response> {
+    try {
+      const apiResponse = await this.authenticatedRequest(() => this.getRecentStatisticsRequest(initOverrides));
+      return apiResponse.value(); // Return the response value
+    } catch (error) {
+      console.error('Failed to fetch recent statistics:', error); // This will catch and log any error
+      throw error; // Re-throw the error to propagate it further if needed
+    }
   }
 }

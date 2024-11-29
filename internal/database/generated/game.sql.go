@@ -242,7 +242,8 @@ INSERT INTO game_histories(
     longest_rally_is_won,
     shortest_rally_seconds,
     shortest_rally_is_won,
-    is_game_won
+    is_game_won,
+    total_game_time_seconds
 ) VALUES (
     $1::uuid,
     $2::uuid,
@@ -259,7 +260,8 @@ INSERT INTO game_histories(
     $13::int,
     $14::int,
     $15::int,
-    $16::int
+    $16::int,
+    $17::int
 ) 
 ON CONFLICT (user_id,game_id) DO UPDATE
     SET 
@@ -277,8 +279,9 @@ ON CONFLICT (user_id,game_id) DO UPDATE
     shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
     shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
     is_game_won = EXCLUDED.is_game_won,
+    total_game_time_seconds = EXCLUDED.total_game_time_seconds,
     updated_at = now()
-RETURNING id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at
+RETURNING id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at
 `
 
 type CreateOrUpdateGameHistoryParams struct {
@@ -298,6 +301,7 @@ type CreateOrUpdateGameHistoryParams struct {
 	ShortestRallySeconds           int32
 	ShortestRallyIsWon             int32
 	IsGameWon                      int32
+	TotalGameTimeSeconds           int32
 }
 
 func (q *Queries) CreateOrUpdateGameHistory(ctx context.Context, arg CreateOrUpdateGameHistoryParams) (GameHistory, error) {
@@ -318,6 +322,7 @@ func (q *Queries) CreateOrUpdateGameHistory(ctx context.Context, arg CreateOrUpd
 		arg.ShortestRallySeconds,
 		arg.ShortestRallyIsWon,
 		arg.IsGameWon,
+		arg.TotalGameTimeSeconds,
 	)
 	var i GameHistory
 	err := row.Scan(
@@ -338,6 +343,7 @@ func (q *Queries) CreateOrUpdateGameHistory(ctx context.Context, arg CreateOrUpd
 		&i.LongestRallyIsWon,
 		&i.ShortestRallySeconds,
 		&i.ShortestRallyIsWon,
+		&i.TotalGameTimeSeconds,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -359,6 +365,7 @@ INSERT INTO game_recent_statistics(
     longest_rally_is_won,
     shortest_rally_seconds,
     shortest_rally_is_won,
+    average_time_per_game_seconds,
     needs_regenerating
 ) VALUES (
     $1::uuid,
@@ -374,7 +381,8 @@ INSERT INTO game_recent_statistics(
     $11::int,
     $12::int,
     $13::int,
-    $14::int
+    $14::int,
+    $15::int
 ) 
 ON CONFLICT (user_id) DO UPDATE
     SET 
@@ -390,9 +398,10 @@ ON CONFLICT (user_id) DO UPDATE
     longest_rally_is_won = EXCLUDED.longest_rally_is_won,
     shortest_rally_seconds = EXCLUDED.shortest_rally_seconds,
     shortest_rally_is_won = EXCLUDED.shortest_rally_is_won,
+    average_time_per_game_seconds = EXCLUDED.average_time_per_game_seconds,
     needs_regenerating = EXCLUDED.needs_regenerating,
     updated_at = now()
-RETURNING id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at
+RETURNING id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, average_time_per_game_seconds, needs_regenerating, created_at, updated_at
 `
 
 type CreateOrUpdateGameRecentStatisticParams struct {
@@ -409,6 +418,7 @@ type CreateOrUpdateGameRecentStatisticParams struct {
 	LongestRallyIsWon              int32
 	ShortestRallySeconds           int32
 	ShortestRallyIsWon             int32
+	AverageTimePerGameSeconds      int32
 	NeedsRegenerating              int32
 }
 
@@ -427,6 +437,7 @@ func (q *Queries) CreateOrUpdateGameRecentStatistic(ctx context.Context, arg Cre
 		arg.LongestRallyIsWon,
 		arg.ShortestRallySeconds,
 		arg.ShortestRallyIsWon,
+		arg.AverageTimePerGameSeconds,
 		arg.NeedsRegenerating,
 	)
 	var i GameRecentStatistic
@@ -445,6 +456,7 @@ func (q *Queries) CreateOrUpdateGameRecentStatistic(ctx context.Context, arg Cre
 		&i.LongestRallyIsWon,
 		&i.ShortestRallySeconds,
 		&i.ShortestRallyIsWon,
+		&i.AverageTimePerGameSeconds,
 		&i.NeedsRegenerating,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -477,7 +489,7 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 }
 
 const getGameHistoryGivenUserIdAndGameId = `-- name: GetGameHistoryGivenUserIdAndGameId :one
-SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
+SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
 `
 
 type GetGameHistoryGivenUserIdAndGameIdParams struct {
@@ -506,6 +518,7 @@ func (q *Queries) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, arg Ge
 		&i.LongestRallyIsWon,
 		&i.ShortestRallySeconds,
 		&i.ShortestRallyIsWon,
+		&i.TotalGameTimeSeconds,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -513,7 +526,7 @@ func (q *Queries) GetGameHistoryGivenUserIdAndGameId(ctx context.Context, arg Ge
 }
 
 const getGameRecentStatisticThatNeedsRegeneration = `-- name: GetGameRecentStatisticThatNeedsRegeneration :many
-SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE needs_regenerating = 1 limit 10
+SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, average_time_per_game_seconds, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE needs_regenerating = 1 limit 10
 `
 
 func (q *Queries) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Context) ([]GameRecentStatistic, error) {
@@ -540,6 +553,7 @@ func (q *Queries) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Contex
 			&i.LongestRallyIsWon,
 			&i.ShortestRallySeconds,
 			&i.ShortestRallyIsWon,
+			&i.AverageTimePerGameSeconds,
 			&i.NeedsRegenerating,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -555,7 +569,7 @@ func (q *Queries) GetGameRecentStatisticThatNeedsRegeneration(ctx context.Contex
 }
 
 const getGameRecentStatisticWithUserId = `-- name: GetGameRecentStatisticWithUserId :one
-SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE user_id = $1::uuid limit 1
+SELECT id, user_id, game_count, wins, losses, total_points, points_won, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, average_time_per_game_seconds, needs_regenerating, created_at, updated_at FROM game_recent_statistics WHERE user_id = $1::uuid limit 1
 `
 
 func (q *Queries) GetGameRecentStatisticWithUserId(ctx context.Context, userID pgtype.UUID) (GameRecentStatistic, error) {
@@ -576,6 +590,7 @@ func (q *Queries) GetGameRecentStatisticWithUserId(ctx context.Context, userID p
 		&i.LongestRallyIsWon,
 		&i.ShortestRallySeconds,
 		&i.ShortestRallyIsWon,
+		&i.AverageTimePerGameSeconds,
 		&i.NeedsRegenerating,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -712,7 +727,7 @@ func (q *Queries) GetGameWithID(ctx context.Context, id pgtype.UUID) (Game, erro
 }
 
 const getMostRecentGameHistories = `-- name: GetMostRecentGameHistories :many
-SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, created_at, updated_at from game_histories WHERE user_id = $1::uuid ORDER BY game_started_at DESC limit 12
+SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at from game_histories WHERE user_id = $1::uuid ORDER BY game_started_at DESC limit 12
 `
 
 func (q *Queries) GetMostRecentGameHistories(ctx context.Context, userID pgtype.UUID) ([]GameHistory, error) {
@@ -742,6 +757,7 @@ func (q *Queries) GetMostRecentGameHistories(ctx context.Context, userID pgtype.
 			&i.LongestRallyIsWon,
 			&i.ShortestRallySeconds,
 			&i.ShortestRallyIsWon,
+			&i.TotalGameTimeSeconds,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

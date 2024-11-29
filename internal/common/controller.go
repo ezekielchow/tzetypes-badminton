@@ -132,3 +132,12 @@ func (c Controller) GetGameHistory(ctx context.Context, input oapiprivate.GetGam
 func (c Controller) GenerateRecentStatistics(ctx context.Context, input oapipublic.GenerateRecentStatisticsRequestObject) (oapipublic.GenerateRecentStatisticsResponseObject, error) {
 	return c.Services.GameService.GenerateRecentStatistics(ctx, input)
 }
+
+func (c Controller) GetRecentStatistics(ctx context.Context, input oapiprivate.GetRecentStatisticsRequestObject) (oapiprivate.GetRecentStatisticsResponseObject, error) {
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.GameService.GetRecentStatistics(ctx, input, user)
+}

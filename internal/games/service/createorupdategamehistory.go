@@ -25,6 +25,7 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 	gh.PlayerPosition = playerPosition
 	gh.GameStartedAt = game.CreatedAt
 	gh.TotalPoints = last.TeamLeftScore + last.TeamRightScore
+	gh.TotalGameTimeSeconds = int(last.ScoreAt.Sub(first.ScoreAt).Seconds())
 
 	if gh.TotalPoints > 0 {
 		gh.AverageTimePerPointSeconds = int(last.ScoreAt.Sub(first.ScoreAt).Seconds()) / gh.TotalPoints
@@ -139,7 +140,7 @@ func (gs GameService) CreateOrUpdateGameHistory(ctx context.Context, input oapip
 	}
 
 	grs := models.GameRecentStatistic{}
-	if grs.ID != "" {
+	if dbGrs.ID != "" {
 		grs = dbGrs
 	}
 	now := time.Now()

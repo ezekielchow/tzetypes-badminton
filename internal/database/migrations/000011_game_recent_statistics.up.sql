@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS game_recent_statistics(
     longest_rally_is_won int,
     shortest_rally_seconds int,
     shortest_rally_is_won int,
+    average_time_per_game_seconds int,
     needs_regenerating int,
     created_at timestamp DEFAULT now(),
     updated_at timestamp,

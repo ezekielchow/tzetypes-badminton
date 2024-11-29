@@ -229,6 +229,36 @@ func (_m *GameServiceInterface) GetGameHistory(ctx context.Context, input oapipr
 	return r0, r1
 }
 
+// GetRecentStatistics provides a mock function with given fields: ctx, input, user
+func (_m *GameServiceInterface) GetRecentStatistics(ctx context.Context, input oapiprivate.GetRecentStatisticsRequestObject, user models.User) (oapiprivate.GetRecentStatisticsResponseObject, error) {
+	ret := _m.Called(ctx, input, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRecentStatistics")
+	}
+
+	var r0 oapiprivate.GetRecentStatisticsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetRecentStatisticsRequestObject, models.User) (oapiprivate.GetRecentStatisticsResponseObject, error)); ok {
+		return rf(ctx, input, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetRecentStatisticsRequestObject, models.User) oapiprivate.GetRecentStatisticsResponseObject); ok {
+		r0 = rf(ctx, input, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.GetRecentStatisticsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetRecentStatisticsRequestObject, models.User) error); ok {
+		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // StartGame provides a mock function with given fields: ctx, input, user
 func (_m *GameServiceInterface) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
 	ret := _m.Called(ctx, input, user)

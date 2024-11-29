@@ -21,6 +21,7 @@ import type {
   EndGameRequest,
   GameStartRequestSchema,
   GetGameHistory200Response,
+  GetRecentStatistics200Response,
   StartGame201Response,
 } from '../models/index';
 import {
@@ -36,6 +37,8 @@ import {
     GameStartRequestSchemaToJSON,
     GetGameHistory200ResponseFromJSON,
     GetGameHistory200ResponseToJSON,
+    GetRecentStatistics200ResponseFromJSON,
+    GetRecentStatistics200ResponseToJSON,
     StartGame201ResponseFromJSON,
     StartGame201ResponseToJSON,
 } from '../models/index';
@@ -298,6 +301,38 @@ export class GameApi extends runtime.BaseAPI {
      */
     async getGameHistory(requestParameters: GetGameHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGameHistory200Response> {
         const response = await this.getGameHistoryRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getRecentStatisticsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetRecentStatistics200Response>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("BearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/game/recent-statistics`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetRecentStatistics200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getRecentStatistics(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetRecentStatistics200Response> {
+        const response = await this.getRecentStatisticsRaw(initOverrides);
         return await response.value();
     }
 
