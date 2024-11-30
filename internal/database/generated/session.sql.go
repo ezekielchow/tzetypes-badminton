@@ -92,18 +92,19 @@ func (q *Queries) FindSessionWithSessionID(ctx context.Context, sessionToken pgt
 
 const updateSessionWithRefreshToken = `-- name: UpdateSessionWithRefreshToken :one
 UPDATE sessions
-SET session_token = gen_random_uuid(), session_token_expires_at=$2, updated_at=now() 
-WHERE refresh_token=$1
+SET session_token = $1::uuid, session_token_expires_at = $2, updated_at=now() 
+WHERE refresh_token = $3::uuid
 RETURNING id, user_id, session_token, refresh_token, session_token_expires_at, refresh_token_expires_at, created_at, updated_at
 `
 
 type UpdateSessionWithRefreshTokenParams struct {
-	RefreshToken          pgtype.UUID
+	SessionToken          pgtype.UUID
 	SessionTokenExpiresAt pgtype.Timestamp
+	RefreshToken          pgtype.UUID
 }
 
 func (q *Queries) UpdateSessionWithRefreshToken(ctx context.Context, arg UpdateSessionWithRefreshTokenParams) (Session, error) {
-	row := q.db.QueryRow(ctx, updateSessionWithRefreshToken, arg.RefreshToken, arg.SessionTokenExpiresAt)
+	row := q.db.QueryRow(ctx, updateSessionWithRefreshToken, arg.SessionToken, arg.SessionTokenExpiresAt, arg.RefreshToken)
 	var i Session
 	err := row.Scan(
 		&i.ID,
