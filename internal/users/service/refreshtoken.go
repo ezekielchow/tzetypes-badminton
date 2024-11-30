@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -76,6 +77,8 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("TOKENS!!!", newSession.RefreshToken, "\nSESS:", newSession.SessionToken)
 
 	err = tx.Commit(ctx)
 	if err != nil {
