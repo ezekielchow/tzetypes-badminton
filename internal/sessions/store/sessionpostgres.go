@@ -107,13 +107,18 @@ func (sp SessionPostgres) FindSessionToRefreshAccessToken(ctx context.Context, t
 	return session, nil
 }
 
-func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, tx *pgx.Tx, refreshToken string, sessionTokenExpiresAt time.Time) (models.Session, error) {
+func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, tx *pgx.Tx, refreshToken string, sessionTokenExpiresAt time.Time, newSessionToken string) (models.Session, error) {
 	queries := sp.Queries
 	if tx != nil {
 		queries = queries.WithTx(*tx)
 	}
 
 	refreshTokenPG, err := utils.StringToPgId(refreshToken)
+	if err != nil {
+		return models.Session{}, err
+	}
+
+	newSessionTokenPG, err := utils.StringToPgId(newSessionToken)
 	if err != nil {
 		return models.Session{}, err
 	}
@@ -125,6 +130,7 @@ func (sp SessionPostgres) UpdateSessionWithRefreshToken(ctx context.Context, tx 
 	}
 
 	updated, err := queries.UpdateSessionWithRefreshToken(ctx, database.UpdateSessionWithRefreshTokenParams{
+		SessionToken:          newSessionTokenPG,
 		RefreshToken:          refreshTokenPG,
 		SessionTokenExpiresAt: sessionTokenExpiry,
 	})

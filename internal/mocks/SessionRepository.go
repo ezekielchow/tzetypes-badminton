@@ -120,9 +120,9 @@ func (_m *SessionRepository) FindSessionWithSessionID(ctx context.Context, tx *p
 	return r0, r1
 }
 
-// UpdateSessionWithRefreshToken provides a mock function with given fields: ctx, tx, refreshToken, sessionTokenExpiresAt
-func (_m *SessionRepository) UpdateSessionWithRefreshToken(ctx context.Context, tx *pgx.Tx, refreshToken string, sessionTokenExpiresAt time.Time) (models.Session, error) {
-	ret := _m.Called(ctx, tx, refreshToken, sessionTokenExpiresAt)
+// UpdateSessionWithRefreshToken provides a mock function with given fields: ctx, tx, refreshToken, sessionTokenExpiresAt, newSessionToken
+func (_m *SessionRepository) UpdateSessionWithRefreshToken(ctx context.Context, tx *pgx.Tx, refreshToken string, sessionTokenExpiresAt time.Time, newSessionToken string) (models.Session, error) {
+	ret := _m.Called(ctx, tx, refreshToken, sessionTokenExpiresAt, newSessionToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateSessionWithRefreshToken")
@@ -130,17 +130,17 @@ func (_m *SessionRepository) UpdateSessionWithRefreshToken(ctx context.Context, 
 
 	var r0 models.Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, time.Time) (models.Session, error)); ok {
-		return rf(ctx, tx, refreshToken, sessionTokenExpiresAt)
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, time.Time, string) (models.Session, error)); ok {
+		return rf(ctx, tx, refreshToken, sessionTokenExpiresAt, newSessionToken)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, time.Time) models.Session); ok {
-		r0 = rf(ctx, tx, refreshToken, sessionTokenExpiresAt)
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, time.Time, string) models.Session); ok {
+		r0 = rf(ctx, tx, refreshToken, sessionTokenExpiresAt, newSessionToken)
 	} else {
 		r0 = ret.Get(0).(models.Session)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, time.Time) error); ok {
-		r1 = rf(ctx, tx, refreshToken, sessionTokenExpiresAt)
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, time.Time, string) error); ok {
+		r1 = rf(ctx, tx, refreshToken, sessionTokenExpiresAt, newSessionToken)
 	} else {
 		r1 = ret.Error(1)
 	}

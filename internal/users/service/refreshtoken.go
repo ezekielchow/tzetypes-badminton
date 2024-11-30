@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -70,7 +72,7 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 	if err != nil {
 		return nil, err
 	}
-	newSession, err := us.SessionStore.UpdateSessionWithRefreshToken(ctx, &tx, refreshTokenCookie.Value, *newSessionExpiry)
+	newSession, err := us.SessionStore.UpdateSessionWithRefreshToken(ctx, &tx, refreshTokenCookie.Value, *newSessionExpiry, uuid.NewString())
 	if err != nil {
 		return nil, err
 	}

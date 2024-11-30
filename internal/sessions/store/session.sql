@@ -13,8 +13,8 @@ SELECT * FROM sessions WHERE refresh_token=$1;
 
 -- name: UpdateSessionWithRefreshToken :one
 UPDATE sessions
-SET session_token = gen_random_uuid(), session_token_expires_at=$2, updated_at=now() 
-WHERE refresh_token=$1
+SET session_token = @session_token::uuid, session_token_expires_at = @session_token_expires_at, updated_at=now() 
+WHERE refresh_token = @refresh_token::uuid
 RETURNING *;
 
 -- name: DeleteSession :exec
