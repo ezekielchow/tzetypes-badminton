@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -73,12 +72,11 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 	if err != nil {
 		return nil, err
 	}
-	newSession, err := us.SessionStore.UpdateSessionWithRefreshToken(ctx, &tx, refreshTokenCookie.Value, *newSessionExpiry, uuid.NewString())
+	newSessionToken := uuid.NewString()
+	_, err = us.SessionStore.UpdateSessionWithRefreshToken(ctx, &tx, refreshTokenCookie.Value, *newSessionExpiry, newSessionToken)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("TOKENS!!!", newSession.RefreshToken, "\nSESS:", newSession.SessionToken)
 
 	err = tx.Commit(ctx)
 	if err != nil {
@@ -86,6 +84,6 @@ func (us UserService) RefreshToken(ctx context.Context, input oapipublic.Refresh
 	}
 
 	return oapipublic.RefreshToken200JSONResponse{
-		SessionToken: newSession.SessionToken,
+		SessionToken: newSessionToken,
 	}, nil
 }
