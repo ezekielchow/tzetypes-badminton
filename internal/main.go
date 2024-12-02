@@ -24,6 +24,7 @@ import (
 	usersStore "users/store"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -89,6 +90,32 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 			}))
 
 	return apiRoute
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rr := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		start := time.Now()
+
+		next.ServeHTTP(rr, r)
+
+		duration := time.Since(start)
+		logEntry := logrus.WithFields(logrus.Fields{
+			"method":   r.Method,
+			"path":     r.URL.Path,
+			"status":   rr.Status(),
+			"duration": duration,
+			"client":   r.RemoteAddr,
+		})
+
+		if rr.Status() >= 500 {
+			logEntry.Error("Server error occurred")
+		} else if rr.Status() >= 400 {
+			logEntry.Warn("Client error occurred")
+		} else {
+			logEntry.Info("Request handled successfully")
+		}
+	})
 }
 
 func main() {
@@ -166,6 +193,7 @@ func main() {
 	handler := common.NewController(service)
 
 	rootRouter := chi.NewRouter()
+	rootRouter.Use(loggingMiddleware)
 
 	apiRouter := getPrivateRouter(queries)
 	rootRouter.Mount("/api", oapiprivate.HandlerFromMux(oapiprivate.NewStrictHandler(handler, nil), apiRouter))
