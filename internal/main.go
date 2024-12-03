@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	games "games/service"
 	gamestore "games/store"
+	"log"
 	"net/http"
 	"os"
 	playerservice "players/service"
@@ -36,12 +37,14 @@ func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore user
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
+				log.Println("Missing Authorization header")
 				http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 				return
 			}
 
 			tokenParts := strings.Split(authHeader, " ")
 			if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
+				log.Println("Invalid Authorization header format")
 				http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
 				return
 			}
@@ -50,12 +53,14 @@ func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore user
 
 			session, err := checkToken(r.Context(), sessionStore, token)
 			if err != nil || session.ID == "" || session.SessionTokenExpiresAt.Before(time.Now()) {
+				log.Println("Invalid token", err.Error(), "aa", session.SessionTokenExpiresAt.Before(time.Now()))
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
 			user, err := userStore.FindUserWithID(r.Context(), nil, session.UserID)
 			if err != nil || user.ID == "" {
+				log.Println("invalid user", err.Error())
 				http.Error(w, "Invalid user", http.StatusUnauthorized)
 				return
 			}
