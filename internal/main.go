@@ -52,9 +52,15 @@ func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore user
 			token := tokenParts[1]
 
 			session, err := checkToken(r.Context(), sessionStore, token)
-			if err != nil || session.ID == "" || session.SessionTokenExpiresAt.Before(time.Now()) {
-				log.Println("Invalid token", err.Error(), "aa", session.SessionTokenExpiresAt.Before(time.Now()))
+			if err != nil {
+				log.Println("Invalid token", err.Error())
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+
+			if session.ID == "" || session.SessionTokenExpiresAt.Before(time.Now()) {
+				log.Println("token expired", session.SessionTokenExpiresAt.Before(time.Now()))
+				http.Error(w, "token expired", http.StatusUnauthorized)
 				return
 			}
 
