@@ -76,7 +76,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-  let isAuthenticated = !!sessionStorage.getItem('session_token');
+  let isAuthenticated = !!localStorage.getItem('session_token');
 
   // first time browsing
   if (!isAuthenticated) {
@@ -84,7 +84,7 @@ router.beforeEach(async (to, from, next) => {
 
     try {
       await publicApi.refreshToken()
-      isAuthenticated = !!sessionStorage.getItem('session_token');
+      isAuthenticated = !!localStorage.getItem('session_token');
     } catch (error) {
       console.log(error);
     }

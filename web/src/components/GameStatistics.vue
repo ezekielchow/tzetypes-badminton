@@ -42,7 +42,7 @@ onBeforeMount(async () => {
 })
 
 let isLoggedIn = false
-const sessionToken = sessionStorage.getItem('session_token')
+const sessionToken = localStorage.getItem('session_token')
 if (sessionToken && sessionToken !== "") {
     isLoggedIn = true
 }
@@ -98,7 +98,7 @@ const getStatistics = async () => {
     updateDisplay()
     updateMetaTags()
 
-    const token = sessionStorage.getItem('session_token')
+    const token = localStorage.getItem('session_token')
     if (token && token !== "") {
         await getGameHistory(gameData.game.id)
     }
@@ -174,7 +174,7 @@ const updateMetaTags = () => {
 
 const handlePlayerIdentify = async (value: string) => {
 
-    const token = sessionStorage.getItem('session_token')
+    const token = localStorage.getItem('session_token')
     if (!token || token === "") {
         document.getElementsByName("player_identify").forEach((radio) => {
             (radio as HTMLInputElement).checked = false

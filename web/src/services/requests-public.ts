@@ -40,7 +40,7 @@ export class MyPublicApi extends BaseAPI {
 
     try {
       const response = await api.refreshToken()
-      sessionStorage.setItem('session_token', response.sessionToken);
+      localStorage.setItem('session_token', response.sessionToken);
 
     } catch (error) {
       throw new Error('Failed to refresh token');

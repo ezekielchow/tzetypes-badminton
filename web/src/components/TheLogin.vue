@@ -55,7 +55,7 @@ const submitLogin = async () => {
   }
 
   errorMessage.value = ''
-  sessionStorage.setItem('session_token', res.sessionToken);
+  localStorage.setItem('session_token', res.sessionToken)
 
   if (sessionStore.toRedirectToUrl && sessionStore.toRedirectToUrl !== "") {
     const to = sessionStore.toRedirectToUrl
