@@ -1,0 +1,43 @@
+linters:
+  enable:
+    - revive # Checks Go code style (e.g., naming, comments)
+    - gocritic # Finds common issues and anti-patterns
+    - gofmt # Checks formatting using `gofmt`
+    - errcheck # Finds unchecked errors
+    - staticcheck # Performs various static analysis checks
+    - unused # Finds unused variables, functions, etc.
+    - misspell # Finds common spelling mistakes
+    - unused # Checks for unused struct fields
+    - typecheck # Performs type checking and reporting
+    - dupl # Finds duplicate code
+    - gosimple # Simplifies code by removing redundancy
+    - gosec # Security linter to detect vulnerabilities
+  disable:
+    - bodyclose # Disables linting of body close in defer statements (not always relevant)
+    - depguard # Checks that dependencies are used correctly, but can be too noisy in some cases
+    - gochecknoglobals # For large projects, globals might not always be a concern
+  skip-dirs:
+    - vendor # Skip vendor directory
+    - third_party # Skip third-party libraries
+  skip-files:
+    - ".*_test.go" # Skip test files (optional but can reduce noise)
+
+issues:
+  exclude-rules:
+    - path: _test\.go # Disable linter warnings on test files
+      text: "Error return value is not checked" # Ignore non-checked errors in tests
+    - path: /mocks/ # Ignore generated mocks
+      text: "generated" # Skip generated code from linters
+
+# Optional settings for individual linters
+gofmt:
+  simplify: true # Will automatically apply `gofmt` in the configuration
+
+dupl:
+  threshold: 100 # Set the threshold for duplicate code to 100 lines (change as needed)
+
+gosec:
+  severity: medium # Set the severity of security issues (low, medium, high, critical)
+
+run:
+  timeout: 5m # Set a timeout for running the linters

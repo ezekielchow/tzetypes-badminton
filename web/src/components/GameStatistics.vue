@@ -6,6 +6,7 @@ import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
 import { type GetGame200Response } from "@/repositories/clients/public";
 import router from '@/router';
+import { auth } from '@/services/firebase';
 import { useGameStore } from '@/stores/game-store';
 import { useSessionStore } from '@/stores/session-store';
 import Swal from 'sweetalert2';
@@ -42,8 +43,8 @@ onBeforeMount(async () => {
 })
 
 let isLoggedIn = false
-const sessionToken = localStorage.getItem('session_token')
-if (sessionToken && sessionToken !== "") {
+const user = auth.currentUser
+if (user) {
     isLoggedIn = true
 }
 
@@ -98,8 +99,8 @@ const getStatistics = async () => {
     updateDisplay()
     updateMetaTags()
 
-    const token = localStorage.getItem('session_token')
-    if (token && token !== "") {
+    const user = auth.currentUser
+    if (user) {
         await getGameHistory(gameData.game.id)
     }
 }
@@ -174,8 +175,8 @@ const updateMetaTags = () => {
 
 const handlePlayerIdentify = async (value: string) => {
 
-    const token = localStorage.getItem('session_token')
-    if (!token || token === "") {
+    const user = auth.currentUser
+    if (!user) {
         document.getElementsByName("player_identify").forEach((radio) => {
             (radio as HTMLInputElement).checked = false
         });

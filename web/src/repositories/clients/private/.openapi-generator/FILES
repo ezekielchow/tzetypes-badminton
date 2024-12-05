@@ -1,4 +1,3 @@
-apis/DefaultApi.ts
 apis/GameApi.ts
 apis/PlayersApi.ts
 apis/UsersApi.ts

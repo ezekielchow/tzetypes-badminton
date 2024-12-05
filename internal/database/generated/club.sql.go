@@ -78,12 +78,12 @@ func (q *Queries) FindPlayerInClub(ctx context.Context, arg FindPlayerInClubPara
 	return i, err
 }
 
-const getClubGivenOwnerId = `-- name: GetClubGivenOwnerId :one
+const getClubGivenOwnerID = `-- name: GetClubGivenOwnerID :one
 SELECT id, owner_id, name, created_at, updated_at FROM clubs WHERE owner_id = $1::uuid limit 1
 `
 
-func (q *Queries) GetClubGivenOwnerId(ctx context.Context, ownerID pgtype.UUID) (Club, error) {
-	row := q.db.QueryRow(ctx, getClubGivenOwnerId, ownerID)
+func (q *Queries) GetClubGivenOwnerID(ctx context.Context, ownerID pgtype.UUID) (Club, error) {
+	row := q.db.QueryRow(ctx, getClubGivenOwnerID, ownerID)
 	var i Club
 	err := row.Scan(
 		&i.ID,

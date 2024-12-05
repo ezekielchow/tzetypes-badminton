@@ -1,5 +1,4 @@
 apis/GameApi.ts
-apis/UsersApi.ts
 apis/index.ts
 index.ts
 models/Game.ts

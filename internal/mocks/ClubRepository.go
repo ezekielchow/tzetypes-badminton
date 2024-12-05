@@ -90,12 +90,12 @@ func (_m *ClubRepository) FindPlayerInClub(ctx context.Context, tx *pgx.Tx, club
 	return r0, r1
 }
 
-// GetClubGivenOwnerId provides a mock function with given fields: ctx, tx, ownerID
-func (_m *ClubRepository) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
+// GetClubGivenOwnerID provides a mock function with given fields: ctx, tx, ownerID
+func (_m *ClubRepository) GetClubGivenOwnerID(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
 	ret := _m.Called(ctx, tx, ownerID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetClubGivenOwnerId")
+		panic("no return value specified for GetClubGivenOwnerID")
 	}
 
 	var r0 models.Club

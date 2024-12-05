@@ -15,25 +15,12 @@
 
 import * as runtime from '../runtime';
 import type {
-  LoginRequestSchema,
-  LoginResponseSchema,
-  RefreshTokenResponseSchema,
   SignupRequestSchema,
 } from '../models/index';
 import {
-    LoginRequestSchemaFromJSON,
-    LoginRequestSchemaToJSON,
-    LoginResponseSchemaFromJSON,
-    LoginResponseSchemaToJSON,
-    RefreshTokenResponseSchemaFromJSON,
-    RefreshTokenResponseSchemaToJSON,
     SignupRequestSchemaFromJSON,
     SignupRequestSchemaToJSON,
 } from '../models/index';
-
-export interface LoginRequest {
-    loginRequestSchema: LoginRequestSchema;
-}
 
 export interface SignupClubOwnerRequest {
     signupRequestSchema: SignupRequestSchema;
@@ -47,64 +34,6 @@ export interface SignupPlayerRequest {
  * 
  */
 export class UsersApi extends runtime.BaseAPI {
-
-    /**
-     */
-    async loginRaw(requestParameters: LoginRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LoginResponseSchema>> {
-        if (requestParameters['loginRequestSchema'] == null) {
-            throw new runtime.RequiredError(
-                'loginRequestSchema',
-                'Required parameter "loginRequestSchema" was null or undefined when calling login().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/login`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: LoginRequestSchemaToJSON(requestParameters['loginRequestSchema']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => LoginResponseSchemaFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async login(requestParameters: LoginRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LoginResponseSchema> {
-        const response = await this.loginRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async refreshTokenRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RefreshTokenResponseSchema>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/refresh-token`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => RefreshTokenResponseSchemaFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async refreshToken(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RefreshTokenResponseSchema> {
-        const response = await this.refreshTokenRaw(initOverrides);
-        return await response.value();
-    }
 
     /**
      */

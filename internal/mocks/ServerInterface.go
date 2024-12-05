@@ -29,11 +29,6 @@ func (_m *ServerInterface) CreateOrUpdateGameHistory(w http.ResponseWriter, r *h
 	_m.Called(w, r, gameId)
 }
 
-// Dashboard provides a mock function with given fields: w, r
-func (_m *ServerInterface) Dashboard(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
-}
-
 // DeleteGameSteps provides a mock function with given fields: w, r, gameId
 func (_m *ServerInterface) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
 	_m.Called(w, r, gameId)
@@ -67,11 +62,6 @@ func (_m *ServerInterface) GetRecentStatistics(w http.ResponseWriter, r *http.Re
 // ListPlayers provides a mock function with given fields: w, r, params
 func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
 	_m.Called(w, r, params)
-}
-
-// Logout provides a mock function with given fields: w, r
-func (_m *ServerInterface) Logout(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
 }
 
 // StartGame provides a mock function with given fields: w, r

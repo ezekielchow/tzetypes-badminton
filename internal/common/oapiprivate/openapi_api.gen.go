@@ -17,9 +17,6 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (GET /dashboard)
-	Dashboard(w http.ResponseWriter, r *http.Request)
-
 	// (POST /game)
 	StartGame(w http.ResponseWriter, r *http.Request)
 
@@ -40,9 +37,6 @@ type ServerInterface interface {
 
 	// (POST /game/{game_id}/steps/delete)
 	DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string)
-
-	// (GET /logout)
-	Logout(w http.ResponseWriter, r *http.Request)
 	// List players
 	// (GET /players)
 	ListPlayers(w http.ResponseWriter, r *http.Request, params ListPlayersParams)
@@ -63,11 +57,6 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
-
-// (GET /dashboard)
-func (_ Unimplemented) Dashboard(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
 
 // (POST /game)
 func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
@@ -102,11 +91,6 @@ func (_ Unimplemented) AddGameSteps(w http.ResponseWriter, r *http.Request, game
 
 // (POST /game/{game_id}/steps/delete)
 func (_ Unimplemented) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /logout)
-func (_ Unimplemented) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -146,26 +130,6 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
-
-// Dashboard operation middleware
-func (siw *ServerInterfaceWrapper) Dashboard(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.Dashboard(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
 
 // StartGame operation middleware
 func (siw *ServerInterfaceWrapper) StartGame(w http.ResponseWriter, r *http.Request) {
@@ -353,26 +317,6 @@ func (siw *ServerInterfaceWrapper) DeleteGameSteps(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteGameSteps(w, r, gameId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// Logout operation middleware
-func (siw *ServerInterfaceWrapper) Logout(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.Logout(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -669,9 +613,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/dashboard", wrapper.Dashboard)
-	})
-	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/game", wrapper.StartGame)
 	})
 	r.Group(func(r chi.Router) {
@@ -691,9 +632,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/game/{game_id}/steps/delete", wrapper.DeleteGameSteps)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/logout", wrapper.Logout)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/players", wrapper.ListPlayers)
@@ -735,33 +673,6 @@ type GetRecentStatisticsResponseSchemaJSONResponse struct {
 type StartGame201ResponseSchemaJSONResponse struct {
 	Game  Game       `json:"game"`
 	Steps []GameStep `json:"steps"`
-}
-
-type DashboardRequestObject struct {
-}
-
-type DashboardResponseObject interface {
-	VisitDashboardResponse(w http.ResponseWriter) error
-}
-
-type Dashboard204Response struct {
-}
-
-func (response Dashboard204Response) VisitDashboardResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DashboarddefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response DashboarddefaultJSONResponse) VisitDashboardResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
 }
 
 type StartGameRequestObject struct {
@@ -978,33 +889,6 @@ func (response DeleteGameStepsdefaultJSONResponse) VisitDeleteGameStepsResponse(
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type LogoutRequestObject struct {
-}
-
-type LogoutResponseObject interface {
-	VisitLogoutResponse(w http.ResponseWriter) error
-}
-
-type Logout204Response struct {
-}
-
-func (response Logout204Response) VisitLogoutResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type LogoutdefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response LogoutdefaultJSONResponse) VisitLogoutResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
-}
-
 type ListPlayersRequestObject struct {
 	Params ListPlayersParams
 }
@@ -1139,9 +1023,6 @@ func (response GetLoggedInUserdefaultJSONResponse) VisitGetLoggedInUserResponse(
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
-	// (GET /dashboard)
-	Dashboard(ctx context.Context, request DashboardRequestObject) (DashboardResponseObject, error)
-
 	// (POST /game)
 	StartGame(ctx context.Context, request StartGameRequestObject) (StartGameResponseObject, error)
 
@@ -1162,9 +1043,6 @@ type StrictServerInterface interface {
 
 	// (POST /game/{game_id}/steps/delete)
 	DeleteGameSteps(ctx context.Context, request DeleteGameStepsRequestObject) (DeleteGameStepsResponseObject, error)
-
-	// (GET /logout)
-	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
 	// List players
 	// (GET /players)
 	ListPlayers(ctx context.Context, request ListPlayersRequestObject) (ListPlayersResponseObject, error)
@@ -1209,30 +1087,6 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
-}
-
-// Dashboard operation middleware
-func (sh *strictHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
-	var request DashboardRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.Dashboard(ctx, request.(DashboardRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "Dashboard")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DashboardResponseObject); ok {
-		if err := validResponse.VisitDashboardResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
 }
 
 // StartGame operation middleware
@@ -1441,30 +1295,6 @@ func (sh *strictHandler) DeleteGameSteps(w http.ResponseWriter, r *http.Request,
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(DeleteGameStepsResponseObject); ok {
 		if err := validResponse.VisitDeleteGameStepsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// Logout operation middleware
-func (sh *strictHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	var request LogoutRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.Logout(ctx, request.(LogoutRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "Logout")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(LogoutResponseObject); ok {
-		if err := validResponse.VisitLogoutResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -12,7 +12,7 @@ INSERT INTO player_clubs (
   @player_id::uuid, @club_id::uuid
 );
 
--- name: GetClubGivenOwnerId :one
+-- name: GetClubGivenOwnerID :one
 SELECT * FROM clubs WHERE owner_id = @owner_id::uuid limit 1;
 
 -- name: FindPlayerInClub :one

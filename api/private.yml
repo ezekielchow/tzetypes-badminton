@@ -14,26 +14,6 @@ servers:
 security:
   - BearerAuth: []
 paths:
-  /dashboard:
-    get:
-      operationId: dashboard
-      responses:
-        "204":
-          description: dashboard success
-        default:
-          $ref: "#/components/responses/ErrorResponseSchema"
-
-  /logout:
-    get:
-      operationId: logout
-      tags:
-        - users
-      responses:
-        "204":
-          description: logout success
-        default:
-          $ref: "#/components/responses/ErrorResponseSchema"
-
   /players/{id}:
     get:
       summary: Get a player by ID

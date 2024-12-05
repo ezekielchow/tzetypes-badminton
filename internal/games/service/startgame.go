@@ -47,7 +47,7 @@ func (gs GameService) StartGame(ctx context.Context, input oapiprivate.StartGame
 	}
 	defer tx.Rollback(ctx)
 
-	club, err := gs.ClubStore.GetClubGivenOwnerId(ctx, &tx, user.ID)
+	club, err := gs.ClubStore.GetClubGivenOwnerID(ctx, &tx, user.ID)
 	if err != nil {
 		return nil, err
 	}

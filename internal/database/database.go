@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres" // package does so
+	_ "github.com/jackc/pgx/v5"                                // package does so
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

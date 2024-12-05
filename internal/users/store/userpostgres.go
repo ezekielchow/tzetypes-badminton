@@ -13,16 +13,16 @@ type UserPostgres struct {
 	Queries *database.Queries
 }
 
-func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, email string, passwordHash string, userType string) (models.User, error) {
+func (up UserPostgres) CreateUser(ctx context.Context, tx *pgx.Tx, firebaseUID string, email string, accountTier string) (models.User, error) {
 	queries := up.Queries
 	if tx != nil {
 		queries = queries.WithTx(*tx)
 	}
 
 	created, err := queries.CreateUser(ctx, database.CreateUserParams{
-		Email:        email,
-		PasswordHash: &passwordHash,
-		UserType:     userType,
+		FirebaseUid: firebaseUID,
+		Email:       email,
+		AccountTier: accountTier,
 	})
 
 	if err != nil {

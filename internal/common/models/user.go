@@ -8,20 +8,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserType string
+type AccountTier string
 
 const (
-	UserTypeClubOwner UserType = "club_owner"
-	UserTypePlayer    UserType = "player"
+	AccountTierPlayer    AccountTier = "player"
+	AccountTierSmallClub AccountTier = "small_club"
+	AccountTierBigClub   AccountTier = "big_club"
 )
 
 type User struct {
-	ID           string
-	Email        string
-	PasswordHash string
-	UserType     string
-	CreatedAt    time.Time
-	UpdatedAt    *time.Time
+	ID          string
+	FirebaseUID string
+	Email       string
+	AccountTier string
+	CreatedAt   time.Time
+	UpdatedAt   *time.Time
 }
 
 func (u *User) PostgresToModel(fromDb database.User) error {
@@ -31,9 +32,9 @@ func (u *User) PostgresToModel(fromDb database.User) error {
 	}
 
 	u.ID = uuid.String()
+	u.FirebaseUID = fromDb.FirebaseUid
 	u.Email = fromDb.Email
-	u.PasswordHash = *fromDb.PasswordHash
-	u.UserType = fromDb.UserType
+	u.AccountTier = fromDb.AccountTier
 	u.CreatedAt = fromDb.CreatedAt.Time
 	u.UpdatedAt = &fromDb.UpdatedAt.Time
 
@@ -42,8 +43,9 @@ func (u *User) PostgresToModel(fromDb database.User) error {
 
 func (u *User) Mock() {
 	u.ID = uuid.NewString()
+	u.FirebaseUID = utils.NewString(10)
 	u.Email = utils.NewEmail(6)
-	u.PasswordHash = utils.NewString(24)
+	u.AccountTier = utils.NewString(10)
 	u.CreatedAt = time.Now()
 	u.UpdatedAt = nil
 }

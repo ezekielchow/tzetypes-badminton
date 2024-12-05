@@ -8,6 +8,7 @@ import (
 	"common/oapipublic"
 	"context"
 	"database/sql"
+	"fmt"
 	games "games/service"
 	gamestore "games/store"
 	"log"
@@ -24,68 +25,91 @@ import (
 	usersService "users/service"
 	usersStore "users/store"
 
+	firebase "firebase.google.com/go"
+	"firebase.google.com/go/auth"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/api/option"
 )
 
-func BearerTokenAuth(sessionStore sessionstore.SessionRepository, userStore usersStore.UserRepository) func(next http.Handler) http.Handler {
+var firebaseAuth *auth.Client
+
+func BearerTokenAuth(userStore usersStore.UserRepository) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				log.Println("Missing Authorization header")
-				http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
+				http.Error(w, "Authorization header missing", http.StatusUnauthorized)
 				return
 			}
 
-			tokenParts := strings.Split(authHeader, " ")
-			if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
-				log.Println("Invalid Authorization header format")
-				http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
-				return
-			}
-
-			token := tokenParts[1]
-
-			session, err := checkToken(r.Context(), sessionStore, token)
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+			verifiedToken, err := verifyToken(token)
 			if err != nil {
-				log.Println("Invalid token", err.Error())
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
-			if session.ID == "" || session.SessionTokenExpiresAt.Before(time.Now()) {
-				log.Println("token expired", session.SessionTokenExpiresAt.Before(time.Now()))
-				http.Error(w, "token expired", http.StatusUnauthorized)
+			email, ok := verifiedToken.Claims["email"].(string)
+			if !ok {
+				http.Error(w, "Email not found in token", http.StatusBadRequest)
 				return
 			}
 
-			user, err := userStore.FindUserWithID(r.Context(), nil, session.UserID)
-			if err != nil || user.ID == "" {
+			user, err := userStore.FindUserWithEmail(r.Context(), nil, email)
+			if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
 				log.Println("invalid user", err.Error())
 				http.Error(w, "Invalid user", http.StatusUnauthorized)
 				return
 			}
 
-			// Proceed with the request
+			if user.ID == "" {
+				user, err = userStore.CreateUser(r.Context(), nil, verifiedToken.UID, email, string(models.AccountTierPlayer))
+				if err != nil {
+					log.Println("failed to c8 user", err.Error())
+					http.Error(w, "failed to c8 user", http.StatusInternalServerError)
+					return
+				}
+			}
+
 			ctx := context.WithValue(r.Context(), common.ContextUser, user)
-			ctx = context.WithValue(ctx, common.ContextSession, session)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
-func checkToken(ctx context.Context, sessionStore sessionstore.SessionRepository, token string) (models.Session, error) {
-	session, err := sessionStore.FindSessionWithSessionID(ctx, nil, token)
-	if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
-		return models.Session{}, err
+func initFirebase() {
+	serviceAccountJSON := os.Getenv("FIREBASE_SERVICE_ACCOUNT")
+	filePath := "/tmp/firebase-service-account.json"
+
+	// Write the secret to a temporary file
+	err := os.WriteFile(filePath, []byte(serviceAccountJSON), 0600)
+	if err != nil {
+		log.Fatalf("Failed to write service account file: %v", err)
 	}
 
-	return session, err
+	opt := option.WithCredentialsFile(filePath)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		log.Fatalf("error initializing app: %v", err)
+	}
+
+	firebaseAuth, err = app.Auth(context.Background())
+	if err != nil {
+		log.Fatalf("error initializing firebase auth: %v", err)
+	}
+}
+
+func verifyToken(token string) (*auth.Token, error) {
+	verifiedToken, err := firebaseAuth.VerifyIDToken(context.Background(), token)
+	if err != nil {
+		return nil, fmt.Errorf("error verifying token: %v", err)
+	}
+	return verifiedToken, nil
 }
 
 func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
@@ -93,9 +117,6 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 	apiRoute := commonmiddlewares.NewRouter()
 	apiRoute.Use(
 		BearerTokenAuth(
-			&sessionstore.SessionPostgres{
-				Queries: queries,
-			},
 			&usersStore.UserPostgres{
 				Queries: queries,
 			}))
@@ -119,11 +140,12 @@ func loggingMiddleware(next http.Handler) http.Handler {
 			"client":   r.RemoteAddr,
 		})
 
-		if rr.Status() >= 500 {
+		switch {
+		case rr.Status() >= 500:
 			logEntry.Error("Server error occurred")
-		} else if rr.Status() >= 400 {
+		case rr.Status() >= 400:
 			logEntry.Warn("Client error occurred")
-		} else {
+		default:
 			logEntry.Info("Request handled successfully")
 		}
 	})
@@ -131,6 +153,8 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	ctx := context.Background()
+
+	initFirebase()
 
 	dbURI := os.Getenv("DB_URI")
 	if len(dbURI) < 1 {

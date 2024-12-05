@@ -30,8 +30,9 @@
 </template>
 
 <script setup lang="ts">
+import { auth } from '@/services/firebase';
 import { useSessionStore } from '@/stores/session-store';
-import { useUserStore } from '@/stores/user-store';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -44,27 +45,12 @@ const sessionStore = useSessionStore()
 
 const submitLogin = async () => {
 
-  const userStore = useUserStore()
-
-  userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
-  const res = await userStore.login(email.value, password.value)
-
-  if (res instanceof Error) {
-    errorMessage.value = res.message
-    return
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    router.push('/dashboard')
+  } catch (err: any) {
+    errorMessage.value = err.message
   }
-
-  errorMessage.value = ''
-  localStorage.setItem('session_token', res.sessionToken)
-
-  if (sessionStore.toRedirectToUrl && sessionStore.toRedirectToUrl !== "") {
-    const to = sessionStore.toRedirectToUrl
-    sessionStore.toRedirectToUrl = ""
-    window.location.href = to
-    return
-  }
-
-  router.push('/dashboard')
 }
 </script>
 

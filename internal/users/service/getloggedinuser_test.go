@@ -17,11 +17,12 @@ func TestGetLoggedInUser(t *testing.T) {
 
 	t.Run("successful with no updated at", func(t *testing.T) {
 		user := models.User{
-			ID:           "UNIQUE_ID",
-			Email:        utils.NewEmail(10),
-			PasswordHash: "",
-			CreatedAt:    time.Now(),
-			UpdatedAt:    nil,
+			ID:          "UNIQUE_ID",
+			FirebaseUID: utils.NewString(10),
+			Email:       utils.NewEmail(10),
+			AccountTier: string(models.AccountTierPlayer),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   nil,
 		}
 
 		res, err := userService.GetLoggedInUser(ctx, oapiprivate.GetLoggedInUserRequestObject{}, user)
@@ -44,11 +45,12 @@ func TestGetLoggedInUser(t *testing.T) {
 
 		now := time.Now()
 		user := models.User{
-			ID:           "UNIQUE_ID",
-			Email:        utils.NewEmail(10),
-			PasswordHash: "",
-			CreatedAt:    now,
-			UpdatedAt:    &now,
+			ID:          "UNIQUE_ID",
+			FirebaseUID: utils.NewString(10),
+			Email:       utils.NewEmail(10),
+			AccountTier: string(models.AccountTierPlayer),
+			CreatedAt:   now,
+			UpdatedAt:   &now,
 		}
 
 		res, err := userService.GetLoggedInUser(ctx, oapiprivate.GetLoggedInUserRequestObject{}, user)

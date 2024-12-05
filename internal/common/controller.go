@@ -25,33 +25,6 @@ func NewController(cs CommonService) *Controller {
 	return &Controller{Services: cs}
 }
 
-func (c Controller) Login(ctx context.Context, input oapipublic.LoginRequestObject) (oapipublic.LoginResponseObject, error) {
-	return c.Services.UserService.Login(ctx, input)
-}
-
-func (c Controller) SignupClubOwner(ctx context.Context, input oapipublic.SignupClubOwnerRequestObject) (oapipublic.SignupClubOwnerResponseObject, error) {
-	return c.Services.UserService.SignupClubOwner(ctx, input)
-}
-
-func (c Controller) RefreshToken(ctx context.Context, input oapipublic.RefreshTokenRequestObject) (oapipublic.RefreshTokenResponseObject, error) {
-	return c.Services.UserService.RefreshToken(ctx, input)
-}
-
-func (c Controller) Dashboard(ctx context.Context, input oapiprivate.DashboardRequestObject) (oapiprivate.DashboardResponseObject, error) {
-	fmt.Println("user?", ctx.Value(ContextUser))
-
-	return oapiprivate.Dashboard204Response{}, nil
-}
-
-func (c Controller) Logout(ctx context.Context, input oapiprivate.LogoutRequestObject) (oapiprivate.LogoutResponseObject, error) {
-	session, ok := ctx.Value(ContextSession).(models.Session)
-	if !ok {
-		return nil, fmt.Errorf("unable to convert session context")
-	}
-
-	return c.Services.UserService.Logout(ctx, input, session)
-}
-
 func (c Controller) AddPlayer(ctx context.Context, input oapiprivate.AddPlayerRequestObject) (oapiprivate.AddPlayerResponseObject, error) {
 	user, ok := ctx.Value(ContextUser).(models.User)
 	if !ok {
@@ -105,10 +78,6 @@ func (c Controller) EndGame(ctx context.Context, input oapiprivate.EndGameReques
 
 func (c Controller) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
 	return c.Services.GameService.GetGame(ctx, input)
-}
-
-func (c Controller) SignupPlayer(ctx context.Context, input oapipublic.SignupPlayerRequestObject) (oapipublic.SignupPlayerResponseObject, error) {
-	return c.Services.UserService.SignupPlayer(ctx, input)
 }
 
 func (c Controller) CreateOrUpdateGameHistory(ctx context.Context, input oapiprivate.CreateOrUpdateGameHistoryRequestObject) (oapiprivate.CreateOrUpdateGameHistoryResponseObject, error) {

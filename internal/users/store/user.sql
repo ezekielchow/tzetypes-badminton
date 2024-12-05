@@ -1,8 +1,10 @@
 -- name: CreateUser :one
 INSERT INTO users (
-  email,password_hash,user_type
+  firebase_uid,email,account_tier
 ) VALUES (
-  $1,$2,$3
+  @firebase_uid::text,
+  @email::text,
+  @account_tier::text
 ) RETURNING *;
 
 -- name: FindUserWithEmail :one

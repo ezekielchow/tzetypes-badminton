@@ -16,7 +16,7 @@ func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlay
 
 	defer tx.Rollback(ctx)
 
-	user, err := ps.UserStore.CreateUser(ctx, &tx, "", "", string(models.UserTypePlayer))
+	user, err := ps.UserStore.CreateUser(ctx, &tx, "", "", string(models.AccountTierPlayer))
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (ps PlayerService) AddPlayer(ctx context.Context, input oapiprivate.AddPlay
 		return nil, err
 	}
 
-	club, err := ps.ClubStore.GetClubGivenOwnerId(ctx, &tx, ownerID)
+	club, err := ps.ClubStore.GetClubGivenOwnerID(ctx, &tx, ownerID)
 	if err != nil {
 		return nil, err
 	}

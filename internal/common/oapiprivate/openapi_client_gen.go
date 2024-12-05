@@ -89,9 +89,6 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// Dashboard request
-	Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// StartGameWithBody request with any body
 	StartGameWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -123,9 +120,6 @@ type ClientInterface interface {
 
 	DeleteGameSteps(ctx context.Context, gameId string, body DeleteGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// Logout request
-	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListPlayers request
 	ListPlayers(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -144,18 +138,6 @@ type ClientInterface interface {
 
 	// GetLoggedInUser request
 	GetLoggedInUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-}
-
-func (c *Client) Dashboard(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDashboardRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
 }
 
 func (c *Client) StartGameWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -302,18 +284,6 @@ func (c *Client) DeleteGameSteps(ctx context.Context, gameId string, body Delete
 	return c.Client.Do(req)
 }
 
-func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewLogoutRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListPlayers(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPlayersRequest(c.Server, params)
 	if err != nil {
@@ -396,33 +366,6 @@ func (c *Client) GetLoggedInUser(ctx context.Context, reqEditors ...RequestEdito
 		return nil, err
 	}
 	return c.Client.Do(req)
-}
-
-// NewDashboardRequest generates requests for Dashboard
-func NewDashboardRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/dashboard")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
 }
 
 // NewStartGameRequest calls the generic StartGame builder with application/json body
@@ -714,33 +657,6 @@ func NewDeleteGameStepsRequestWithBody(server string, gameId string, contentType
 	return req, nil
 }
 
-// NewLogoutRequest generates requests for Logout
-func NewLogoutRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/logout")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewListPlayersRequest generates requests for ListPlayers
 func NewListPlayersRequest(server string, params *ListPlayersParams) (*http.Request, error) {
 	var err error
@@ -1021,9 +937,6 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// DashboardWithResponse request
-	DashboardWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DashboardResponse, error)
-
 	// StartGameWithBodyWithResponse request with any body
 	StartGameWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartGameResponse, error)
 
@@ -1055,9 +968,6 @@ type ClientWithResponsesInterface interface {
 
 	DeleteGameStepsWithResponse(ctx context.Context, gameId string, body DeleteGameStepsJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteGameStepsResponse, error)
 
-	// LogoutWithResponse request
-	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
-
 	// ListPlayersWithResponse request
 	ListPlayersWithResponse(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*ListPlayersResponse, error)
 
@@ -1076,28 +986,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetLoggedInUserWithResponse request
 	GetLoggedInUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLoggedInUserResponse, error)
-}
-
-type DashboardResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSONDefault  *ErrorResponseSchema
-}
-
-// Status returns HTTPResponse.Status
-func (r DashboardResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DashboardResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
 }
 
 type StartGameResponse struct {
@@ -1261,28 +1149,6 @@ func (r DeleteGameStepsResponse) StatusCode() int {
 	return 0
 }
 
-type LogoutResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSONDefault  *ErrorResponseSchema
-}
-
-// Status returns HTTPResponse.Status
-func (r LogoutResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r LogoutResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ListPlayersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1404,15 +1270,6 @@ func (r GetLoggedInUserResponse) StatusCode() int {
 	return 0
 }
 
-// DashboardWithResponse request returning *DashboardResponse
-func (c *ClientWithResponses) DashboardWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DashboardResponse, error) {
-	rsp, err := c.Dashboard(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDashboardResponse(rsp)
-}
-
 // StartGameWithBodyWithResponse request with arbitrary body returning *StartGameResponse
 func (c *ClientWithResponses) StartGameWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartGameResponse, error) {
 	rsp, err := c.StartGameWithBody(ctx, contentType, body, reqEditors...)
@@ -1516,15 +1373,6 @@ func (c *ClientWithResponses) DeleteGameStepsWithResponse(ctx context.Context, g
 	return ParseDeleteGameStepsResponse(rsp)
 }
 
-// LogoutWithResponse request returning *LogoutResponse
-func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error) {
-	rsp, err := c.Logout(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseLogoutResponse(rsp)
-}
-
 // ListPlayersWithResponse request returning *ListPlayersResponse
 func (c *ClientWithResponses) ListPlayersWithResponse(ctx context.Context, params *ListPlayersParams, reqEditors ...RequestEditorFn) (*ListPlayersResponse, error) {
 	rsp, err := c.ListPlayers(ctx, params, reqEditors...)
@@ -1584,32 +1432,6 @@ func (c *ClientWithResponses) GetLoggedInUserWithResponse(ctx context.Context, r
 		return nil, err
 	}
 	return ParseGetLoggedInUserResponse(rsp)
-}
-
-// ParseDashboardResponse parses an HTTP response from a DashboardWithResponse call
-func ParseDashboardResponse(rsp *http.Response) (*DashboardResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DashboardResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest ErrorResponseSchema
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
 }
 
 // ParseStartGameResponse parses an HTTP response from a StartGameWithResponse call
@@ -1814,32 +1636,6 @@ func ParseDeleteGameStepsResponse(rsp *http.Response) (*DeleteGameStepsResponse,
 	}
 
 	response := &DeleteGameStepsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest ErrorResponseSchema
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseLogoutResponse parses an HTTP response from a LogoutWithResponse call
-func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &LogoutResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

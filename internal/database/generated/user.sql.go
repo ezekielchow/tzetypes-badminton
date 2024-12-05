@@ -13,26 +13,28 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email,password_hash,user_type
+  firebase_uid,email,account_tier
 ) VALUES (
-  $1,$2,$3
-) RETURNING id, email, user_type, password_hash, created_at, updated_at
+  $1::text,
+  $2::text,
+  $3::text
+) RETURNING id, firebase_uid, email, account_tier, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Email        string
-	PasswordHash *string
-	UserType     string
+	FirebaseUid string
+	Email       string
+	AccountTier string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.PasswordHash, arg.UserType)
+	row := q.db.QueryRow(ctx, createUser, arg.FirebaseUid, arg.Email, arg.AccountTier)
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.FirebaseUid,
 		&i.Email,
-		&i.UserType,
-		&i.PasswordHash,
+		&i.AccountTier,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -40,7 +42,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const findUserWithEmail = `-- name: FindUserWithEmail :one
-SELECT id, email, user_type, password_hash, created_at, updated_at FROM users WHERE email=$1
+SELECT id, firebase_uid, email, account_tier, created_at, updated_at FROM users WHERE email=$1
 `
 
 func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, error) {
@@ -48,9 +50,9 @@ func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, er
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.FirebaseUid,
 		&i.Email,
-		&i.UserType,
-		&i.PasswordHash,
+		&i.AccountTier,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -58,7 +60,7 @@ func (q *Queries) FindUserWithEmail(ctx context.Context, email string) (User, er
 }
 
 const findUserWithID = `-- name: FindUserWithID :one
-SELECT id, email, user_type, password_hash, created_at, updated_at FROM users WHERE id=$1
+SELECT id, firebase_uid, email, account_tier, created_at, updated_at FROM users WHERE id=$1
 `
 
 func (q *Queries) FindUserWithID(ctx context.Context, id pgtype.UUID) (User, error) {
@@ -66,9 +68,9 @@ func (q *Queries) FindUserWithID(ctx context.Context, id pgtype.UUID) (User, err
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.FirebaseUid,
 		&i.Email,
-		&i.UserType,
-		&i.PasswordHash,
+		&i.AccountTier,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

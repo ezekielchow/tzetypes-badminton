@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	oapipublic "common/oapipublic"
+	oapiprivate "common/oapiprivate"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,7 +14,7 @@ type ClientOption struct {
 }
 
 // Execute provides a mock function with given fields: _a0
-func (_m *ClientOption) Execute(_a0 *oapipublic.Client) error {
+func (_m *ClientOption) Execute(_a0 *oapiprivate.Client) error {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
@@ -22,7 +22,7 @@ func (_m *ClientOption) Execute(_a0 *oapipublic.Client) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*oapipublic.Client) error); ok {
+	if rf, ok := ret.Get(0).(func(*oapiprivate.Client) error); ok {
 		r0 = rf(_a0)
 	} else {
 		r0 = ret.Error(0)

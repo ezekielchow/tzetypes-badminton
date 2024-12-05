@@ -34,7 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user-store';
+import { auth } from '@/services/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -46,18 +47,14 @@ const router = useRouter()
 
 const submitSignup = async () => {
 
-  const userStore = useUserStore()
-
-  userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
-  const res = await userStore.signupPlayer(email.value, password.value, passwordRepeat.value)
-
-  if (res instanceof Error) {
-    errorMessage.value = res.message
-    return
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    errorMessage.value = ''
+    router.push('/login')
+  } catch (error: any) {
+    errorMessage.value = error.message
   }
 
-  errorMessage.value = ''
-  router.push('/login')
 }
 </script>
 

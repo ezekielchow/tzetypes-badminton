@@ -25,18 +25,6 @@ type ServerInterface interface {
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(w http.ResponseWriter, r *http.Request)
-
-	// (POST /login)
-	Login(w http.ResponseWriter, r *http.Request)
-
-	// (POST /refresh-token)
-	RefreshToken(w http.ResponseWriter, r *http.Request)
-
-	// (POST /signup-club-owner)
-	SignupClubOwner(w http.ResponseWriter, r *http.Request)
-
-	// (POST /signup-player)
-	SignupPlayer(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -58,26 +46,6 @@ func (_ Unimplemented) GetGame(w http.ResponseWriter, r *http.Request, gameId st
 // Generate statistics for players that has latest game in timespan
 // (GET /generate-recent-statistics)
 func (_ Unimplemented) GenerateRecentStatistics(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /login)
-func (_ Unimplemented) Login(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /refresh-token)
-func (_ Unimplemented) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /signup-club-owner)
-func (_ Unimplemented) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /signup-player)
-func (_ Unimplemented) SignupPlayer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -134,62 +102,6 @@ func (siw *ServerInterfaceWrapper) GenerateRecentStatistics(w http.ResponseWrite
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GenerateRecentStatistics(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// Login operation middleware
-func (siw *ServerInterfaceWrapper) Login(w http.ResponseWriter, r *http.Request) {
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.Login(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// RefreshToken operation middleware
-func (siw *ServerInterfaceWrapper) RefreshToken(w http.ResponseWriter, r *http.Request) {
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.RefreshToken(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// SignupClubOwner operation middleware
-func (siw *ServerInterfaceWrapper) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.SignupClubOwner(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// SignupPlayer operation middleware
-func (siw *ServerInterfaceWrapper) SignupPlayer(w http.ResponseWriter, r *http.Request) {
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.SignupPlayer(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -321,18 +233,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/generate-recent-statistics", wrapper.GenerateRecentStatistics)
 	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/login", wrapper.Login)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/refresh-token", wrapper.RefreshToken)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/signup-club-owner", wrapper.SignupClubOwner)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/signup-player", wrapper.SignupPlayer)
-	})
 
 	return r
 }
@@ -426,119 +326,6 @@ func (response GenerateRecentStatisticsdefaultJSONResponse) VisitGenerateRecentS
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type LoginRequestObject struct {
-	Body *LoginJSONRequestBody
-}
-
-type LoginResponseObject interface {
-	VisitLoginResponse(w http.ResponseWriter) error
-}
-
-type Login200JSONResponse LoginResponseSchema
-
-func (response Login200JSONResponse) VisitLoginResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type LogindefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response LogindefaultJSONResponse) VisitLoginResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
-}
-
-type RefreshTokenRequestObject struct {
-}
-
-type RefreshTokenResponseObject interface {
-	VisitRefreshTokenResponse(w http.ResponseWriter) error
-}
-
-type RefreshToken200JSONResponse RefreshTokenResponseSchema
-
-func (response RefreshToken200JSONResponse) VisitRefreshTokenResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type RefreshTokendefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response RefreshTokendefaultJSONResponse) VisitRefreshTokenResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
-}
-
-type SignupClubOwnerRequestObject struct {
-	Body *SignupClubOwnerJSONRequestBody
-}
-
-type SignupClubOwnerResponseObject interface {
-	VisitSignupClubOwnerResponse(w http.ResponseWriter) error
-}
-
-type SignupClubOwner201Response struct {
-}
-
-func (response SignupClubOwner201Response) VisitSignupClubOwnerResponse(w http.ResponseWriter) error {
-	w.WriteHeader(201)
-	return nil
-}
-
-type SignupClubOwnerdefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response SignupClubOwnerdefaultJSONResponse) VisitSignupClubOwnerResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
-}
-
-type SignupPlayerRequestObject struct {
-	Body *SignupPlayerJSONRequestBody
-}
-
-type SignupPlayerResponseObject interface {
-	VisitSignupPlayerResponse(w http.ResponseWriter) error
-}
-
-type SignupPlayer201Response struct {
-}
-
-func (response SignupPlayer201Response) VisitSignupPlayerResponse(w http.ResponseWriter) error {
-	w.WriteHeader(201)
-	return nil
-}
-
-type SignupPlayerdefaultJSONResponse struct {
-	Body       Error
-	StatusCode int
-}
-
-func (response SignupPlayerdefaultJSONResponse) VisitSignupPlayerResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(response.StatusCode)
-
-	return json.NewEncoder(w).Encode(response.Body)
-}
-
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// End games which are abandoned after a time
@@ -550,18 +337,6 @@ type StrictServerInterface interface {
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(ctx context.Context, request GenerateRecentStatisticsRequestObject) (GenerateRecentStatisticsResponseObject, error)
-
-	// (POST /login)
-	Login(ctx context.Context, request LoginRequestObject) (LoginResponseObject, error)
-
-	// (POST /refresh-token)
-	RefreshToken(ctx context.Context, request RefreshTokenRequestObject) (RefreshTokenResponseObject, error)
-
-	// (POST /signup-club-owner)
-	SignupClubOwner(ctx context.Context, request SignupClubOwnerRequestObject) (SignupClubOwnerResponseObject, error)
-
-	// (POST /signup-player)
-	SignupPlayer(ctx context.Context, request SignupPlayerRequestObject) (SignupPlayerResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -660,123 +435,6 @@ func (sh *strictHandler) GenerateRecentStatistics(w http.ResponseWriter, r *http
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GenerateRecentStatisticsResponseObject); ok {
 		if err := validResponse.VisitGenerateRecentStatisticsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// Login operation middleware
-func (sh *strictHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var request LoginRequestObject
-
-	var body LoginJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.Login(ctx, request.(LoginRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "Login")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(LoginResponseObject); ok {
-		if err := validResponse.VisitLoginResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// RefreshToken operation middleware
-func (sh *strictHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	var request RefreshTokenRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.RefreshToken(ctx, request.(RefreshTokenRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "RefreshToken")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(RefreshTokenResponseObject); ok {
-		if err := validResponse.VisitRefreshTokenResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// SignupClubOwner operation middleware
-func (sh *strictHandler) SignupClubOwner(w http.ResponseWriter, r *http.Request) {
-	var request SignupClubOwnerRequestObject
-
-	var body SignupClubOwnerJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.SignupClubOwner(ctx, request.(SignupClubOwnerRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SignupClubOwner")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(SignupClubOwnerResponseObject); ok {
-		if err := validResponse.VisitSignupClubOwnerResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// SignupPlayer operation middleware
-func (sh *strictHandler) SignupPlayer(w http.ResponseWriter, r *http.Request) {
-	var request SignupPlayerRequestObject
-
-	var body SignupPlayerJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.SignupPlayer(ctx, request.(SignupPlayerRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SignupPlayer")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(SignupPlayerResponseObject); ok {
-		if err := validResponse.VisitSignupPlayerResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

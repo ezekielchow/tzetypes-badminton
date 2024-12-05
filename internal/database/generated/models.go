@@ -136,10 +136,10 @@ type Session struct {
 }
 
 type User struct {
-	ID           pgtype.UUID
-	Email        string
-	UserType     string
-	PasswordHash *string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	ID          pgtype.UUID
+	FirebaseUid string
+	Email       string
+	AccountTier string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }

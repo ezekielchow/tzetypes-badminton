@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { GetRecentStatistics200Response } from '@/repositories/clients/private';
+import { auth } from '@/services/firebase';
+import { MyPrivateApi } from '@/services/requests-private';
 import { useGameStore } from '@/stores/game-store';
 import { useUserStore } from '@/stores/user-store';
+import { signOut } from 'firebase/auth';
 import { DateTime } from 'luxon';
 import { computed, onMounted, reactive, ref } from 'vue';
 
@@ -33,13 +36,15 @@ onMounted(async () => {
 })
 
 const submitLogout = async () => {
-    const res = await userStore.logout()
+    try {
+        await signOut(auth)
+        const privApi = new MyPrivateApi(import.meta.env.VITE_PROXY_URL)
+        privApi.deleteSession()
 
-    if (res instanceof Error) {
-        errorMessage.value = res.message
-        return
+    } catch (error: any) {
+        errorMessage.value = error.message
+
     }
-
     errorMessage.value = ""
 }
 

@@ -39,17 +39,20 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await privateApi.startGame(params)
+        if (res) {
+          this.currentGameSettings = res.game
+          this.currentGameProgress = []
+          for (let i = 0; i < res.steps.length; i++) {
+            this.currentGameProgress = this.currentGameProgress.concat({
+              ...res.steps[i],
+              isSynced: true
+            })
+          }
 
-        this.currentGameSettings = res.game
-        this.currentGameProgress = []
-        for (let i = 0; i < res.steps.length; i++) {
-          this.currentGameProgress = this.currentGameProgress.concat({
-            ...res.steps[i],
-            isSynced: true
-          })
+          return res
         }
+        throw new Error("request failed");
 
-        return res
 
       } catch (error: any) {
         if (error.response) {
@@ -65,23 +68,25 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await privateApi.addGameSteps(params)
+        if (res) {
+          for (let i = 0; i < res.gameSteps.length; i++) {
+            const step = res.gameSteps[i];
 
-        for (let i = 0; i < res.gameSteps.length; i++) {
-          const step = res.gameSteps[i];
-
-          const matchedIndex = this.currentGameProgress.findIndex((progress) => progress.syncId == step.syncId)
-          if (matchedIndex) {
-            this.currentGameProgress[matchedIndex] = {
-              ...this.currentGameProgress[matchedIndex],
-              isSynced: true,
-              id: step.id,
-              createdAt: step.createdAt,
-              updatedAt: step.updatedAt
+            const matchedIndex = this.currentGameProgress.findIndex((progress) => progress.syncId == step.syncId)
+            if (matchedIndex) {
+              this.currentGameProgress[matchedIndex] = {
+                ...this.currentGameProgress[matchedIndex],
+                isSynced: true,
+                id: step.id,
+                createdAt: step.createdAt,
+                updatedAt: step.updatedAt
+              }
             }
           }
-        }
 
-        return res
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -146,7 +151,10 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await privateApi.createOrUpdateGameHistory(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -166,7 +174,10 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await privateApi.getGameHistory(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -181,7 +192,10 @@ export const useGameStore = defineStore('game', {
 
       try {
         const res = await privateApi.getRecentStatistics()
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {

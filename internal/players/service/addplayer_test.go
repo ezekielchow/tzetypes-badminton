@@ -19,7 +19,7 @@ func TestAddPlayer(t *testing.T) {
 		name := utils.NewString(10)
 		ownerEmail := utils.NewEmail(10)
 
-		user, err := playerService.UserStore.CreateUser(ctx, nil, ownerEmail, "", string(models.UserTypePlayer))
+		user, err := playerService.UserStore.CreateUser(ctx, nil, ownerEmail, "", string(models.AccountTierPlayer))
 		if err != nil {
 			t.Fatalf("unable to create user:%s", err)
 		}
@@ -56,7 +56,7 @@ func TestAddPlayer(t *testing.T) {
 			t.Fatalf("unable to find user: %s", err)
 		}
 
-		club, err := playerService.ClubStore.GetClubGivenOwnerId(ctx, nil, user.ID)
+		club, err := playerService.ClubStore.GetClubGivenOwnerID(ctx, nil, user.ID)
 		if err != nil {
 			t.Fatalf("unable to find club: %s", err)
 		}

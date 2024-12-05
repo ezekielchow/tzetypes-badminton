@@ -70,7 +70,7 @@ func (cp ClubPostgres) AddPlayerToClub(ctx context.Context, tx *pgx.Tx, playerID
 	return nil
 }
 
-func (cp ClubPostgres) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
+func (cp ClubPostgres) GetClubGivenOwnerID(ctx context.Context, tx *pgx.Tx, ownerID string) (models.Club, error) {
 	queries := cp.Queries
 	if tx != nil {
 		queries = queries.WithTx(*tx)
@@ -81,7 +81,7 @@ func (cp ClubPostgres) GetClubGivenOwnerId(ctx context.Context, tx *pgx.Tx, owne
 		return models.Club{}, err
 	}
 
-	pgClub, err := queries.GetClubGivenOwnerId(ctx, pgOwnerID)
+	pgClub, err := queries.GetClubGivenOwnerID(ctx, pgOwnerID)
 	if err != nil {
 		return models.Club{}, err
 	}

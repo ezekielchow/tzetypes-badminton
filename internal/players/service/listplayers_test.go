@@ -12,7 +12,7 @@ import (
 )
 
 func createRandomClubs(t *testing.T, ctx context.Context, playerService PlayerService, playerCount int) models.Club {
-	owner, err := playerService.UserStore.CreateUser(ctx, nil, utils.NewEmail(10), "", string(models.UserTypePlayer))
+	owner, err := playerService.UserStore.CreateUser(ctx, nil, utils.NewEmail(10), "", string(models.AccountTierPlayer))
 	if err != nil {
 		t.Fatalf("unable to create owner user: %s", err)
 	}
@@ -50,7 +50,7 @@ func TestListPlayers(t *testing.T) {
 	_ = createRandomClubs(t, ctx, playerService, 10)
 
 	perPage := 10
-	owner, err := playerService.UserStore.CreateUser(ctx, nil, utils.NewEmail(10), "", string(models.UserTypePlayer))
+	owner, err := playerService.UserStore.CreateUser(ctx, nil, utils.NewEmail(10), "", string(models.AccountTierPlayer))
 	if err != nil {
 		t.Fatalf("unable to create owner user: %s", err)
 	}

@@ -75,6 +75,8 @@ steps:
       - "IS_HTTPS=projects/754749631741/secrets/is-https:latest"
       - "--set-secrets"
       - "APP_PORT=projects/754749631741/secrets/app-port:latest"
+      - "--set-secrets"
+      - "FIREBASE_SERVICE_ACCOUNT=projects/754749631741/secrets/firebase-service-account:latest"
 
   - name: "gcr.io/cloud-builders/docker"
     args:

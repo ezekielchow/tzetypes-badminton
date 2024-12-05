@@ -1,17 +1,8 @@
-import SignupPlayer from '@/components/SignupPlayer.vue';
-import Dashboard from '@/components/TheDashboard.vue';
-import { MyPublicApi } from '@/services/requests-public';
-import GameSetupView from '@/views/GameSetupView.vue';
-import GameStatisticsView from '@/views/GameStatisticsView.vue';
-import LoginView from '@/views/LoginView.vue';
-import OngoingGameView from '@/views/OngoingGameView.vue';
-import PlayersAddView from '@/views/PlayersAddView.vue';
-import PlayersDashboardView from '@/views/PlayersDashboardView.vue';
-import PlayersEditView from '@/views/PlayersEditView.vue';
+import { auth } from '@/services/firebase';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -21,54 +12,54 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: () => import('@/views/LoginView.vue'),
       meta: { onlyPublic: true }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard,
+      component: () => import('@/components/TheDashboard.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/players',
       name: 'players',
-      component: PlayersDashboardView,
+      component: () => import('@/views/PlayersDashboardView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/players/add',
       name: 'players/add',
-      component: PlayersAddView,
+      component: () => import('@/views/PlayersAddView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/players/:id',
       name: 'players/edit',
-      component: PlayersEditView,
+      component: () => import('@/views/PlayersEditView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/game/setup',
       name: 'game/setup',
-      component: GameSetupView,
+      component: () => import('@/views/GameSetupView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/game/:id',
       name: 'game/playing',
-      component: OngoingGameView,
+      component: () => import('@/views/OngoingGameView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/game/:id/statistics',
       name: 'game/statistics',
-      component: GameStatisticsView,
+      component: () => import('@/views/GameStatisticsView.vue'),
     },
     {
       path: '/signup-player',
       name: 'signup-player',
-      component: SignupPlayer,
+      component: () => import('@/components/SignupPlayer.vue'),
       meta: { onlyPublic: true }
     },
   ]
@@ -76,19 +67,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-  let isAuthenticated = !!localStorage.getItem('session_token');
-
-  // first time browsing
-  if (!isAuthenticated) {
-    const publicApi = new MyPublicApi(import.meta.env.VITE_PROXY_URL)
-
-    try {
-      await publicApi.refreshToken()
-      isAuthenticated = !!localStorage.getItem('session_token');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const isAuthenticated = auth.currentUser
 
   const metas = Object.keys(to.meta)
   if (metas.includes("onlyPublic")) {

@@ -17,7 +17,10 @@ export const usePlayerStore = defineStore('player', {
 
       try {
         const res = await privateApi.listPlayers(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -32,7 +35,10 @@ export const usePlayerStore = defineStore('player', {
 
       try {
         const res = await privateApi.addPlayer(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -47,7 +53,10 @@ export const usePlayerStore = defineStore('player', {
 
       try {
         const res = await privateApi.getPlayer(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
@@ -62,7 +71,10 @@ export const usePlayerStore = defineStore('player', {
 
       try {
         const res = await privateApi.updatePlayer(params)
-        return res
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
 
       } catch (error: any) {
         if (error.response) {
