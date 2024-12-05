@@ -43,7 +43,6 @@ func BearerTokenAuth(userStore usersStore.UserRepository) func(next http.Handler
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				log.Println("OI?")
 				http.Error(w, "Authorization header missing", http.StatusUnauthorized)
 				return
 			}
@@ -51,7 +50,6 @@ func BearerTokenAuth(userStore usersStore.UserRepository) func(next http.Handler
 			token := strings.TrimPrefix(authHeader, "Bearer ")
 			verifiedToken, err := verifyToken(token)
 			if err != nil {
-				log.Println("unable to verify token?", err.Error())
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
