@@ -26,7 +26,7 @@ create-migration: ## Create migration file; Usage: make create-migration table_n
 	docker run --rm -v $(PWD)/internal/database/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq ${table_name}
 
 gen-mocks:  ## Generate mocks to help in testing
-	docker run -v ./internal:/src -w /src vektra/mockery --all
+	docker run --rm -v ./internal:/src -w /src vektra/mockery --all
 
 web-build: ## Build Frontend
 	cd ./web && bun run build

@@ -151,19 +151,13 @@ func main() {
 
 	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
 
-	conn, err := pgx.Connect(ctx, dbURI)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close(ctx)
-
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		panic(err)
 	}
 	defer pool.Close() // Ensure that the connection is properly closed on exit
 
-	queries := databasegenerated.New(conn)
+	queries := databasegenerated.New(pool)
 
 	service := common.CommonService{
 		UserService: usersService.UserService{
