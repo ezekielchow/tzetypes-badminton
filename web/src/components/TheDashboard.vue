@@ -161,17 +161,15 @@ const decorateSecondsWithHour = (seconds: number) => {
 
             </div>
 
-            <form>
-                <div class="actions">
-                    <ButtonComponent type="secondary" :isLoading="isLoading" @click.once="submitLogout">
-                        Logout
-                    </ButtonComponent>
-                </div>
+            <div class="actions">
+                <ButtonComponent type="secondary" :isLoading="isLoading" @click="submitLogout">
+                    Logout
+                </ButtonComponent>
+            </div>
 
-                <div v-if="errorMessage" class="error">
-                    {{ errorMessage }}
-                </div>
-            </form>
+            <div v-if="errorMessage" class="error">
+                {{ errorMessage }}
+            </div>
         </div>
 
         <div class="content">

@@ -2,7 +2,7 @@
   <div class="login-root">
     <div class="login-container">
       <h2 class="title mb headlines">Login</h2>
-      <form>
+      <div>
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
@@ -14,7 +14,7 @@
         </div>
 
         <div class="actions">
-          <ButtonComponent type="primary" :isLoading="isLoading" @click.once="submitLogin">
+          <ButtonComponent type="primary" :isLoading="isLoading" @click="submitLogin">
             Login
           </ButtonComponent>
         </div>
@@ -26,7 +26,7 @@
         <div v-if="errorMessage" class="error">
           {{ errorMessage }}
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
