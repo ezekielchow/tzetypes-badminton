@@ -2,7 +2,7 @@
   <div class="signup-root">
     <div class="signup-container">
       <h2 class="title mb headlines">Player Signup</h2>
-      <form @submit.prevent="submitSignup">
+      <form>
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
@@ -19,7 +19,9 @@
         </div>
 
         <div class="actions">
-          <button class="button button-primary" type="submit">Start as a player</button>
+          <ButtonComponent type="primary" :isLoading="isLoading" @click.prevent="submitSignup">
+            Start playing!
+          </ButtonComponent>
         </div>
 
         <div class="actions mt">Already have an account? <RouterLink to="/login">Login here</RouterLink>
@@ -37,29 +39,50 @@
 import { createUserWithEmailAndPassword, type Auth } from 'firebase/auth';
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import ButtonComponent from './ButtonComponent.vue';
 
 const email = ref('')
 const password = ref('')
 const passwordRepeat = ref("")
 const errorMessage = ref('')
+const isLoading = ref(false)
+
 const router = useRouter()
 const auth = inject<Auth>("auth");
 
 const submitSignup = async () => {
+
+  if (email.value.length < 1) {
+    errorMessage.value = "email is not valid"
+    return
+  }
+
+  if (password.value.length < 1 || passwordRepeat.value.length < 1) {
+    errorMessage.value = "password are invalid"
+    return
+  }
+
+  if (password.value !== passwordRepeat.value) {
+    errorMessage.value = "passwords must match"
+    return
+  }
+
+  isLoading.value = true
 
   try {
     if (auth) {
       await createUserWithEmailAndPassword(auth, email.value, password.value);
       errorMessage.value = ''
       router.push('/login')
+      isLoading.value = false
     } else {
       errorMessage.value = 'no login detected'
-
+      isLoading.value = false
     }
   } catch (error: any) {
     errorMessage.value = error.message
+    isLoading.value = false
   }
-
 }
 </script>
 
