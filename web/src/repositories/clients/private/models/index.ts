@@ -13,6 +13,7 @@ export * from './GameStep';
 export * from './GetGameHistory200Response';
 export * from './GetLoggedInUser200Response';
 export * from './GetRecentStatistics200Response';
+export * from './ListActiveGames200Response';
 export * from './ListPlayers200Response';
 export * from './ListPlayers200ResponsePagination';
 export * from './ModelError';

@@ -289,6 +289,36 @@ func (_m *GameServiceInterface) GetRecentStatistics(ctx context.Context, input o
 	return r0, r1
 }
 
+// ListActiveGames provides a mock function with given fields: ctx, input, user
+func (_m *GameServiceInterface) ListActiveGames(ctx context.Context, input oapiprivate.ListActiveGamesRequestObject, user models.User) (oapiprivate.ListActiveGamesResponseObject, error) {
+	ret := _m.Called(ctx, input, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListActiveGames")
+	}
+
+	var r0 oapiprivate.ListActiveGamesResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.ListActiveGamesRequestObject, models.User) (oapiprivate.ListActiveGamesResponseObject, error)); ok {
+		return rf(ctx, input, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.ListActiveGamesRequestObject, models.User) oapiprivate.ListActiveGamesResponseObject); ok {
+		r0 = rf(ctx, input, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapiprivate.ListActiveGamesResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.ListActiveGamesRequestObject, models.User) error); ok {
+		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // StartGame provides a mock function with given fields: ctx, input, user
 func (_m *GameServiceInterface) StartGame(ctx context.Context, input oapiprivate.StartGameRequestObject, user models.User) (oapiprivate.StartGameResponseObject, error) {
 	ret := _m.Called(ctx, input, user)

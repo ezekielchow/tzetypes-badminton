@@ -4,6 +4,7 @@ package mocks
 
 import (
 	context "context"
+	database "tzetypes-badminton/database/generated"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -241,6 +242,66 @@ func (_m *GameRepository) GetAbandonedGames(ctx context.Context, tx *pgx.Tx) ([]
 	return r0, r1
 }
 
+// GetActiveGames provides a mock function with given fields: ctx, tx, clubID
+func (_m *GameRepository) GetActiveGames(ctx context.Context, tx *pgx.Tx, clubID string) ([]models.Game, error) {
+	ret := _m.Called(ctx, tx, clubID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActiveGames")
+	}
+
+	var r0 []models.Game
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) ([]models.Game, error)); ok {
+		return rf(ctx, tx, clubID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string) []models.Game); ok {
+		r0 = rf(ctx, tx, clubID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Game)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
+		r1 = rf(ctx, tx, clubID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetClubGames provides a mock function with given fields: ctx, tx, clubID, sortGameCreatedAt, offset, limit
+func (_m *GameRepository) GetClubGames(ctx context.Context, tx *pgx.Tx, clubID string, sortGameCreatedAt string, offset int, limit int) ([]database.GetClubGamesRow, error) {
+	ret := _m.Called(ctx, tx, clubID, sortGameCreatedAt, offset, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetClubGames")
+	}
+
+	var r0 []database.GetClubGamesRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, int, int) ([]database.GetClubGamesRow, error)); ok {
+		return rf(ctx, tx, clubID, sortGameCreatedAt, offset, limit)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, int, int) []database.GetClubGamesRow); ok {
+		r0 = rf(ctx, tx, clubID, sortGameCreatedAt, offset, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.GetClubGamesRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, string, int, int) error); ok {
+		r1 = rf(ctx, tx, clubID, sortGameCreatedAt, offset, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetGame provides a mock function with given fields: ctx, tx, id
 func (_m *GameRepository) GetGame(ctx context.Context, tx *pgx.Tx, id string) (models.Game, error) {
 	ret := _m.Called(ctx, tx, id)
@@ -438,6 +499,36 @@ func (_m *GameRepository) GetMostRecentGameHistories(ctx context.Context, tx *pg
 
 	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string) error); ok {
 		r1 = rf(ctx, tx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPlayedGames provides a mock function with given fields: ctx, tx, userID, sortIsGameWon, sortGameCreatedAt, offset, limit
+func (_m *GameRepository) GetPlayedGames(ctx context.Context, tx *pgx.Tx, userID string, sortIsGameWon string, sortGameCreatedAt string, offset int, limit int) ([]database.GetPlayedGamesRow, error) {
+	ret := _m.Called(ctx, tx, userID, sortIsGameWon, sortGameCreatedAt, offset, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPlayedGames")
+	}
+
+	var r0 []database.GetPlayedGamesRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, string, int, int) ([]database.GetPlayedGamesRow, error)); ok {
+		return rf(ctx, tx, userID, sortIsGameWon, sortGameCreatedAt, offset, limit)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, string, string, string, int, int) []database.GetPlayedGamesRow); ok {
+		r0 = rf(ctx, tx, userID, sortIsGameWon, sortGameCreatedAt, offset, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.GetPlayedGamesRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx, string, string, string, int, int) error); ok {
+		r1 = rf(ctx, tx, userID, sortIsGameWon, sortGameCreatedAt, offset, limit)
 	} else {
 		r1 = ret.Error(1)
 	}

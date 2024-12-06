@@ -1,4 +1,4 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type GetRecentStatistics200Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type GetRecentStatistics200Response, type ListActiveGames200Response, type StartGameRequest } from "@/repositories/clients/private";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
 import type { GetGame200Response, GetGameRequest } from "@/repositories/clients/public";
 import { MyPrivateApi } from "@/services/requests-private";
@@ -221,7 +221,25 @@ export const useGameStore = defineStore('game', {
       }
 
       this.currentGameProgress = steps
-    }
+    },
+    async listActiveGames(): Promise<ListActiveGames200Response | Error> {
+      const privateApi = new MyPrivateApi(this.backendUrl)
+
+      try {
+        const res = await privateApi.listActiveGames()
+        if (res) {
+          return res
+        }
+        throw new Error("request failed")
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
   },
   persist: true
 })

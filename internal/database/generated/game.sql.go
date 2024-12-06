@@ -521,6 +521,116 @@ func (q *Queries) GetAbandonedGames(ctx context.Context) ([]pgtype.UUID, error) 
 	return items, nil
 }
 
+const getActiveGames = `-- name: GetActiveGames :many
+SELECT id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, is_ended, created_at, updated_at FROM games WHERE club_id = $1::uuid AND is_ended = FALSE ORDER BY created_at DESC limit 10
+`
+
+func (q *Queries) GetActiveGames(ctx context.Context, clubID pgtype.UUID) ([]Game, error) {
+	rows, err := q.db.Query(ctx, getActiveGames, clubID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClubID,
+			&i.LeftOddPlayerName,
+			&i.LeftEvenPlayerName,
+			&i.RightOddPlayerName,
+			&i.RightEvenPlayerName,
+			&i.GameType,
+			&i.ServingSide,
+			&i.IsEnded,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getClubGames = `-- name: GetClubGames :many
+SELECT 
+    id, club_id, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, game_type, serving_side, is_ended, created_at, updated_at,
+    COUNT(*) OVER() AS total_count 
+FROM games 
+WHERE 
+    club_id = $1
+ORDER BY
+  CASE WHEN $2::text = 'created_at_asc' THEN g.created_at END ASC,
+  CASE WHEN $2::text = 'created_at_desc' THEN g.created_at END DESC
+LIMIT $4::int
+OFFSET $3::int
+`
+
+type GetClubGamesParams struct {
+	ClubID            pgtype.UUID
+	SortGameCreatedAt string
+	OffsetCount       int32
+	LimitCount        int32
+}
+
+type GetClubGamesRow struct {
+	ID                  pgtype.UUID
+	ClubID              pgtype.UUID
+	LeftOddPlayerName   *string
+	LeftEvenPlayerName  string
+	RightOddPlayerName  *string
+	RightEvenPlayerName string
+	GameType            string
+	ServingSide         string
+	IsEnded             bool
+	CreatedAt           pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
+	TotalCount          int64
+}
+
+func (q *Queries) GetClubGames(ctx context.Context, arg GetClubGamesParams) ([]GetClubGamesRow, error) {
+	rows, err := q.db.Query(ctx, getClubGames,
+		arg.ClubID,
+		arg.SortGameCreatedAt,
+		arg.OffsetCount,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetClubGamesRow
+	for rows.Next() {
+		var i GetClubGamesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClubID,
+			&i.LeftOddPlayerName,
+			&i.LeftEvenPlayerName,
+			&i.RightOddPlayerName,
+			&i.RightEvenPlayerName,
+			&i.GameType,
+			&i.ServingSide,
+			&i.IsEnded,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGameHistoryGivenUserIdAndGameId = `-- name: GetGameHistoryGivenUserIdAndGameId :one
 SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at FROM game_histories WHERE game_id = $1::uuid AND user_id = $2::uuid limit 1
 `
@@ -793,6 +903,130 @@ func (q *Queries) GetMostRecentGameHistories(ctx context.Context, userID pgtype.
 			&i.TotalGameTimeSeconds,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPlayedGames = `-- name: GetPlayedGames :many
+SELECT 
+    g.id, g.club_id, g.left_odd_player_name, g.left_even_player_name, g.right_odd_player_name, g.right_even_player_name, g.game_type, g.serving_side, g.is_ended, g.created_at, g.updated_at,
+    g.created_at AS start_time,
+    gh.id, gh.user_id, gh.game_id, gh.player_position, gh.is_game_won, gh.game_started_at, gh.game_won_by, gh.total_points, gh.points_won, gh.points_lost, gh.average_time_per_point_seconds, gh.average_time_per_point_won_seconds, gh.average_time_per_point_lost_seconds, gh.longest_rally_seconds, gh.longest_rally_is_won, gh.shortest_rally_seconds, gh.shortest_rally_is_won, gh.total_game_time_seconds, gh.created_at, gh.updated_at,
+    COUNT(*) OVER() AS total_count
+FROM games AS g 
+JOIN  
+    game_histories AS gh ON g.id = gh.game_id
+WHERE 
+    gh.user_id = $1::uuid
+ORDER BY
+  CASE WHEN $2::text = 'is_game_won_asc' THEN gh.is_game_won END ASC,
+  CASE WHEN $2::text = 'is_game_won_desc' THEN gh.is_game_won END DESC,
+  CASE WHEN $3::text = 'created_at_asc' THEN g.created_at END ASC,
+  CASE WHEN $3::text = 'created_at_desc' THEN g.created_at END DESC
+LIMIT $5::int
+OFFSET $4::int
+`
+
+type GetPlayedGamesParams struct {
+	UserID            pgtype.UUID
+	SortIsGameWon     string
+	SortGameCreatedAt string
+	OffsetCount       int32
+	LimitCount        int32
+}
+
+type GetPlayedGamesRow struct {
+	ID                             pgtype.UUID
+	ClubID                         pgtype.UUID
+	LeftOddPlayerName              *string
+	LeftEvenPlayerName             string
+	RightOddPlayerName             *string
+	RightEvenPlayerName            string
+	GameType                       string
+	ServingSide                    string
+	IsEnded                        bool
+	CreatedAt                      pgtype.Timestamp
+	UpdatedAt                      pgtype.Timestamp
+	StartTime                      pgtype.Timestamp
+	ID_2                           pgtype.UUID
+	UserID                         pgtype.UUID
+	GameID                         pgtype.UUID
+	PlayerPosition                 string
+	IsGameWon                      int32
+	GameStartedAt                  pgtype.Timestamp
+	GameWonBy                      string
+	TotalPoints                    int32
+	PointsWon                      int32
+	PointsLost                     int32
+	AverageTimePerPointSeconds     int32
+	AverageTimePerPointWonSeconds  int32
+	AverageTimePerPointLostSeconds int32
+	LongestRallySeconds            int32
+	LongestRallyIsWon              int32
+	ShortestRallySeconds           int32
+	ShortestRallyIsWon             int32
+	TotalGameTimeSeconds           int32
+	CreatedAt_2                    pgtype.Timestamp
+	UpdatedAt_2                    pgtype.Timestamp
+	TotalCount                     int64
+}
+
+func (q *Queries) GetPlayedGames(ctx context.Context, arg GetPlayedGamesParams) ([]GetPlayedGamesRow, error) {
+	rows, err := q.db.Query(ctx, getPlayedGames,
+		arg.UserID,
+		arg.SortIsGameWon,
+		arg.SortGameCreatedAt,
+		arg.OffsetCount,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPlayedGamesRow
+	for rows.Next() {
+		var i GetPlayedGamesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClubID,
+			&i.LeftOddPlayerName,
+			&i.LeftEvenPlayerName,
+			&i.RightOddPlayerName,
+			&i.RightEvenPlayerName,
+			&i.GameType,
+			&i.ServingSide,
+			&i.IsEnded,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.StartTime,
+			&i.ID_2,
+			&i.UserID,
+			&i.GameID,
+			&i.PlayerPosition,
+			&i.IsGameWon,
+			&i.GameStartedAt,
+			&i.GameWonBy,
+			&i.TotalPoints,
+			&i.PointsWon,
+			&i.PointsLost,
+			&i.AverageTimePerPointSeconds,
+			&i.AverageTimePerPointWonSeconds,
+			&i.AverageTimePerPointLostSeconds,
+			&i.LongestRallySeconds,
+			&i.LongestRallyIsWon,
+			&i.ShortestRallySeconds,
+			&i.ShortestRallyIsWon,
+			&i.TotalGameTimeSeconds,
+			&i.CreatedAt_2,
+			&i.UpdatedAt_2,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

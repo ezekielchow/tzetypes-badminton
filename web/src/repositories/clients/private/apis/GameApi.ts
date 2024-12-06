@@ -22,6 +22,7 @@ import type {
   GameStartRequestSchema,
   GetGameHistory200Response,
   GetRecentStatistics200Response,
+  ListActiveGames200Response,
   StartGame201Response,
 } from '../models/index';
 import {
@@ -39,6 +40,8 @@ import {
     GetGameHistory200ResponseToJSON,
     GetRecentStatistics200ResponseFromJSON,
     GetRecentStatistics200ResponseToJSON,
+    ListActiveGames200ResponseFromJSON,
+    ListActiveGames200ResponseToJSON,
     StartGame201ResponseFromJSON,
     StartGame201ResponseToJSON,
 } from '../models/index';
@@ -333,6 +336,40 @@ export class GameApi extends runtime.BaseAPI {
      */
     async getRecentStatistics(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetRecentStatistics200Response> {
         const response = await this.getRecentStatisticsRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List active games
+     */
+    async listActiveGamesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListActiveGames200Response>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("BearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/game/active`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ListActiveGames200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * List active games
+     */
+    async listActiveGames(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListActiveGames200Response> {
+        const response = await this.listActiveGamesRaw(initOverrides);
         return await response.value();
     }
 
