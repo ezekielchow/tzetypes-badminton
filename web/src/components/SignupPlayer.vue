@@ -19,7 +19,7 @@
         </div>
 
         <div class="actions">
-          <ButtonComponent type="primary" :isLoading="isLoading" @click.prevent="submitSignup">
+          <ButtonComponent type="primary" :isLoading="isLoading" @click.once="submitSignup">
             Start playing!
           </ButtonComponent>
         </div>
@@ -51,23 +51,25 @@ const router = useRouter()
 const auth = inject<Auth>("auth");
 
 const submitSignup = async () => {
+  isLoading.value = true
 
   if (email.value.length < 1) {
     errorMessage.value = "email is not valid"
+    isLoading.value = false
     return
   }
 
   if (password.value.length < 1 || passwordRepeat.value.length < 1) {
     errorMessage.value = "password are invalid"
+    isLoading.value = false
     return
   }
 
   if (password.value !== passwordRepeat.value) {
     errorMessage.value = "passwords must match"
+    isLoading.value = false
     return
   }
-
-  isLoading.value = true
 
   try {
     if (auth) {

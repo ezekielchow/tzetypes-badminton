@@ -163,7 +163,7 @@ const decorateSecondsWithHour = (seconds: number) => {
 
             <form>
                 <div class="actions">
-                    <ButtonComponent type="secondary" :isLoading="isLoading" @click.prevent="submitLogout">
+                    <ButtonComponent type="secondary" :isLoading="isLoading" @click.once="submitLogout">
                         Logout
                     </ButtonComponent>
                 </div>

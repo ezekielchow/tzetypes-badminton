@@ -14,7 +14,7 @@
         </div>
 
         <div class="actions">
-          <ButtonComponent type="primary" :isLoading="isLoading" @click.prevent="submitLogin">
+          <ButtonComponent type="primary" :isLoading="isLoading" @click.once="submitLogin">
             Login
           </ButtonComponent>
         </div>
