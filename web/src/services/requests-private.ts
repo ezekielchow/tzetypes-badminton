@@ -18,6 +18,7 @@ import {
   type GetPlayerWithIdRequest,
   type GetRecentStatistics200Response,
   type InitOverrideFunction,
+  type ListActiveGames200Response,
   type ListPlayers200Response,
   type ListPlayersRequest,
   type Player,
@@ -336,6 +337,32 @@ export class MyPrivateApi extends BaseAPI {
       return
     } catch (error) {
       console.error('Failed to fetch recent statistics:', error); // This will catch and log any error
+      throw error; // Re-throw the error to propagate it further if needed
+    }
+  }
+
+  private async listActiveGamesRequest(initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<ListActiveGames200Response>> {
+    const api = new GameApi(await this.getPrivateConf())
+
+    try {
+      return await api.listActiveGamesRaw(initOverrides)
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get active games');
+    }
+  }
+
+  async listActiveGames(initOverrides?: RequestInit | InitOverrideFunction): Promise<ListActiveGames200Response | void> {
+    try {
+      const apiResponse = await this.authenticatedRequest(() => this.listActiveGamesRequest(initOverrides));
+      if (apiResponse) {
+        return await apiResponse.value();
+      }
+      return
+    } catch (error) {
+      console.error('Failed to fetch active games:', error); // This will catch and log any error
       throw error; // Re-throw the error to propagate it further if needed
     }
   }

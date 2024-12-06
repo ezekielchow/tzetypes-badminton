@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/user-store';
 import { signOut, type Auth } from 'firebase/auth';
 import { DateTime } from 'luxon';
 import { computed, inject, onMounted, reactive, ref } from 'vue';
+import ActiveGamesTable from './ActiveGamesTable.vue';
 import ButtonComponent from './ButtonComponent.vue';
 
 const errorMessage = ref('')
@@ -184,6 +185,10 @@ const decorateSecondsWithHour = (seconds: number) => {
                     New Game
                 </ButtonComponent>
             </RouterLink>
+            <div class="active-games-wrapper">
+                <h5 :style="{ textDecoration: 'underline' }">Ongoing Games</h5>
+                <ActiveGamesTable />
+            </div>
             <div class="recent-statistics" v-if="showRecentStatisticsHint">
                 <h5>Recent Statistics</h5>
                 <span>Bookmark Games to start!</span>
@@ -267,7 +272,7 @@ const decorateSecondsWithHour = (seconds: number) => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .recent-statistics {
@@ -276,7 +281,8 @@ const decorateSecondsWithHour = (seconds: number) => {
     flex-direction: column;
     width: 100%;
     padding: 10px;
-    margin-top: 40px;
+    margin-top: 35px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .statistic-header {
@@ -332,5 +338,16 @@ const decorateSecondsWithHour = (seconds: number) => {
 
 .statistic-right {
     background-color: #27AE60;
+}
+
+.active-games-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 25vh;
+    margin-top: 30px;
+    background-color: #DCEBFF;
+    padding: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
 </style>
