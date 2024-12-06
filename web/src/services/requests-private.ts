@@ -26,8 +26,7 @@ import {
   type UpdatePlayerWithIdOperationRequest
 } from '@/repositories/clients/private';
 
-import { auth } from '@/services/firebase';
-import { getIdToken } from 'firebase/auth';
+import { useUserStore } from '@/stores/user-store';
 import { resetStores } from './store';
 
 export class MyPrivateApi extends BaseAPI {
@@ -41,12 +40,12 @@ export class MyPrivateApi extends BaseAPI {
   }
 
   async getPrivateConf() {
-    const token = await getIdToken(auth.currentUser!);
+    const userStore = useUserStore()
 
     return new PrivateConf({
       basePath: `${this.backendUrl}/api`,
       credentials: "include",
-      accessToken: token ?? "",
+      accessToken: userStore.firebaseIdToken,
     });
   }
 

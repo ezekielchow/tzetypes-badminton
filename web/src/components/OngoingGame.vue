@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { v4 as uuidv4 } from 'uuid';
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ButtonComponent from './ButtonComponent.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -34,6 +35,8 @@ gameStore.$subscribe(() => {
 })
 
 onMounted(async () => {
+    isLoading.value = true
+
     const gameId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
     if (gameId == "") {
@@ -58,6 +61,8 @@ onMounted(async () => {
     }
 
     gameStore.loadGame(data)
+
+    isLoading.value = false
 
     handleOrientationChange();
     window.addEventListener('resize', handleOrientationChange);
@@ -230,6 +235,8 @@ const handleUndo = () => {
         },
     }).then(async (result) => {
         if (result.isConfirmed) {
+            isLoading.value = true
+
             let lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
 
             while (lastProgress.id == "") {
@@ -242,6 +249,8 @@ const handleUndo = () => {
             if (toRemove.length > 0) {
                 gameStore.stepsToRemove = gameStore.stepsToRemove.concat(toRemove[0].id)
             }
+
+            isLoading.value = false
         }
     })
 }
@@ -415,14 +424,15 @@ const handleEndGame = async () => {
                 <div class="push-end">
                     <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
                     <div>
-                        <button class="button-secondary footer-buttons" @click="handleEndGame()"
-                            :disabled="isLoading">{{ isLoading ?
-                                "Loading.." : "End Game"
-                            }}
-                        </button>
+                        <ButtonComponent type="secondary" class="footer-buttons" @click.prevent="handleEndGame"
+                            :isLoading="isLoading">
+                            End Game
+                        </ButtonComponent>
                     </div>
-                    <button class="button-secondary undo-button footer-buttons" @click="handleUndo()"
-                        :disabled="isLoading">Undo</button>
+                    <ButtonComponent type="secondary" class="undo-button footer-buttons" @click.prevent="handleUndo"
+                        :isLoading="isLoading">
+                        Undo
+                    </ButtonComponent>
                 </div>
             </div>
         </div>

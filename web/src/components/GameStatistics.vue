@@ -6,11 +6,12 @@ import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
 import { type GetGame200Response } from "@/repositories/clients/public";
 import router from '@/router';
-import { auth } from '@/services/firebase';
 import { useGameStore } from '@/stores/game-store';
 import { useSessionStore } from '@/stores/session-store';
+import { useUserStore } from '@/stores/user-store';
+import type { Auth } from 'firebase/auth';
 import Swal from 'sweetalert2';
-import { computed, onBeforeMount, reactive, ref } from 'vue';
+import { computed, inject, onBeforeMount, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
@@ -32,22 +33,24 @@ const averagePerPointLeftWidth = ref("")
 const averagePerpointRightWidth = ref("")
 const playerIdentityVal = ref("")
 
+const auth = inject<Auth>("auth");
+
 const shareURL = `${window.location.href}`
 const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 
 const sessionStore = useSessionStore()
+const userStore = useUserStore()
 
 onBeforeMount(async () => {
     await getStatistics()
 })
 
 let isLoggedIn = false
-const user = auth.currentUser
+const user = userStore.firebaseUser
 if (user) {
     isLoggedIn = true
 }
-
 
 const updateDisplay = () => {
 
@@ -99,7 +102,7 @@ const getStatistics = async () => {
     updateDisplay()
     updateMetaTags()
 
-    const user = auth.currentUser
+    const user = userStore.firebaseUser
     if (user) {
         await getGameHistory(gameData.game.id)
     }
@@ -175,7 +178,7 @@ const updateMetaTags = () => {
 
 const handlePlayerIdentify = async (value: string) => {
 
-    const user = auth.currentUser
+    const user = userStore.firebaseUser
     if (!user) {
         document.getElementsByName("player_identify").forEach((radio) => {
             (radio as HTMLInputElement).checked = false

@@ -34,9 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { auth } from '@/services/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { ref } from 'vue';
+import { createUserWithEmailAndPassword, type Auth } from 'firebase/auth';
+import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const email = ref('')
@@ -44,13 +43,19 @@ const password = ref('')
 const passwordRepeat = ref("")
 const errorMessage = ref('')
 const router = useRouter()
+const auth = inject<Auth>("auth");
 
 const submitSignup = async () => {
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    errorMessage.value = ''
-    router.push('/login')
+    if (auth) {
+      await createUserWithEmailAndPassword(auth, email.value, password.value);
+      errorMessage.value = ''
+      router.push('/login')
+    } else {
+      errorMessage.value = 'no login detected'
+
+    }
   } catch (error: any) {
     errorMessage.value = error.message
   }

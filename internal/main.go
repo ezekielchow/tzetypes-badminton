@@ -38,7 +38,7 @@ import (
 
 var firebaseAuth *auth.Client
 
-func BearerTokenAuth(userStore usersStore.UserRepository) func(next http.Handler) http.Handler {
+func BearerTokenAuth(userStore usersStore.UserRepository, clubStore clubs.ClubRepository) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -73,6 +73,25 @@ func BearerTokenAuth(userStore usersStore.UserRepository) func(next http.Handler
 					log.Println("failed to c8 user", err.Error())
 					http.Error(w, "failed to c8 user", http.StatusInternalServerError)
 					return
+				}
+
+				club, err := clubStore.GetClubGivenOwnerID(r.Context(), nil, user.ID)
+				if err != nil && !strings.Contains(sql.ErrNoRows.Error(), err.Error()) {
+					log.Println("find club:", err.Error())
+					http.Error(w, "find club:", http.StatusUnauthorized)
+					return
+				}
+
+				if club.ID == "" {
+					club, err = clubStore.CreateClub(r.Context(), nil, models.Club{
+						OwnerID: user.ID,
+						Name:    user.Email,
+					})
+					if err != nil {
+						log.Println("unable to create club:", err.Error())
+						http.Error(w, "unable to create club:", http.StatusUnauthorized)
+						return
+					}
 				}
 			}
 
@@ -118,6 +137,9 @@ func getPrivateRouter(queries *databasegenerated.Queries) *chi.Mux {
 	apiRoute.Use(
 		BearerTokenAuth(
 			&usersStore.UserPostgres{
+				Queries: queries,
+			},
+			&clubs.ClubPostgres{
 				Queries: queries,
 			}))
 
