@@ -1,4 +1,4 @@
-import { auth } from '@/services/firebase';
+import { useUserStore } from '@/stores/user-store';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -65,9 +65,15 @@ const router = createRouter({
   ]
 })
 
+
 router.beforeEach(async (to, from, next) => {
 
-  const isAuthenticated = auth.currentUser
+  const userStore = useUserStore()
+
+  let isAuthenticated = null
+  if (userStore.firebaseUser) {
+    isAuthenticated = userStore.firebaseUser
+  }
 
   const metas = Object.keys(to.meta)
   if (metas.includes("onlyPublic")) {

@@ -32,9 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { auth } from '@/services/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { ref } from 'vue';
+import { useUserStore } from '@/stores/user-store';
+import { signInWithEmailAndPassword, type Auth } from 'firebase/auth';
+import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ButtonComponent from './ButtonComponent.vue';
 
@@ -43,15 +43,26 @@ const password = ref('')
 const errorMessage = ref('')
 const router = useRouter()
 const isLoading = ref(false);
+const auth = inject<Auth>("auth");
+const userStore = useUserStore()
 
 const submitLogin = async () => {
 
   isLoading.value = true
 
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    router.push('/dashboard')
-    isLoading.value = false
+    if (auth) {
+      await signInWithEmailAndPassword(auth, email.value, password.value);
+      if (auth) {
+        userStore.firebaseUser = auth.currentUser
+      }
+
+      router.push('/dashboard')
+      isLoading.value = false
+    } else {
+      errorMessage.value = "no auth to sign in"
+      isLoading.value = false
+    }
   } catch (err: any) {
     errorMessage.value = err.message
     isLoading.value = false

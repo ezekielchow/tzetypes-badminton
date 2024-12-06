@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { getAuth, getIdToken, onAuthStateChanged } from "firebase/auth";
 import { onBeforeUnmount } from 'vue';
 import { RouterView } from 'vue-router';
 import { useGameStore } from './stores/game-store';
+import { useUserStore } from './stores/user-store';
 
 const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
+const userStore = useUserStore()
 
 let gameProgressInterval: number
 let isSyncing = false
@@ -75,6 +78,16 @@ const syncRemovePoints = async () => {
     return !ids.includes(step)
   })
 }
+
+const auth = getAuth();
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const token = await getIdToken(user)
+    userStore.firebaseIdToken = token
+  } else {
+    console.log("No user is signed in.");
+  }
+});
 
 </script>
 

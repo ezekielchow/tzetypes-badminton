@@ -1,12 +1,15 @@
 
 import type { User } from '@/repositories/clients/private'
 import { MyPrivateApi } from '@/services/requests-private'
+import type { User as AuthUser } from 'firebase/auth'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     backendUrl: "",
-    currentUser: null as User | null
+    currentUser: null as User | null,
+    firebaseUser: null as AuthUser | null,
+    firebaseIdToken: ""
   }),
   actions: {
     setBackendUrl(backendUrl: string) {
@@ -34,5 +37,6 @@ export const useUserStore = defineStore('user', {
         return new Error("Network error or unexpected error occurred")
       }
     }
-  }
+  },
+  persist: true
 })

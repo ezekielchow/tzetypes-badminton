@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { GetRecentStatistics200Response } from '@/repositories/clients/private';
-import { auth } from '@/services/firebase';
 import { MyPrivateApi } from '@/services/requests-private';
 import { useGameStore } from '@/stores/game-store';
 import { useUserStore } from '@/stores/user-store';
-import { signOut } from 'firebase/auth';
+import { signOut, type Auth } from 'firebase/auth';
 import { DateTime } from 'luxon';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, inject, onMounted, reactive, ref } from 'vue';
 import ButtonComponent from './ButtonComponent.vue';
 
 const errorMessage = ref('')
@@ -24,6 +23,7 @@ const avgTimePerPointLostDecorated = ref("")
 const avgTimePerGameDecorated = ref("")
 const showRecentStatisticsHint = ref(false)
 const isLoading = ref(false)
+const auth = inject<Auth>("auth");
 
 const userStore = useUserStore()
 userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
@@ -40,10 +40,15 @@ const submitLogout = async () => {
     isLoading.value = true
 
     try {
-        await signOut(auth)
-        const privApi = new MyPrivateApi(import.meta.env.VITE_PROXY_URL)
-        privApi.deleteSession()
-        isLoading.value = false
+        if (auth) {
+            await signOut(auth)
+            const privApi = new MyPrivateApi(import.meta.env.VITE_PROXY_URL)
+            privApi.deleteSession()
+            isLoading.value = false
+        } else {
+            errorMessage.value = "no auth to logout"
+            isLoading.value = false
+        }
     } catch (error: any) {
         errorMessage.value = error.message
         isLoading.value = false
