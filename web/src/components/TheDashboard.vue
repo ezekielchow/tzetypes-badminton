@@ -7,6 +7,7 @@ import { useUserStore } from '@/stores/user-store';
 import { signOut } from 'firebase/auth';
 import { DateTime } from 'luxon';
 import { computed, onMounted, reactive, ref } from 'vue';
+import ButtonComponent from './ButtonComponent.vue';
 
 const errorMessage = ref('')
 const userEmail = ref('')
@@ -22,7 +23,7 @@ const avgTimePerPointWonDecorated = ref("")
 const avgTimePerPointLostDecorated = ref("")
 const avgTimePerGameDecorated = ref("")
 const showRecentStatisticsHint = ref(false)
-
+const isLoading = ref(false)
 
 const userStore = useUserStore()
 userStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
@@ -36,16 +37,17 @@ onMounted(async () => {
 })
 
 const submitLogout = async () => {
+    isLoading.value = true
+
     try {
         await signOut(auth)
         const privApi = new MyPrivateApi(import.meta.env.VITE_PROXY_URL)
         privApi.deleteSession()
-
+        isLoading.value = false
     } catch (error: any) {
         errorMessage.value = error.message
-
+        isLoading.value = false
     }
-    errorMessage.value = ""
 }
 
 const getUserEmail = async () => {
@@ -153,10 +155,11 @@ const decorateSecondsWithHour = (seconds: number) => {
 
             </div>
 
-            <form @submit.prevent="submitLogout">
-
+            <form>
                 <div class="actions">
-                    <button type="submit" class="button button-secondary">Logout</button>
+                    <ButtonComponent type="secondary" :isLoading="isLoading" @click.prevent="submitLogout">
+                        Logout
+                    </ButtonComponent>
                 </div>
 
                 <div v-if="errorMessage" class="error">
@@ -172,9 +175,9 @@ const decorateSecondsWithHour = (seconds: number) => {
                 </button>
             </RouterLink> -->
             <RouterLink to="/game/setup" class="mt">
-                <button class="button button-primary">
+                <ButtonComponent type="primary">
                     New Game
-                </button>
+                </ButtonComponent>
             </RouterLink>
             <div class="recent-statistics" v-if="showRecentStatisticsHint">
                 <h5>Recent Statistics</h5>

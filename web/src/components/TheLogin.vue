@@ -2,7 +2,7 @@
   <div class="login-root">
     <div class="login-container">
       <h2 class="title mb headlines">Login</h2>
-      <form @submit.prevent="submitLogin">
+      <form>
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" v-model="email" name="email" autocomplete="email" required />
@@ -14,7 +14,9 @@
         </div>
 
         <div class="actions">
-          <button class="button button-primary" type="submit">Login</button>
+          <ButtonComponent type="primary" :isLoading="isLoading" @click.prevent="submitLogin">
+            Login
+          </ButtonComponent>
         </div>
 
         <div class="actions mt">New here? Join us now as a player. <RouterLink to="/signup-player">Signup today!
@@ -31,25 +33,28 @@
 
 <script setup lang="ts">
 import { auth } from '@/services/firebase';
-import { useSessionStore } from '@/stores/session-store';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import ButtonComponent from './ButtonComponent.vue';
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const router = useRouter()
-
-const sessionStore = useSessionStore()
+const isLoading = ref(false);
 
 const submitLogin = async () => {
 
+  isLoading.value = true
+
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    await signInWithEmailAndPassword(auth, email.value, password.value);
     router.push('/dashboard')
+    isLoading.value = false
   } catch (err: any) {
     errorMessage.value = err.message
+    isLoading.value = false
   }
 }
 </script>
