@@ -222,3 +222,38 @@ SELECT DISTINCT game_id from game_steps WHERE score_at < NOW() - INTERVAL '5 hou
 
 -- name: EndGames :exec
 UPDATE games SET is_ended = true WHERE id = ANY(@game_ids::uuid[]);
+
+-- name: GetActiveGames :many
+SELECT * FROM games WHERE club_id = @club_id::uuid AND is_ended = FALSE ORDER BY created_at DESC limit 10 ;
+
+-- name: GetPlayedGames :many
+SELECT 
+    g.*,
+    g.created_at AS start_time,
+    gh.*,
+    COUNT(*) OVER() AS total_count
+FROM games AS g 
+JOIN  
+    game_histories AS gh ON g.id = gh.game_id
+WHERE 
+    gh.user_id = @user_id::uuid
+ORDER BY
+  CASE WHEN @sort_is_game_won::text = 'is_game_won_asc' THEN gh.is_game_won END ASC,
+  CASE WHEN @sort_is_game_won::text = 'is_game_won_desc' THEN gh.is_game_won END DESC,
+  CASE WHEN @sort_game_created_at::text = 'created_at_asc' THEN g.created_at END ASC,
+  CASE WHEN @sort_game_created_at::text = 'created_at_desc' THEN g.created_at END DESC
+LIMIT @limit_count::int
+OFFSET @offset_count::int;
+
+-- name: GetClubGames :many
+SELECT 
+    *,
+    COUNT(*) OVER() AS total_count 
+FROM games 
+WHERE 
+    club_id = @club_id
+ORDER BY
+  CASE WHEN @sort_game_created_at::text = 'created_at_asc' THEN g.created_at END ASC,
+  CASE WHEN @sort_game_created_at::text = 'created_at_desc' THEN g.created_at END DESC
+LIMIT @limit_count::int
+OFFSET @offset_count::int;

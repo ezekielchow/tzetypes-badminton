@@ -3,6 +3,7 @@ package games
 import (
 	"common/models"
 	"context"
+	database "tzetypes-badminton/database/generated"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -25,4 +26,7 @@ type GameRepository interface {
 	GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.Tx, gameIDs []string) ([]models.GameStep, error)
 	GetAbandonedGames(ctx context.Context, tx *pgx.Tx) ([]string, error)
 	EndGames(ctx context.Context, tx *pgx.Tx, ids []string) error
+	GetActiveGames(ctx context.Context, tx *pgx.Tx, clubID string) ([]models.Game, error)
+	GetPlayedGames(ctx context.Context, tx *pgx.Tx, userID string, sortIsGameWon string, sortGameCreatedAt string, offset int, limit int) ([]database.GetPlayedGamesRow, error)
+	GetClubGames(ctx context.Context, tx *pgx.Tx, clubID string, sortGameCreatedAt string, offset int, limit int) ([]database.GetClubGamesRow, error)
 }

@@ -19,6 +19,9 @@ type ServerInterface interface {
 
 	// (POST /game)
 	StartGame(w http.ResponseWriter, r *http.Request)
+	// List active games
+	// (GET /game/active)
+	ListActiveGames(w http.ResponseWriter, r *http.Request)
 
 	// (GET /game/recent-statistics)
 	GetRecentStatistics(w http.ResponseWriter, r *http.Request)
@@ -60,6 +63,12 @@ type Unimplemented struct{}
 
 // (POST /game)
 func (_ Unimplemented) StartGame(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List active games
+// (GET /game/active)
+func (_ Unimplemented) ListActiveGames(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -142,6 +151,26 @@ func (siw *ServerInterfaceWrapper) StartGame(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartGame(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListActiveGames operation middleware
+func (siw *ServerInterfaceWrapper) ListActiveGames(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListActiveGames(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -616,6 +645,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/game", wrapper.StartGame)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/game/active", wrapper.ListActiveGames)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/game/recent-statistics", wrapper.GetRecentStatistics)
 	})
 	r.Group(func(r chi.Router) {
@@ -704,6 +736,24 @@ func (response StartGamedefaultJSONResponse) VisitStartGameResponse(w http.Respo
 	w.WriteHeader(response.StatusCode)
 
 	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type ListActiveGamesRequestObject struct {
+}
+
+type ListActiveGamesResponseObject interface {
+	VisitListActiveGamesResponse(w http.ResponseWriter) error
+}
+
+type ListActiveGames200JSONResponse struct {
+	Games *[]Game `json:"games,omitempty"`
+}
+
+func (response ListActiveGames200JSONResponse) VisitListActiveGamesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetRecentStatisticsRequestObject struct {
@@ -1025,6 +1075,9 @@ type StrictServerInterface interface {
 
 	// (POST /game)
 	StartGame(ctx context.Context, request StartGameRequestObject) (StartGameResponseObject, error)
+	// List active games
+	// (GET /game/active)
+	ListActiveGames(ctx context.Context, request ListActiveGamesRequestObject) (ListActiveGamesResponseObject, error)
 
 	// (GET /game/recent-statistics)
 	GetRecentStatistics(ctx context.Context, request GetRecentStatisticsRequestObject) (GetRecentStatisticsResponseObject, error)
@@ -1113,6 +1166,30 @@ func (sh *strictHandler) StartGame(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartGameResponseObject); ok {
 		if err := validResponse.VisitStartGameResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListActiveGames operation middleware
+func (sh *strictHandler) ListActiveGames(w http.ResponseWriter, r *http.Request) {
+	var request ListActiveGamesRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListActiveGames(ctx, request.(ListActiveGamesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListActiveGames")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListActiveGamesResponseObject); ok {
+		if err := validResponse.VisitListActiveGamesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

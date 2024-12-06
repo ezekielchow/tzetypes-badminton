@@ -114,3 +114,12 @@ func (c Controller) GetRecentStatistics(ctx context.Context, input oapiprivate.G
 func (c Controller) EndAbandonedGames(ctx context.Context, input oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error) {
 	return c.Services.GameService.EndAbandonedGames(ctx, input)
 }
+
+func (c Controller) ListActiveGames(ctx context.Context, input oapiprivate.ListActiveGamesRequestObject) (oapiprivate.ListActiveGamesResponseObject, error) {
+	user, ok := ctx.Value(ContextUser).(models.User)
+	if !ok {
+		return nil, fmt.Errorf("unable to convert user context")
+	}
+
+	return c.Services.GameService.ListActiveGames(ctx, input, user)
+}

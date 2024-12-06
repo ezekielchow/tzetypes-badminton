@@ -542,3 +542,82 @@ func (gp GamePostgres) EndGames(ctx context.Context, tx *pgx.Tx, ids []string) e
 
 	return nil
 }
+
+func (gp GamePostgres) GetActiveGames(ctx context.Context, tx *pgx.Tx, clubID string) ([]models.Game, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	pgClubID, err := utils.StringToPgId(clubID)
+	if err != nil {
+		return []models.Game{}, err
+	}
+
+	dbRes, err := queries.GetActiveGames(ctx, pgClubID)
+	if err != nil {
+		return []models.Game{}, err
+	}
+
+	games := []models.Game{}
+	for _, row := range dbRes {
+		game := models.Game{}
+		err = game.PostgresToModel(row)
+		if err != nil {
+			return []models.Game{}, err
+		}
+
+		games = append(games, game)
+	}
+
+	return games, nil
+}
+
+func (gp GamePostgres) GetPlayedGames(ctx context.Context, tx *pgx.Tx, userID string, sortIsGameWon string, sortGameCreatedAt string, offset int, limit int) ([]database.GetPlayedGamesRow, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	pgUserID, err := utils.StringToPgId(userID)
+	if err != nil {
+		return []database.GetPlayedGamesRow{}, err
+	}
+
+	dbRes, err := queries.GetPlayedGames(ctx, database.GetPlayedGamesParams{
+		UserID:            pgUserID,
+		SortIsGameWon:     sortIsGameWon,
+		SortGameCreatedAt: sortGameCreatedAt,
+		OffsetCount:       int32(offset),
+		LimitCount:        int32(limit),
+	})
+	if err != nil {
+		return []database.GetPlayedGamesRow{}, err
+	}
+
+	return dbRes, nil
+}
+
+func (gp GamePostgres) GetClubGames(ctx context.Context, tx *pgx.Tx, clubID string, sortGameCreatedAt string, offset int, limit int) ([]database.GetClubGamesRow, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	pgClubID, err := utils.StringToPgId(clubID)
+	if err != nil {
+		return []database.GetClubGamesRow{}, err
+	}
+
+	dbRes, err := queries.GetClubGames(ctx, database.GetClubGamesParams{
+		ClubID:            pgClubID,
+		SortGameCreatedAt: sortGameCreatedAt,
+		OffsetCount:       int32(offset),
+		LimitCount:        int32(limit),
+	})
+	if err != nil {
+		return []database.GetClubGamesRow{}, err
+	}
+
+	return dbRes, nil
+}

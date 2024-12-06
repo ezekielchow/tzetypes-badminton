@@ -94,6 +94,9 @@ type ClientInterface interface {
 
 	StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListActiveGames request
+	ListActiveGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetRecentStatistics request
 	GetRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -154,6 +157,18 @@ func (c *Client) StartGameWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) StartGame(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewStartGameRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListActiveGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListActiveGamesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -404,6 +419,33 @@ func NewStartGameRequestWithBody(server string, contentType string, body io.Read
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListActiveGamesRequest generates requests for ListActiveGames
+func NewListActiveGamesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/game/active")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -942,6 +984,9 @@ type ClientWithResponsesInterface interface {
 
 	StartGameWithResponse(ctx context.Context, body StartGameJSONRequestBody, reqEditors ...RequestEditorFn) (*StartGameResponse, error)
 
+	// ListActiveGamesWithResponse request
+	ListActiveGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListActiveGamesResponse, error)
+
 	// GetRecentStatisticsWithResponse request
 	GetRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetRecentStatisticsResponse, error)
 
@@ -1005,6 +1050,30 @@ func (r StartGameResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r StartGameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListActiveGamesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Games *[]Game `json:"games,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListActiveGamesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListActiveGamesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1287,6 +1356,15 @@ func (c *ClientWithResponses) StartGameWithResponse(ctx context.Context, body St
 	return ParseStartGameResponse(rsp)
 }
 
+// ListActiveGamesWithResponse request returning *ListActiveGamesResponse
+func (c *ClientWithResponses) ListActiveGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListActiveGamesResponse, error) {
+	rsp, err := c.ListActiveGames(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListActiveGamesResponse(rsp)
+}
+
 // GetRecentStatisticsWithResponse request returning *GetRecentStatisticsResponse
 func (c *ClientWithResponses) GetRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetRecentStatisticsResponse, error) {
 	rsp, err := c.GetRecentStatistics(ctx, reqEditors...)
@@ -1461,6 +1539,34 @@ func ParseStartGameResponse(rsp *http.Response) (*StartGameResponse, error) {
 			return nil, err
 		}
 		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListActiveGamesResponse parses an HTTP response from a ListActiveGamesWithResponse call
+func ParseListActiveGamesResponse(rsp *http.Response) (*ListActiveGamesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListActiveGamesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Games *[]Game `json:"games,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 

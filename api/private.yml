@@ -325,6 +325,25 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/active:
+    get:
+      summary: List active games
+      operationId: listActiveGames
+      tags:
+        - game
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Game"
+
 components:
   securitySchemes: # Added missing security scheme
     BearerAuth:

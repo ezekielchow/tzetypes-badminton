@@ -16,6 +16,7 @@ models/GameStep.ts
 models/GetGameHistory200Response.ts
 models/GetLoggedInUser200Response.ts
 models/GetRecentStatistics200Response.ts
+models/ListActiveGames200Response.ts
 models/ListPlayers200Response.ts
 models/ListPlayers200ResponsePagination.ts
 models/ModelError.ts
