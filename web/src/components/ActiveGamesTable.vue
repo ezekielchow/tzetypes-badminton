@@ -55,7 +55,7 @@ export default defineComponent({
                         game.createdAt.split(".")[0],
                         'yyyy-MM-dd HH:mm:ss',
                         { zone: 'utc' } // Assume it's in UTC
-                    );
+                    ).setZone('local');
                     const startedAt = startedAtDate.toLocaleString(DateTime.TIME_SIMPLE);
 
                     games.value.push({
