@@ -1,5 +1,5 @@
 <template>
-    <button :class="['button', buttonTypeClass]" :disabled="isLoading" @click="handleClick">
+    <button :class="['button', buttonTypeClass]" :disabled="isLoading">
         <template v-if="isLoading">
             <span class="spinner"></span>
             <span class="loading-text">Loading...</span>
@@ -26,18 +26,10 @@ export default {
             default: false,
         },
     },
-    setup(props, { emit }) {
+    setup(props) {
         const buttonTypeClass = computed(() => `button-${props.type}`);
-
-        const handleClick = (event) => {
-            if (!props.isLoading) {
-                emit("click", event);
-            }
-        };
-
         return {
             buttonTypeClass,
-            handleClick,
         };
     },
 };
