@@ -12,10 +12,10 @@ servers:
       hostname:
         default: localhost
 paths:
-  /game/{game_id}:
+  /game/{game_id}/statistics:
     get:
-      summary: Get game and steps given id
-      operationId: getGame
+      summary: Get game statistics
+      operationId: getGameStatistics
       tags:
         - game
       parameters:

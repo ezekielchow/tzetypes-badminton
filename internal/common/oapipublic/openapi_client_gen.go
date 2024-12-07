@@ -91,8 +91,8 @@ type ClientInterface interface {
 	// EndAbandonedGames request
 	EndAbandonedGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetGame request
-	GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetGameStatistics request
+	GetGameStatistics(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GenerateRecentStatistics request
 	GenerateRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -110,8 +110,8 @@ func (c *Client) EndAbandonedGames(ctx context.Context, reqEditors ...RequestEdi
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetGame(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetGameRequest(c.Server, gameId)
+func (c *Client) GetGameStatistics(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetGameStatisticsRequest(c.Server, gameId)
 	if err != nil {
 		return nil, err
 	}
@@ -161,8 +161,8 @@ func NewEndAbandonedGamesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewGetGameRequest generates requests for GetGame
-func NewGetGameRequest(server string, gameId string) (*http.Request, error) {
+// NewGetGameStatisticsRequest generates requests for GetGameStatistics
+func NewGetGameStatisticsRequest(server string, gameId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -177,7 +177,7 @@ func NewGetGameRequest(server string, gameId string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/game/%s", pathParam0)
+	operationPath := fmt.Sprintf("/game/%s/statistics", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -268,8 +268,8 @@ type ClientWithResponsesInterface interface {
 	// EndAbandonedGamesWithResponse request
 	EndAbandonedGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*EndAbandonedGamesResponse, error)
 
-	// GetGameWithResponse request
-	GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error)
+	// GetGameStatisticsWithResponse request
+	GetGameStatisticsWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameStatisticsResponse, error)
 
 	// GenerateRecentStatisticsWithResponse request
 	GenerateRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GenerateRecentStatisticsResponse, error)
@@ -297,7 +297,7 @@ func (r EndAbandonedGamesResponse) StatusCode() int {
 	return 0
 }
 
-type GetGameResponse struct {
+type GetGameStatisticsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
@@ -309,7 +309,7 @@ type GetGameResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetGameResponse) Status() string {
+func (r GetGameStatisticsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -317,7 +317,7 @@ func (r GetGameResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetGameResponse) StatusCode() int {
+func (r GetGameStatisticsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -355,13 +355,13 @@ func (c *ClientWithResponses) EndAbandonedGamesWithResponse(ctx context.Context,
 	return ParseEndAbandonedGamesResponse(rsp)
 }
 
-// GetGameWithResponse request returning *GetGameResponse
-func (c *ClientWithResponses) GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameResponse, error) {
-	rsp, err := c.GetGame(ctx, gameId, reqEditors...)
+// GetGameStatisticsWithResponse request returning *GetGameStatisticsResponse
+func (c *ClientWithResponses) GetGameStatisticsWithResponse(ctx context.Context, gameId string, reqEditors ...RequestEditorFn) (*GetGameStatisticsResponse, error) {
+	rsp, err := c.GetGameStatistics(ctx, gameId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetGameResponse(rsp)
+	return ParseGetGameStatisticsResponse(rsp)
 }
 
 // GenerateRecentStatisticsWithResponse request returning *GenerateRecentStatisticsResponse
@@ -399,15 +399,15 @@ func ParseEndAbandonedGamesResponse(rsp *http.Response) (*EndAbandonedGamesRespo
 	return response, nil
 }
 
-// ParseGetGameResponse parses an HTTP response from a GetGameWithResponse call
-func ParseGetGameResponse(rsp *http.Response) (*GetGameResponse, error) {
+// ParseGetGameStatisticsResponse parses an HTTP response from a GetGameStatisticsWithResponse call
+func ParseGetGameStatisticsResponse(rsp *http.Response) (*GetGameStatisticsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetGameResponse{
+	response := &GetGameStatisticsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

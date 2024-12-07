@@ -10,6 +10,7 @@ export * from './GameHistory';
 export * from './GameRecentStatistic';
 export * from './GameStartRequestSchema';
 export * from './GameStep';
+export * from './GetGame200Response';
 export * from './GetGameHistory200Response';
 export * from './GetLoggedInUser200Response';
 export * from './GetRecentStatistics200Response';

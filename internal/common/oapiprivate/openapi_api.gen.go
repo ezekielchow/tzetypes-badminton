@@ -25,6 +25,9 @@ type ServerInterface interface {
 
 	// (GET /game/recent-statistics)
 	GetRecentStatistics(w http.ResponseWriter, r *http.Request)
+	// Get game
+	// (GET /game/{game_id})
+	GetGame(w http.ResponseWriter, r *http.Request, gameId string)
 	// End game by setting 'isEnded' to 'true'
 	// (PATCH /game/{game_id}/end)
 	EndGame(w http.ResponseWriter, r *http.Request, gameId string)
@@ -74,6 +77,12 @@ func (_ Unimplemented) ListActiveGames(w http.ResponseWriter, r *http.Request) {
 
 // (GET /game/recent-statistics)
 func (_ Unimplemented) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get game
+// (GET /game/{game_id})
+func (_ Unimplemented) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -191,6 +200,37 @@ func (siw *ServerInterfaceWrapper) GetRecentStatistics(w http.ResponseWriter, r 
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetRecentStatistics(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetGame operation middleware
+func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "game_id" -------------
+	var gameId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "game_id", chi.URLParam(r, "game_id"), &gameId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "game_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetGame(w, r, gameId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -651,6 +691,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/game/recent-statistics", wrapper.GetRecentStatistics)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/game/{game_id}", wrapper.GetGame)
+	})
+	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/game/{game_id}/end", wrapper.EndGame)
 	})
 	r.Group(func(r chi.Router) {
@@ -693,6 +736,13 @@ type CurrentUserResponseSchemaJSONResponse struct {
 }
 
 type ErrorResponseSchemaJSONResponse Error
+
+type GetGame200ResponseSchemaJSONResponse struct {
+	// Extra Just to differentiate request
+	Extra *string    `json:"extra,omitempty"`
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
 
 type GetGameHistoryResponseSchemaJSONResponse struct {
 	GameHistory GameHistory `json:"game_history"`
@@ -780,6 +830,37 @@ type GetRecentStatisticsdefaultJSONResponse struct {
 }
 
 func (response GetRecentStatisticsdefaultJSONResponse) VisitGetRecentStatisticsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type GetGameRequestObject struct {
+	GameId string `json:"game_id"`
+}
+
+type GetGameResponseObject interface {
+	VisitGetGameResponse(w http.ResponseWriter) error
+}
+
+type GetGame200JSONResponse struct {
+	GetGame200ResponseSchemaJSONResponse
+}
+
+func (response GetGame200JSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetGamedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetGamedefaultJSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -1081,6 +1162,9 @@ type StrictServerInterface interface {
 
 	// (GET /game/recent-statistics)
 	GetRecentStatistics(ctx context.Context, request GetRecentStatisticsRequestObject) (GetRecentStatisticsResponseObject, error)
+	// Get game
+	// (GET /game/{game_id})
+	GetGame(ctx context.Context, request GetGameRequestObject) (GetGameResponseObject, error)
 	// End game by setting 'isEnded' to 'true'
 	// (PATCH /game/{game_id}/end)
 	EndGame(ctx context.Context, request EndGameRequestObject) (EndGameResponseObject, error)
@@ -1214,6 +1298,32 @@ func (sh *strictHandler) GetRecentStatistics(w http.ResponseWriter, r *http.Requ
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetRecentStatisticsResponseObject); ok {
 		if err := validResponse.VisitGetRecentStatisticsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetGame operation middleware
+func (sh *strictHandler) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request GetGameRequestObject
+
+	request.GameId = gameId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetGame(ctx, request.(GetGameRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetGame")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetGameResponseObject); ok {
+		if err := validResponse.VisitGetGameResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

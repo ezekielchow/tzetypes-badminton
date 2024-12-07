@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import shuttlecock from '@/assets/images/shuttlecock.png';
 import { CurrentServer, GameTypes } from '@/enums/game';
-import type { GetGame200Response } from '@/repositories/clients/public';
+import type { GetGame200Response } from '@/repositories/clients/private/models/GetGame200Response';
 import { useGameStore } from '@/stores/game-store';
 import type { LocalGameStep } from '@/types/game';
 import { DateTime } from "luxon";
@@ -44,7 +44,7 @@ onMounted(async () => {
         return
     }
 
-    const res = await gameStore.getGameStatistics({
+    const res = await gameStore.getGame({
         gameId: gameId
     })
 

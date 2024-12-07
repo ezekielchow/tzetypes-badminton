@@ -4,7 +4,7 @@ index.ts
 models/Game.ts
 models/GameStatistic.ts
 models/GameStep.ts
-models/GetGame200Response.ts
+models/GetGameStatistics200Response.ts
 models/LoginRequestSchema.ts
 models/LoginResponseSchema.ts
 models/ModelError.ts

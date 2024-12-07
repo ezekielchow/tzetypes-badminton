@@ -88,8 +88,8 @@ func (_m *ClientWithResponsesInterface) GenerateRecentStatisticsWithResponse(ctx
 	return r0, r1
 }
 
-// GetGameWithResponse provides a mock function with given fields: ctx, gameId, reqEditors
-func (_m *ClientWithResponsesInterface) GetGameWithResponse(ctx context.Context, gameId string, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.GetGameResponse, error) {
+// GetGameStatisticsWithResponse provides a mock function with given fields: ctx, gameId, reqEditors
+func (_m *ClientWithResponsesInterface) GetGameStatisticsWithResponse(ctx context.Context, gameId string, reqEditors ...oapipublic.RequestEditorFn) (*oapipublic.GetGameStatisticsResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
@@ -100,19 +100,19 @@ func (_m *ClientWithResponsesInterface) GetGameWithResponse(ctx context.Context,
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetGameWithResponse")
+		panic("no return value specified for GetGameStatisticsWithResponse")
 	}
 
-	var r0 *oapipublic.GetGameResponse
+	var r0 *oapipublic.GetGameStatisticsResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapipublic.RequestEditorFn) (*oapipublic.GetGameResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapipublic.RequestEditorFn) (*oapipublic.GetGameStatisticsResponse, error)); ok {
 		return rf(ctx, gameId, reqEditors...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapipublic.RequestEditorFn) *oapipublic.GetGameResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...oapipublic.RequestEditorFn) *oapipublic.GetGameStatisticsResponse); ok {
 		r0 = rf(ctx, gameId, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*oapipublic.GetGameResponse)
+			r0 = ret.Get(0).(*oapipublic.GetGameStatisticsResponse)
 		}
 	}
 

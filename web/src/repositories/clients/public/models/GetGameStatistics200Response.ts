@@ -25,47 +25,53 @@ import {
     GameStepFromJSONTyped,
     GameStepToJSON,
 } from './GameStep';
+import type { GameStatistic } from './GameStatistic';
+import {
+    GameStatisticFromJSON,
+    GameStatisticFromJSONTyped,
+    GameStatisticToJSON,
+} from './GameStatistic';
 
 /**
  * 
  * @export
- * @interface GetGame200Response
+ * @interface GetGameStatistics200Response
  */
-export interface GetGame200Response {
+export interface GetGameStatistics200Response {
     /**
      * 
      * @type {Array<GameStep>}
-     * @memberof GetGame200Response
+     * @memberof GetGameStatistics200Response
      */
     steps: Array<GameStep>;
     /**
      * 
      * @type {Game}
-     * @memberof GetGame200Response
+     * @memberof GetGameStatistics200Response
      */
     game: Game;
     /**
-     * Just to differentiate request
-     * @type {string}
-     * @memberof GetGame200Response
+     * 
+     * @type {GameStatistic}
+     * @memberof GetGameStatistics200Response
      */
-    extra?: string;
+    statistics?: GameStatistic;
 }
 
 /**
- * Check if a given object implements the GetGame200Response interface.
+ * Check if a given object implements the GetGameStatistics200Response interface.
  */
-export function instanceOfGetGame200Response(value: object): value is GetGame200Response {
+export function instanceOfGetGameStatistics200Response(value: object): value is GetGameStatistics200Response {
     if (!('steps' in value) || value['steps'] === undefined) return false;
     if (!('game' in value) || value['game'] === undefined) return false;
     return true;
 }
 
-export function GetGame200ResponseFromJSON(json: any): GetGame200Response {
-    return GetGame200ResponseFromJSONTyped(json, false);
+export function GetGameStatistics200ResponseFromJSON(json: any): GetGameStatistics200Response {
+    return GetGameStatistics200ResponseFromJSONTyped(json, false);
 }
 
-export function GetGame200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetGame200Response {
+export function GetGameStatistics200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetGameStatistics200Response {
     if (json == null) {
         return json;
     }
@@ -73,11 +79,11 @@ export function GetGame200ResponseFromJSONTyped(json: any, ignoreDiscriminator: 
         
         'steps': ((json['steps'] as Array<any>).map(GameStepFromJSON)),
         'game': GameFromJSON(json['game']),
-        'extra': json['extra'] == null ? undefined : json['extra'],
+        'statistics': json['statistics'] == null ? undefined : GameStatisticFromJSON(json['statistics']),
     };
 }
 
-export function GetGame200ResponseToJSON(value?: GetGame200Response | null): any {
+export function GetGameStatistics200ResponseToJSON(value?: GetGameStatistics200Response | null): any {
     if (value == null) {
         return value;
     }
@@ -85,7 +91,7 @@ export function GetGame200ResponseToJSON(value?: GetGame200Response | null): any
         
         'steps': ((value['steps'] as Array<any>).map(GameStepToJSON)),
         'game': GameToJSON(value['game']),
-        'extra': value['extra'],
+        'statistics': GameStatisticToJSON(value['statistics']),
     };
 }
 

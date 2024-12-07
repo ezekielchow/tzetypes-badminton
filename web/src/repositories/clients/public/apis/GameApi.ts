@@ -15,14 +15,14 @@
 
 import * as runtime from '../runtime';
 import type {
-  GetGame200Response,
+  GetGameStatistics200Response,
 } from '../models/index';
 import {
-    GetGame200ResponseFromJSON,
-    GetGame200ResponseToJSON,
+    GetGameStatistics200ResponseFromJSON,
+    GetGameStatistics200ResponseToJSON,
 } from '../models/index';
 
-export interface GetGameRequest {
+export interface GetGameStatisticsRequest {
     gameId: string;
 }
 
@@ -82,13 +82,13 @@ export class GameApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get game and steps given id
+     * Get game statistics
      */
-    async getGameRaw(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGame200Response>> {
+    async getGameStatisticsRaw(requestParameters: GetGameStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetGameStatistics200Response>> {
         if (requestParameters['gameId'] == null) {
             throw new runtime.RequiredError(
                 'gameId',
-                'Required parameter "gameId" was null or undefined when calling getGame().'
+                'Required parameter "gameId" was null or undefined when calling getGameStatistics().'
             );
         }
 
@@ -97,20 +97,20 @@ export class GameApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/game/{game_id}`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
+            path: `/game/{game_id}/statistics`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetGame200ResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetGameStatistics200ResponseFromJSON(jsonValue));
     }
 
     /**
-     * Get game and steps given id
+     * Get game statistics
      */
-    async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGame200Response> {
-        const response = await this.getGameRaw(requestParameters, initOverrides);
+    async getGameStatistics(requestParameters: GetGameStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetGameStatistics200Response> {
+        const response = await this.getGameStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

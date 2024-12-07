@@ -88,6 +88,31 @@ func (gs *GameStep) ModelToAPI() oapiprivate.GameStep {
 	}
 }
 
+func GameStepsToPrivateAPI(gameSteps []GameStep) []oapiprivate.GameStep {
+	apiSteps := []oapiprivate.GameStep{}
+
+	for _, step := range gameSteps {
+		apiSteps = append(apiSteps, oapiprivate.GameStep{
+			CreatedAt:           step.CreatedAt.String(),
+			GameId:              step.GameID,
+			Id:                  step.ID,
+			ScoreAt:             step.ScoreAt.String(),
+			StepNum:             step.StepNum,
+			TeamLeftScore:       step.TeamLeftScore,
+			TeamRightScore:      step.TeamRightScore,
+			CurrentServer:       step.CurrentServer,
+			LeftEvenPlayerName:  step.LeftEvenPlayerName,
+			LeftOddPlayerName:   *step.LeftOddPlayerName,
+			RightEvenPlayerName: step.RightEvenPlayerName,
+			RightOddPlayerName:  *step.RightOddPlayerName,
+			UpdatedAt:           step.UpdatedAt.String(),
+			SyncId:              &step.SyncId,
+		})
+	}
+
+	return apiSteps
+}
+
 func GameStepsToAPI(gameSteps []GameStep) []oapipublic.GameStep {
 	apiSteps := []oapipublic.GameStep{}
 

@@ -19,9 +19,9 @@ type ServerInterface interface {
 	// End games which are abandoned after a time
 	// (GET /end-abandoned-games)
 	EndAbandonedGames(w http.ResponseWriter, r *http.Request)
-	// Get game and steps given id
-	// (GET /game/{game_id})
-	GetGame(w http.ResponseWriter, r *http.Request, gameId string)
+	// Get game statistics
+	// (GET /game/{game_id}/statistics)
+	GetGameStatistics(w http.ResponseWriter, r *http.Request, gameId string)
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(w http.ResponseWriter, r *http.Request)
@@ -37,9 +37,9 @@ func (_ Unimplemented) EndAbandonedGames(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// Get game and steps given id
-// (GET /game/{game_id})
-func (_ Unimplemented) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+// Get game statistics
+// (GET /game/{game_id}/statistics)
+func (_ Unimplemented) GetGameStatistics(w http.ResponseWriter, r *http.Request, gameId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -72,8 +72,8 @@ func (siw *ServerInterfaceWrapper) EndAbandonedGames(w http.ResponseWriter, r *h
 	handler.ServeHTTP(w, r)
 }
 
-// GetGame operation middleware
-func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Request) {
+// GetGameStatistics operation middleware
+func (siw *ServerInterfaceWrapper) GetGameStatistics(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -87,7 +87,7 @@ func (siw *ServerInterfaceWrapper) GetGame(w http.ResponseWriter, r *http.Reques
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetGame(w, r, gameId)
+		siw.Handler.GetGameStatistics(w, r, gameId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -228,7 +228,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/end-abandoned-games", wrapper.EndAbandonedGames)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/game/{game_id}", wrapper.GetGame)
+		r.Get(options.BaseURL+"/game/{game_id}/statistics", wrapper.GetGameStatistics)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/generate-recent-statistics", wrapper.GenerateRecentStatistics)
@@ -266,33 +266,33 @@ func (response EndAbandonedGamesdefaultJSONResponse) VisitEndAbandonedGamesRespo
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type GetGameRequestObject struct {
+type GetGameStatisticsRequestObject struct {
 	GameId string `json:"game_id"`
 }
 
-type GetGameResponseObject interface {
-	VisitGetGameResponse(w http.ResponseWriter) error
+type GetGameStatisticsResponseObject interface {
+	VisitGetGameStatisticsResponse(w http.ResponseWriter) error
 }
 
-type GetGame200JSONResponse struct {
+type GetGameStatistics200JSONResponse struct {
 	Game       Game           `json:"game"`
 	Statistics *GameStatistic `json:"statistics,omitempty"`
 	Steps      []GameStep     `json:"steps"`
 }
 
-func (response GetGame200JSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
+func (response GetGameStatistics200JSONResponse) VisitGetGameStatisticsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetGamedefaultJSONResponse struct {
+type GetGameStatisticsdefaultJSONResponse struct {
 	Body       Error
 	StatusCode int
 }
 
-func (response GetGamedefaultJSONResponse) VisitGetGameResponse(w http.ResponseWriter) error {
+func (response GetGameStatisticsdefaultJSONResponse) VisitGetGameStatisticsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -331,9 +331,9 @@ type StrictServerInterface interface {
 	// End games which are abandoned after a time
 	// (GET /end-abandoned-games)
 	EndAbandonedGames(ctx context.Context, request EndAbandonedGamesRequestObject) (EndAbandonedGamesResponseObject, error)
-	// Get game and steps given id
-	// (GET /game/{game_id})
-	GetGame(ctx context.Context, request GetGameRequestObject) (GetGameResponseObject, error)
+	// Get game statistics
+	// (GET /game/{game_id}/statistics)
+	GetGameStatistics(ctx context.Context, request GetGameStatisticsRequestObject) (GetGameStatisticsResponseObject, error)
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(ctx context.Context, request GenerateRecentStatisticsRequestObject) (GenerateRecentStatisticsResponseObject, error)
@@ -392,25 +392,25 @@ func (sh *strictHandler) EndAbandonedGames(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// GetGame operation middleware
-func (sh *strictHandler) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
-	var request GetGameRequestObject
+// GetGameStatistics operation middleware
+func (sh *strictHandler) GetGameStatistics(w http.ResponseWriter, r *http.Request, gameId string) {
+	var request GetGameStatisticsRequestObject
 
 	request.GameId = gameId
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetGame(ctx, request.(GetGameRequestObject))
+		return sh.ssi.GetGameStatistics(ctx, request.(GetGameStatisticsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetGame")
+		handler = middleware(handler, "GetGameStatistics")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetGameResponseObject); ok {
-		if err := validResponse.VisitGetGameResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetGameStatisticsResponseObject); ok {
+		if err := validResponse.VisitGetGameStatisticsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

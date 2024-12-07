@@ -170,6 +170,25 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /game/{game_id}:
+    get:
+      summary: Get game
+      operationId: getGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: game_id
+          required: true
+          description: The unique identifier of the game
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/GetGame200ResponseSchema"
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
   /game/{game_id}/steps:
     post:
       operationId: addGameSteps
@@ -670,6 +689,10 @@ components:
                   $ref: "#/components/schemas/GameStep"
               game:
                 $ref: "#/components/schemas/Game"
+              extra:
+                type: string
+                description: Just to differentiate request
+
     GetGameHistoryResponseSchema:
       description: get game history success
       content:

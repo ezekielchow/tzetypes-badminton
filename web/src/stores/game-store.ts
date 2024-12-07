@@ -1,6 +1,7 @@
-import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type GetRecentStatistics200Response, type ListActiveGames200Response, type StartGameRequest } from "@/repositories/clients/private";
+import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type GetGameRequest, type GetRecentStatistics200Response, type ListActiveGames200Response, type StartGameRequest } from "@/repositories/clients/private";
+import type { GetGame200Response } from "@/repositories/clients/private/models/GetGame200Response";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
-import type { GetGame200Response, GetGameRequest } from "@/repositories/clients/public";
+import type { GetGameStatistics200Response, GetGameStatisticsRequest } from "@/repositories/clients/public";
 import { MyPrivateApi } from "@/services/requests-private";
 import { MyPublicApi } from "@/services/requests-public";
 import type { LocalGameStep } from "@/types/game";
@@ -129,13 +130,32 @@ export const useGameStore = defineStore('game', {
         return new Error("Network error or unexpected error occurred")
       }
     },
-    async getGameStatistics(params: GetGameRequest
-    ): Promise<GetGame200Response | Error> {
+    async getGameStatistics(params: GetGameStatisticsRequest
+    ): Promise<GetGameStatistics200Response | Error> {
       const publicApi = new MyPublicApi(this.backendUrl)
 
       try {
-        const res = await publicApi.getGame(params)
+        const res = await publicApi.getGameStatistics(params)
         return res
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getGame(params: GetGameRequest
+    ): Promise<GetGame200Response | Error> {
+      const privateApi = new MyPrivateApi(this.backendUrl)
+
+      try {
+        const res = await privateApi.getGame(params)
+        if (res) {
+          return res
+        }
+        throw new Error("failed request")
 
       } catch (error: any) {
         if (error.response) {

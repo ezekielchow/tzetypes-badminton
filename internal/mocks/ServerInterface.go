@@ -23,8 +23,8 @@ func (_m *ServerInterface) GenerateRecentStatistics(w http.ResponseWriter, r *ht
 	_m.Called(w, r)
 }
 
-// GetGame provides a mock function with given fields: w, r, gameId
-func (_m *ServerInterface) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+// GetGameStatistics provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) GetGameStatistics(w http.ResponseWriter, r *http.Request, gameId string) {
 	_m.Called(w, r, gameId)
 }
 

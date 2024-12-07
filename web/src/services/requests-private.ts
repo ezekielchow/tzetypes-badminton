@@ -12,8 +12,10 @@ import {
   type CreateOrUpdateGameHistoryRequest,
   type DeleteGameStepsRequest,
   type EndGameOperationRequest,
+  type GetGame200Response,
   type GetGameHistory200Response,
   type GetGameHistoryRequest,
+  type GetGameRequest,
   type GetLoggedInUser200Response,
   type GetPlayerWithIdRequest,
   type GetRecentStatistics200Response,
@@ -365,5 +367,26 @@ export class MyPrivateApi extends BaseAPI {
       console.error('Failed to fetch active games:', error); // This will catch and log any error
       throw error; // Re-throw the error to propagate it further if needed
     }
+  }
+
+  private async getGameRequest(requestParameters: GetGameRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetGame200Response>> {
+    const api = new GameApi(await this.getPrivateConf())
+
+    try {
+      return await api.getGameRaw(requestParameters, initOverrides)
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get game statistics');
+    }
+  }
+
+  async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGame200Response | void> {
+    const apiResponse = await this.authenticatedRequest(() => this.getGameRequest(requestParameters, initOverrides));
+    if (apiResponse) {
+      return await apiResponse.value();
+    }
+    return
   }
 }

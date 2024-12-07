@@ -4,9 +4,9 @@ import {
   Configuration as PublicConf,
   ResponseError,
   type ApiResponse,
-  type GetGame200Response,
-  type GetGameRequest,
-  type InitOverrideFunction,
+  type GetGameStatistics200Response,
+  type GetGameStatisticsRequest,
+  type InitOverrideFunction
 } from '@/repositories/clients/public';
 
 import { resetStores } from './store';
@@ -56,21 +56,21 @@ export class MyPublicApi extends BaseAPI {
     window.location.href = this.signInPageUrl;
   }
 
-  private async getGameRequest(requestParameters: GetGameRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetGame200Response>> {
+  private async getGameStatisticsRequest(requestParameters: GetGameStatisticsRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetGameStatistics200Response>> {
     const api = new GameApi(this.getPublicConf())
 
     try {
-      return await api.getGameRaw(requestParameters, initOverrides)
+      return await api.getGameStatisticsRaw(requestParameters, initOverrides)
     } catch (error) {
       if (error instanceof ResponseError) {
         throw new ResponseError(error.response, error.message)
       }
-      throw new Error('Failed to get game');
+      throw new Error('Failed to get game statistics');
     }
   }
 
-  async getGame(requestParameters: GetGameRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGame200Response> {
-    const apiResponse = await this.authenticatedRequest(() => this.getGameRequest(requestParameters, initOverrides));
+  async getGameStatistics(requestParameters: GetGameStatisticsRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGameStatistics200Response> {
+    const apiResponse = await this.authenticatedRequest(() => this.getGameStatisticsRequest(requestParameters, initOverrides));
     return await apiResponse.value();
   }
 }

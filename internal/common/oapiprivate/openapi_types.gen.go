@@ -166,6 +166,14 @@ type CurrentUserResponseSchema struct {
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error
 
+// GetGame200ResponseSchema defines model for GetGame200ResponseSchema.
+type GetGame200ResponseSchema struct {
+	// Extra Just to differentiate request
+	Extra *string    `json:"extra,omitempty"`
+	Game  Game       `json:"game"`
+	Steps []GameStep `json:"steps"`
+}
+
 // GetGameHistoryResponseSchema defines model for GetGameHistoryResponseSchema.
 type GetGameHistoryResponseSchema struct {
 	GameHistory GameHistory `json:"game_history"`

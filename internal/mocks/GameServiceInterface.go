@@ -200,27 +200,27 @@ func (_m *GameServiceInterface) GenerateRecentStatistics(ctx context.Context, in
 }
 
 // GetGame provides a mock function with given fields: ctx, input
-func (_m *GameServiceInterface) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
+func (_m *GameServiceInterface) GetGame(ctx context.Context, input oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error) {
 	ret := _m.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetGame")
 	}
 
-	var r0 oapipublic.GetGameResponseObject
+	var r0 oapiprivate.GetGameResponseObject
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error)); ok {
 		return rf(ctx, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameRequestObject) oapipublic.GetGameResponseObject); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, oapiprivate.GetGameRequestObject) oapiprivate.GetGameResponseObject); ok {
 		r0 = rf(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(oapipublic.GetGameResponseObject)
+			r0 = ret.Get(0).(oapiprivate.GetGameResponseObject)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GetGameRequestObject) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetGameRequestObject) error); ok {
 		r1 = rf(ctx, input)
 	} else {
 		r1 = ret.Error(1)
@@ -252,6 +252,36 @@ func (_m *GameServiceInterface) GetGameHistory(ctx context.Context, input oapipr
 
 	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.GetGameHistoryRequestObject, models.User) error); ok {
 		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameStatistics provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) GetGameStatistics(ctx context.Context, input oapipublic.GetGameStatisticsRequestObject) (oapipublic.GetGameStatisticsResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGameStatistics")
+	}
+
+	var r0 oapipublic.GetGameStatisticsResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameStatisticsRequestObject) (oapipublic.GetGameStatisticsResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetGameStatisticsRequestObject) oapipublic.GetGameStatisticsResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.GetGameStatisticsResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GetGameStatisticsRequestObject) error); ok {
+		r1 = rf(ctx, input)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetGame(t *testing.T) {
+func TestGetGameStatistics(t *testing.T) {
 
 	gameService := InitService(context.Background())
 
@@ -180,14 +180,14 @@ func TestGetGame(t *testing.T) {
 			}
 		}
 
-		res, err := gameService.GetGame(ctx, oapipublic.GetGameRequestObject{
+		res, err := gameService.GetGameStatistics(ctx, oapipublic.GetGameStatisticsRequestObject{
 			GameId: game.ID,
 		})
 		if err != nil {
 			t.Fatalf("unagle to get game: %s", err.Error())
 		}
 
-		resSuccess, ok := res.(oapipublic.GetGame200JSONResponse)
+		resSuccess, ok := res.(oapipublic.GetGameStatistics200JSONResponse)
 		if !ok {
 			t.Fatalf("failed to convert response")
 		}

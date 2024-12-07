@@ -13,6 +13,7 @@ models/GameHistory.ts
 models/GameRecentStatistic.ts
 models/GameStartRequestSchema.ts
 models/GameStep.ts
+models/GetGame200Response.ts
 models/GetGameHistory200Response.ts
 models/GetLoggedInUser200Response.ts
 models/GetRecentStatistics200Response.ts

@@ -4,7 +4,7 @@ import trophyImage from '@/assets/images/trophy.png';
 import userImage from '@/assets/images/user.png';
 import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
-import { type GetGame200Response } from "@/repositories/clients/public";
+import type { GetGameStatistics200Response } from '@/repositories/clients/public';
 import router from '@/router';
 import { useGameStore } from '@/stores/game-store';
 import { useSessionStore } from '@/stores/session-store';
@@ -15,7 +15,7 @@ import { computed, inject, onBeforeMount, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
-const gameData = reactive({} as GetGame200Response)
+const gameData = reactive({} as GetGameStatistics200Response)
 const errorMessage = ref("")
 const winningTeam = ref("")
 const leftOddPlayerName = ref("")
@@ -93,7 +93,7 @@ const getStatistics = async () => {
         return
     }
 
-    const data = res as GetGame200Response
+    const data = res as GetGameStatistics200Response
 
     gameData.game = data.game
     gameData.steps = data.steps

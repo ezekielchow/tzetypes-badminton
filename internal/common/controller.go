@@ -76,7 +76,7 @@ func (c Controller) EndGame(ctx context.Context, input oapiprivate.EndGameReques
 	return c.Services.GameService.EndGame(ctx, input)
 }
 
-func (c Controller) GetGame(ctx context.Context, input oapipublic.GetGameRequestObject) (oapipublic.GetGameResponseObject, error) {
+func (c Controller) GetGame(ctx context.Context, input oapiprivate.GetGameRequestObject) (oapiprivate.GetGameResponseObject, error) {
 	return c.Services.GameService.GetGame(ctx, input)
 }
 
@@ -122,4 +122,8 @@ func (c Controller) ListActiveGames(ctx context.Context, input oapiprivate.ListA
 	}
 
 	return c.Services.GameService.ListActiveGames(ctx, input, user)
+}
+
+func (c Controller) GetGameStatistics(ctx context.Context, input oapipublic.GetGameStatisticsRequestObject) (oapipublic.GetGameStatisticsResponseObject, error) {
+	return c.Services.GameService.GetGameStatistics(ctx, input)
 }
