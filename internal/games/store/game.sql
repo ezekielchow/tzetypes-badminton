@@ -31,7 +31,8 @@ INSERT INTO game_steps (
     left_even_player_name,
     right_odd_player_name,
     right_even_player_name,
-    sync_id
+    sync_id,
+    is_paused
 ) VALUES (
     @game_id::uuid,
     @team_left_score,
@@ -43,7 +44,8 @@ INSERT INTO game_steps (
     @left_even_player_name::text,
     @right_odd_player_name::text,
     @right_even_player_name::text,
-    @sync_id
+    @sync_id,
+    @is_paused::int
 ) ON CONFLICT (game_id, step_num) DO NOTHING 
 RETURNING *;
 

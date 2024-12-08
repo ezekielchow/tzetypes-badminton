@@ -118,6 +118,7 @@ type GameStep struct {
 	CurrentServer       string  `json:"current_server"`
 	GameId              string  `json:"game_id"`
 	Id                  string  `json:"id"`
+	IsPaused            int     `json:"is_paused"`
 	LeftEvenPlayerName  string  `json:"left_even_player_name"`
 	LeftOddPlayerName   string  `json:"left_odd_player_name"`
 	RightEvenPlayerName string  `json:"right_even_player_name"`

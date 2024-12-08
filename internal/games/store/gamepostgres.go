@@ -84,6 +84,7 @@ func (gp GamePostgres) CreateGameStep(ctx context.Context, tx *pgx.Tx, toCreate 
 		RightEvenPlayerName: toCreate.RightEvenPlayerName,
 		RightOddPlayerName:  *toCreate.RightOddPlayerName,
 		SyncID:              toCreate.SyncId,
+		IsPaused:            int32(toCreate.IsPaused),
 	})
 	if err != nil {
 		return models.GameStep{}, err

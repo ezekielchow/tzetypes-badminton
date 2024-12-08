@@ -160,7 +160,8 @@ INSERT INTO game_steps (
     left_even_player_name,
     right_odd_player_name,
     right_even_player_name,
-    sync_id
+    sync_id,
+    is_paused
 ) VALUES (
     $1::uuid,
     $2,
@@ -172,9 +173,10 @@ INSERT INTO game_steps (
     $8::text,
     $9::text,
     $10::text,
-    $11
+    $11,
+    $12::int
 ) ON CONFLICT (game_id, step_num) DO NOTHING 
-RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at
+RETURNING id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, is_paused, sync_id, created_at, updated_at
 `
 
 type CreateGameStepParams struct {
@@ -189,6 +191,7 @@ type CreateGameStepParams struct {
 	RightOddPlayerName  string
 	RightEvenPlayerName string
 	SyncID              string
+	IsPaused            int32
 }
 
 func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) (GameStep, error) {
@@ -204,6 +207,7 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		arg.RightOddPlayerName,
 		arg.RightEvenPlayerName,
 		arg.SyncID,
+		arg.IsPaused,
 	)
 	var i GameStep
 	err := row.Scan(
@@ -218,6 +222,7 @@ func (q *Queries) CreateGameStep(ctx context.Context, arg CreateGameStepParams) 
 		&i.LeftEvenPlayerName,
 		&i.RightOddPlayerName,
 		&i.RightEvenPlayerName,
+		&i.IsPaused,
 		&i.SyncID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -768,7 +773,7 @@ func (q *Queries) GetGameStatisticsWithGameID(ctx context.Context, gameID pgtype
 }
 
 const getGameStepsGivenGameIds = `-- name: GetGameStepsGivenGameIds :many
-SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at from game_steps WHERE game_id = ANY($1::uuid[])
+SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, is_paused, sync_id, created_at, updated_at from game_steps WHERE game_id = ANY($1::uuid[])
 `
 
 func (q *Queries) GetGameStepsGivenGameIds(ctx context.Context, gameIds []pgtype.UUID) ([]GameStep, error) {
@@ -792,6 +797,7 @@ func (q *Queries) GetGameStepsGivenGameIds(ctx context.Context, gameIds []pgtype
 			&i.LeftEvenPlayerName,
 			&i.RightOddPlayerName,
 			&i.RightEvenPlayerName,
+			&i.IsPaused,
 			&i.SyncID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -807,7 +813,7 @@ func (q *Queries) GetGameStepsGivenGameIds(ctx context.Context, gameIds []pgtype
 }
 
 const getGameStepsWithGameID = `-- name: GetGameStepsWithGameID :many
-SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, sync_id, created_at, updated_at FROM game_steps WHERE game_id = $1::uuid
+SELECT id, game_id, team_left_score, team_right_score, score_at, step_num, current_server, left_odd_player_name, left_even_player_name, right_odd_player_name, right_even_player_name, is_paused, sync_id, created_at, updated_at FROM game_steps WHERE game_id = $1::uuid
 ORDER BY step_num ASC
 `
 
@@ -832,6 +838,7 @@ func (q *Queries) GetGameStepsWithGameID(ctx context.Context, gameID pgtype.UUID
 			&i.LeftEvenPlayerName,
 			&i.RightOddPlayerName,
 			&i.RightEvenPlayerName,
+			&i.IsPaused,
 			&i.SyncID,
 			&i.CreatedAt,
 			&i.UpdatedAt,

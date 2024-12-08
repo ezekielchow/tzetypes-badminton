@@ -35,6 +35,7 @@ type GameStep struct {
 	LeftEvenPlayerName  string
 	RightOddPlayerName  *string
 	RightEvenPlayerName string
+	IsPaused            int
 	SyncId              string
 	CreatedAt           time.Time
 	UpdatedAt           *time.Time
@@ -65,6 +66,7 @@ func (gs *GameStep) PostgresToModel(fromDb database.GameStep) error {
 	gs.RightEvenPlayerName = fromDb.RightEvenPlayerName
 	gs.RightOddPlayerName = fromDb.RightOddPlayerName
 	gs.SyncId = fromDb.SyncID
+	gs.IsPaused = int(fromDb.IsPaused)
 
 	return nil
 }
@@ -85,6 +87,7 @@ func (gs *GameStep) ModelToAPI() oapiprivate.GameStep {
 		RightOddPlayerName:  *gs.RightOddPlayerName,
 		UpdatedAt:           gs.UpdatedAt.String(),
 		SyncId:              &gs.SyncId,
+		IsPaused:            gs.IsPaused,
 	}
 }
 
@@ -107,6 +110,7 @@ func GameStepsToPrivateAPI(gameSteps []GameStep) []oapiprivate.GameStep {
 			RightOddPlayerName:  *step.RightOddPlayerName,
 			UpdatedAt:           step.UpdatedAt.String(),
 			SyncId:              &step.SyncId,
+			IsPaused:            step.IsPaused,
 		})
 	}
 
@@ -132,6 +136,7 @@ func GameStepsToAPI(gameSteps []GameStep) []oapipublic.GameStep {
 			RightOddPlayerName:  *step.RightOddPlayerName,
 			UpdatedAt:           step.UpdatedAt.String(),
 			SyncId:              &step.SyncId,
+			IsPaused:            step.IsPaused,
 		})
 	}
 
@@ -198,6 +203,7 @@ func GameStepFactory(count int, args map[string]interface{}) []GameStep {
 			RightEvenPlayerName: utils.NewString(10),
 			SyncId:              utils.NewString(10),
 			CreatedAt:           time.Now(),
+			IsPaused:            0,
 		})
 	}
 
