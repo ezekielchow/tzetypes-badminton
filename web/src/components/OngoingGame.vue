@@ -16,6 +16,7 @@ const router = useRouter()
 const errorMessage = ref("")
 const isLoading = ref(false)
 const isLandscape = ref(false)
+const isGamePaused = ref(false)
 const pointsOrientation = ref("equal")
 const currentCourtState = reactive({
     leftEvenPlayer: "",
@@ -90,6 +91,10 @@ const updateCourtState = () => {
 
 const handleScorePoint = (position: string) => {
 
+    if (isGamePaused.value) {
+        handlePauseGame()
+    }
+
     if (gameStore.currentGameSettings.gameType == GameTypes.GAME_TYPE_DOUBLES) {
         handleDoubleScoring(position)
         return
@@ -118,6 +123,7 @@ const handleSingleScoring = (position: string) => {
         teamLeftScore: lastProgress.teamLeftScore,
         teamRightScore: lastProgress.teamRightScore,
         syncId: uuidv4(),
+        isPaused: 0,
         createdAt: "",
         updatedAt: "",
     }
@@ -176,6 +182,7 @@ const handleDoubleScoring = (position: string) => {
         rightEvenPlayerName: lastProgress.rightEvenPlayerName,
         rightOddPlayerName: lastProgress.rightOddPlayerName,
         syncId: uuidv4(),
+        isPaused: 0,
         createdAt: "",
         updatedAt: "",
     }
@@ -223,6 +230,11 @@ const handlePointsOrientation = (orientation: string) => {
 }
 
 const handleUndo = () => {
+
+    if (isGamePaused.value) {
+        handlePauseGame()
+    }
+
     Swal.fire({
         title: 'Confirm undo?',
         showCancelButton: true,
@@ -268,6 +280,10 @@ const delaySeconds = async (milliseconds: number) => {
 }
 
 const handleEndGame = async () => {
+
+    if (isGamePaused.value) {
+        handlePauseGame()
+    }
 
     isLoading.value = true
 
@@ -318,6 +334,34 @@ const handleEndGame = async () => {
     })
 
     isLoading.value = false
+}
+
+const handlePauseGame = () => {
+
+    isGamePaused.value = !isGamePaused.value
+
+    const lastProgress = gameStore.currentGameProgress[gameStore.currentGameProgress.length - 1]
+
+    const progress: LocalGameStep = {
+        isSynced: false,
+        id: "",
+        gameId: gameStore.currentGameSettings.id,
+        scoreAt: DateTime.utc().toString(),
+        stepNum: gameStore.currentGameProgress.length + 1,
+        currentServer: lastProgress.currentServer,
+        leftEvenPlayerName: lastProgress.leftEvenPlayerName,
+        leftOddPlayerName: lastProgress.leftOddPlayerName,
+        rightEvenPlayerName: lastProgress.rightEvenPlayerName,
+        rightOddPlayerName: lastProgress.rightOddPlayerName,
+        teamLeftScore: lastProgress.teamLeftScore,
+        teamRightScore: lastProgress.teamRightScore,
+        syncId: uuidv4(),
+        isPaused: 1,
+        createdAt: "",
+        updatedAt: "",
+    }
+
+    gameStore.currentGameProgress = gameStore.currentGameProgress.concat(progress)
 }
 
 </script>
@@ -406,6 +450,9 @@ const handleEndGame = async () => {
                             <img :src="shuttlecock" width="30px" height="30px">
                         </div>
                     </div>
+                    <div class="pause-court" v-if="isGamePaused">
+                        <p>Game Paused</p>
+                    </div>
                 </div>
                 <button v-if="pointsOrientation == 'equal'" class="add-button equal red"
                     @click="handleScorePoint('right')">
@@ -421,6 +468,11 @@ const handleEndGame = async () => {
                 </div>
             </div>
             <div class="footer-actions">
+                <div class="push-start">
+                    <ButtonComponent type="secondary" class="footer-buttons" @click.prevent="handlePauseGame">
+                        {{ isGamePaused ? "Continue Game" : "Pause Game" }}
+                    </ButtonComponent>
+                </div>
                 <div class="push-end">
                     <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
                     <div>
@@ -471,6 +523,20 @@ const handleEndGame = async () => {
         background-color: green;
         position: relative;
         border: 4px solid white;
+    }
+
+    .pause-court {
+        grid-row: 1 / span 4;
+        grid-column: 1 / span 8;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent black */
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .squares {
@@ -656,8 +722,7 @@ const handleEndGame = async () => {
 
     .footer-actions {
         display: flex;
-        justify-content: end;
-        margin-top: 0.5rem;
+        justify-content: space-between;
         margin-right: 0.5rem;
     }
 
@@ -673,6 +738,11 @@ const handleEndGame = async () => {
     .push-end {
         display: flex;
         margin-right: 2rem;
+    }
+
+    .push-start {
+        display: flex;
+        margin-left: 2rem;
     }
 
     .undo-button {

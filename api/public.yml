@@ -229,6 +229,7 @@ components:
         - left_even_player_name
         - right_odd_player_name
         - right_even_player_name
+        - is_paused
         - created_at
         - updated_at
       properties:
@@ -256,6 +257,8 @@ components:
           type: string
         sync_id:
           type: string
+        is_paused:
+          type: integer
         created_at:
           type: string
         updated_at:

@@ -34,6 +34,7 @@ func (gs GameService) AddGameSteps(ctx context.Context, input oapiprivate.AddGam
 			RightOddPlayerName:  &step.RightOddPlayerName,
 			RightEvenPlayerName: step.RightEvenPlayerName,
 			SyncId:              *step.SyncId,
+			IsPaused:            step.IsPaused,
 		})
 		if err != nil {
 			return nil, err
@@ -52,6 +53,7 @@ func (gs GameService) AddGameSteps(ctx context.Context, input oapiprivate.AddGam
 			SyncId:              &created.SyncId,
 			TeamLeftScore:       created.TeamLeftScore,
 			TeamRightScore:      created.TeamRightScore,
+			IsPaused:            created.IsPaused,
 		})
 	}
 

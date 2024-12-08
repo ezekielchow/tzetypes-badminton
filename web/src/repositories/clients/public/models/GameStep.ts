@@ -93,6 +93,12 @@ export interface GameStep {
     syncId?: string;
     /**
      * 
+     * @type {number}
+     * @memberof GameStep
+     */
+    isPaused: number;
+    /**
+     * 
      * @type {string}
      * @memberof GameStep
      */
@@ -120,6 +126,7 @@ export function instanceOfGameStep(value: object): value is GameStep {
     if (!('leftEvenPlayerName' in value) || value['leftEvenPlayerName'] === undefined) return false;
     if (!('rightOddPlayerName' in value) || value['rightOddPlayerName'] === undefined) return false;
     if (!('rightEvenPlayerName' in value) || value['rightEvenPlayerName'] === undefined) return false;
+    if (!('isPaused' in value) || value['isPaused'] === undefined) return false;
     if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
@@ -147,6 +154,7 @@ export function GameStepFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'rightOddPlayerName': json['right_odd_player_name'],
         'rightEvenPlayerName': json['right_even_player_name'],
         'syncId': json['sync_id'] == null ? undefined : json['sync_id'],
+        'isPaused': json['is_paused'],
         'createdAt': json['created_at'],
         'updatedAt': json['updated_at'],
     };
@@ -170,6 +178,7 @@ export function GameStepToJSON(value?: GameStep | null): any {
         'right_odd_player_name': value['rightOddPlayerName'],
         'right_even_player_name': value['rightEvenPlayerName'],
         'sync_id': value['syncId'],
+        'is_paused': value['isPaused'],
         'created_at': value['createdAt'],
         'updated_at': value['updatedAt'],
     };

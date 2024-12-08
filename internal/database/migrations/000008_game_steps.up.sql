@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS game_steps(
     left_even_player_name text NOT NULL,
     right_odd_player_name text,
     right_even_player_name text NOT NULL,
+    is_paused integer NOT NULL DEFAULT 0,
     sync_id text NOT NULL,
     created_at timestamp DEFAULT now(),
     updated_at timestamp 
