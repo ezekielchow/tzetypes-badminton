@@ -92,7 +92,7 @@ func TestGetGameStatistics(t *testing.T) {
 		assert.Equal(t, int(thirdShortestPoint.Sub(secondLongestPoint).Seconds()), statistic.LeftShortestPointSeconds)
 		assert.Equal(t, int(fourthPointTime.Sub(thirdShortestPoint).Seconds()), statistic.RightLongestPointSeconds)
 		assert.Equal(t, int(fourthPointTime.Sub(thirdShortestPoint).Seconds()), statistic.RightShortestPointSeconds)
-		assert.Equal(t, int((fourthPointTime.Sub(initialTime).Seconds())/4), statistic.AverageTimePerPointSeconds)
+		assert.Equal(t, int((fourthPointTime.Sub(initialTime).Seconds())/3), statistic.AverageTimePerPointSeconds)
 		assert.Equal(t, 122/2, statistic.LeftAverageTimePerPointSeconds)
 		assert.Equal(t, 15, statistic.RightAverageTimePerPointSeconds)
 	})
@@ -195,7 +195,7 @@ func TestGetGameStatistics(t *testing.T) {
 		assert.Equal(t, game.ID, resSuccess.Game.Id)
 		assert.Equal(t, 6, len(resSuccess.Steps))
 
-		perPoint := time6.Sub(initialTime).Seconds() / 6
+		perPoint := time6.Sub(initialTime).Seconds() / 5
 		assert.Equal(t, fmt.Sprintf("%.fm %ds", math.Floor(perPoint/60), int(perPoint)%60), resSuccess.Statistics.AveragePerPoint)
 		assert.Equal(t, "2", resSuccess.Statistics.LeftConsecutivePoints)
 		assert.Equal(t, "3", resSuccess.Statistics.RightConsecutivePoints)
@@ -231,5 +231,126 @@ func TestGetGameStatistics(t *testing.T) {
 
 		averageTimePerPointRatio := "68.54:31.46"
 		assert.Equal(t, averageTimePerPointRatio, resSuccess.Statistics.AveragePerPointRatio)
+	})
+
+	t.Run("test statistics with pauses", func(t *testing.T) {
+		ctx := context.Background()
+
+		clubToCreate := models.ClubFactory(1, map[string]interface{}{})[0]
+		clubToCreate.ID = ""
+		club, err := gameService.ClubStore.CreateClub(ctx, nil, clubToCreate)
+		if err != nil {
+			t.Errorf("unable to create club: %s", err.Error())
+		}
+
+		gameToCreate := models.GameFactory(1, map[string]interface{}{
+			"ClubID": club.ID,
+		})[0]
+		game, err := gameService.GameStore.CreateGame(ctx, nil, gameToCreate)
+		if err != nil {
+			t.Errorf("unable to create game: %s", err.Error())
+		}
+
+		initialTime := time.Now()
+		no2Point := initialTime.Add(time.Minute * 2)
+		pausePointStart1 := no2Point.Add(time.Second * 5)
+		pausePointEnd1 := pausePointStart1.Add(time.Minute * 5)
+		no3Point := pausePointEnd1.Add(time.Second * 2)
+		pausePointStart2 := no3Point.Add(time.Second * 10)
+		pausePointEnd2 := pausePointStart2.Add(time.Second * 1)
+		fourthPointTime := pausePointEnd2.Add(time.Second * 15)
+
+		toCreateSteps := []map[string]interface{}{
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  0,
+				"TeamRightScore": 0,
+				"ScoreAt":        initialTime,
+				"StepNum":        1,
+				"IsPaused":       0,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  1,
+				"TeamRightScore": 0,
+				"ScoreAt":        no2Point,
+				"StepNum":        2,
+				"IsPaused":       0,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  1,
+				"TeamRightScore": 0,
+				"ScoreAt":        pausePointStart1,
+				"StepNum":        3,
+				"IsPaused":       1,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  1,
+				"TeamRightScore": 0,
+				"ScoreAt":        pausePointEnd1,
+				"StepNum":        4,
+				"IsPaused":       1,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  2,
+				"TeamRightScore": 0,
+				"ScoreAt":        no3Point,
+				"StepNum":        5,
+				"IsPaused":       0,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  2,
+				"TeamRightScore": 0,
+				"ScoreAt":        pausePointStart2,
+				"StepNum":        6,
+				"IsPaused":       1,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  2,
+				"TeamRightScore": 0,
+				"ScoreAt":        pausePointEnd2,
+				"StepNum":        7,
+				"IsPaused":       1,
+			},
+			{
+				"GameID":         game.ID,
+				"TeamLeftScore":  2,
+				"TeamRightScore": 1,
+				"ScoreAt":        fourthPointTime,
+				"StepNum":        8,
+				"IsPaused":       0,
+			},
+		}
+
+		steps := []models.GameStep{}
+		for _, step := range toCreateSteps {
+			created, err := gameService.GameStore.CreateGameStep(ctx, nil, models.GameStepFactory(1, step)[0])
+			if err != nil {
+				t.Errorf("unable to create game step: %s", err.Error())
+			}
+
+			steps = append(steps, created)
+		}
+
+		statistic, err := generateGameStatistics(steps)
+		if err != nil {
+			t.Errorf("unable to create statistic: %s", err.Error())
+		}
+
+		assert.Equal(t, int(fourthPointTime.Sub(initialTime).Seconds())-316, statistic.TotalGameTimeSeconds)
+		assert.Equal(t, 1, statistic.RightConsecutivePoints)
+		assert.Equal(t, 2, statistic.LeftConsecutivePoints)
+		assert.Equal(t, 120, statistic.LeftLongestPointSeconds)
+		assert.Equal(t, int(no3Point.Sub(pausePointEnd1).Seconds()), statistic.LeftShortestPointSeconds)
+		assert.Equal(t, int(fourthPointTime.Sub(pausePointEnd2).Seconds()), statistic.RightLongestPointSeconds)
+		assert.Equal(t, int(fourthPointTime.Sub(pausePointEnd2).Seconds()), statistic.RightShortestPointSeconds)
+		assert.Equal(t, statistic.TotalGameTimeSeconds/3, statistic.AverageTimePerPointSeconds)
+		assert.Equal(t, 122/2, statistic.LeftAverageTimePerPointSeconds)
+		assert.Equal(t, 15, statistic.RightAverageTimePerPointSeconds)
 	})
 }

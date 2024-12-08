@@ -171,6 +171,11 @@ func GameStepFactory(count int, args map[string]interface{}) []GameStep {
 		stepNum = 0
 	}
 
+	isPaused, ok := args["IsPaused"]
+	if !ok {
+		isPaused = 0
+	}
+
 	currentServerInterface, ok := args["CurrentServer"]
 	var currentServer PlayerServer
 	if ok {
@@ -203,7 +208,7 @@ func GameStepFactory(count int, args map[string]interface{}) []GameStep {
 			RightEvenPlayerName: utils.NewString(10),
 			SyncId:              utils.NewString(10),
 			CreatedAt:           time.Now(),
-			IsPaused:            0,
+			IsPaused:            isPaused.(int),
 		})
 	}
 

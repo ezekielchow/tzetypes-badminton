@@ -348,7 +348,7 @@ const handlePauseGame = () => {
         gameId: gameStore.currentGameSettings.id,
         scoreAt: DateTime.utc().toString(),
         stepNum: gameStore.currentGameProgress.length + 1,
-        currentServer: "" as CurrentServer,
+        currentServer: lastProgress.currentServer,
         leftEvenPlayerName: lastProgress.leftEvenPlayerName,
         leftOddPlayerName: lastProgress.leftOddPlayerName,
         rightEvenPlayerName: lastProgress.rightEvenPlayerName,

@@ -5,7 +5,6 @@ import (
 	"common/oapiprivate"
 	"context"
 	"database/sql"
-	"log"
 	"strings"
 	"time"
 )
@@ -25,13 +24,6 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 	gh.PlayerPosition = playerPosition
 	gh.GameStartedAt = game.CreatedAt
 	gh.TotalPoints = last.TeamLeftScore + last.TeamRightScore
-	gh.TotalGameTimeSeconds = int(last.ScoreAt.Sub(first.ScoreAt).Seconds())
-
-	if gh.TotalPoints > 0 {
-		gh.AverageTimePerPointSeconds = int(last.ScoreAt.Sub(first.ScoreAt).Seconds()) / gh.TotalPoints
-	} else {
-		gh.AverageTimePerPointSeconds = 0
-	}
 
 	// Determine winning team
 	wonBy := models.TeamSideRight
@@ -56,11 +48,17 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 	gh.PointsLost = 0
 	gh.LongestRallySeconds = 0
 	gh.ShortestRallySeconds = int(^uint(0) >> 1) // Max int value
+	pausedSeconds := 0
 
 	for i := 1; i < len(gameSteps); i++ {
 		previous := gameSteps[i-1]
 		step := gameSteps[i]
 		diffSeconds := int(step.ScoreAt.Sub(previous.ScoreAt).Seconds())
+
+		if step.IsPaused == 1 {
+			pausedSeconds += diffSeconds
+			continue
+		}
 
 		isPlayerWinningPoint := (strings.Contains(playerPosition, "left") && step.TeamLeftScore > previous.TeamLeftScore) ||
 			(strings.Contains(playerPosition, "right") && step.TeamRightScore > previous.TeamRightScore)
@@ -78,7 +76,6 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 
 		// Track longest rally
 		if diffSeconds > gh.LongestRallySeconds {
-			log.Println("helo?", isPlayerWinningPoint, playerPosition)
 			gh.LongestRallySeconds = diffSeconds
 			gh.LongestRallyIsWon = boolToInt(isPlayerWinningPoint)
 		}
@@ -88,6 +85,15 @@ func getPersonalizedStatistics(playerPosition string, game models.Game, gameStep
 			gh.ShortestRallySeconds = diffSeconds
 			gh.ShortestRallyIsWon = boolToInt(isPlayerWinningPoint)
 		}
+	}
+
+	// Have to subtract paused points later
+	gh.TotalGameTimeSeconds = int(last.ScoreAt.Sub(first.ScoreAt).Seconds()) - pausedSeconds
+
+	if gh.TotalPoints > 0 {
+		gh.AverageTimePerPointSeconds = gh.TotalGameTimeSeconds / gh.TotalPoints
+	} else {
+		gh.AverageTimePerPointSeconds = 0
 	}
 
 	// Calculate average time per point
