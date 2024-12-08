@@ -84,6 +84,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const token = await getIdToken(user)
     userStore.firebaseIdToken = token
+    userStore.firebaseUser = user
   } else {
     console.log("No user is signed in.");
   }
