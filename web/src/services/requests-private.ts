@@ -30,6 +30,7 @@ import {
 } from '@/repositories/clients/private';
 
 import { useUserStore } from '@/stores/user-store';
+import { auth } from './firebase';
 import { resetStores } from './store';
 
 export class MyPrivateApi extends BaseAPI {
@@ -89,17 +90,33 @@ export class MyPrivateApi extends BaseAPI {
     });
   }
 
-  private async authenticatedRequest(requestFunction: () => Promise<ApiResponse<any>>): Promise<ApiResponse<any> | void> {
+  private async authenticatedRequest(
+    requestFunction: () => Promise<ApiResponse<any>>
+  ): Promise<ApiResponse<any> | void> {
     try {
       return await requestFunction();
     } catch (error) {
       if (error instanceof ResponseError && error.response.status === 401) {
-        this.deleteSession();
-        return
-      } else {
-        // Rethrow the error if it's not a 401 or a refresh failure
-        throw error;
+        try {
+          const user = auth.currentUser; // Replace with your Firebase auth instance
+          if (user) {
+            const newToken = await user.getIdToken(true); // Force refresh
+
+            const userStore = useUserStore()
+            userStore.firebaseIdToken = newToken
+
+            // Retry the original request
+            return await requestFunction();
+          }
+        } catch (refreshError) {
+          console.error("Failed to refresh token:", refreshError);
+          this.deleteSession(); // Clear session if refreshing fails
+          return;
+        }
       }
+
+      // Rethrow the error if it's not a 401 or a refresh failure
+      throw error;
     }
   }
 
