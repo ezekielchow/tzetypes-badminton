@@ -79,41 +79,6 @@ const syncRemovePoints = async () => {
   })
 }
 
-const decodeJWT = (token: string) => {
-  const payload = token.split(".")[1]; // Extract the payload part
-  const decodedPayload = JSON.parse(atob(payload)); // Base64 decode and parse JSON
-  return decodedPayload;
-};
-
-const refreshTokenIfExpired = async () => {
-  const userStore = useUserStore()
-
-  const user = userStore.firebaseUser;
-  if (user) {
-    try {
-      const idToken = userStore.firebaseIdToken;
-      // Decode the token to extract the expiration time
-      const decoded = decodeJWT(idToken);
-
-      if (decoded && decoded.exp) {
-        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-
-        if (decoded.exp < currentTime) {
-          const newIdToken = await user.getIdToken(true); // Force refresh
-          userStore.firebaseIdToken = newIdToken
-        }
-      } else {
-        console.log("Unable to decode token.");
-      }
-    } catch (error) {
-      console.error("Error decoding token:", error);
-    }
-  } else {
-    userStore.firebaseIdToken = ""
-    userStore.firebaseUser = null
-  }
-};
-
 const auth = getAuth();
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -121,7 +86,6 @@ onAuthStateChanged(auth, async (user) => {
     userStore.firebaseIdToken = token
     userStore.firebaseUser = user
   } else {
-    await refreshTokenIfExpired()
     console.log("No user is signed in.");
   }
 });
