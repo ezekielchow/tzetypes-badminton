@@ -1,4 +1,4 @@
-import { useUserStore } from '@/stores/user-store';
+import { getCurrentUser } from '@/services/firebase';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -66,11 +66,12 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
+
+  const user = await getCurrentUser()
 
   let isAuthenticated = null
-  if (userStore.firebaseUser) {
-    isAuthenticated = userStore.firebaseUser
+  if (user) {
+    isAuthenticated = user
   }
 
   const metas = Object.keys(to.meta)

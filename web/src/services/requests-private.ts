@@ -30,6 +30,7 @@ import {
 } from '@/repositories/clients/private';
 
 import { useUserStore } from '@/stores/user-store';
+import { auth } from './firebase';
 import { resetStores } from './store';
 
 export class MyPrivateApi extends BaseAPI {
@@ -51,6 +52,9 @@ export class MyPrivateApi extends BaseAPI {
   async getPrivateConf() {
     const userStore = useUserStore()
 
+    console.log("requesting using:", userStore.firebaseIdToken);
+
+
     return new PrivateConf({
       basePath: `${this.backendUrl}/api`,
       credentials: "include",
@@ -61,16 +65,18 @@ export class MyPrivateApi extends BaseAPI {
   private async authenticatedRequest(
     requestFunction: () => Promise<ApiResponse<any>>
   ): Promise<ApiResponse<any> | void> {
+    const userStore = useUserStore()
+
     try {
       return await requestFunction();
     } catch (error: any) {
       if (error instanceof ResponseError && error.response.status === 401) {
+
         try {
-          const userStore = useUserStore()
-          const user = userStore.firebaseUser; // Replace with your Firebase auth instance
+
+          const user = auth.currentUser
           if (user) {
             const newToken = await user.getIdToken(true); // Force refresh
-
             userStore.firebaseIdToken = newToken
 
             // Retry the original request
@@ -78,7 +84,7 @@ export class MyPrivateApi extends BaseAPI {
           }
         } catch (refreshError) {
           console.error("Failed to refresh token:", refreshError);
-          this.deleteSession(); // Clear session if refreshing fails
+          // this.deleteSession(); // Clear session if refreshing fails
           return;
         }
       }

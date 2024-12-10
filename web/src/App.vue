@@ -84,10 +84,8 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const token = await getIdToken(user)
     userStore.firebaseIdToken = token
-    userStore.firebaseUser = user
   } else {
     userStore.firebaseIdToken = "";
-    userStore.firebaseUser = null;
   }
 });
 
