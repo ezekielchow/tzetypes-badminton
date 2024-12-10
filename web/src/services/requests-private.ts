@@ -30,7 +30,6 @@ import {
 } from '@/repositories/clients/private';
 
 import { useUserStore } from '@/stores/user-store';
-import { auth } from './firebase';
 import { resetStores } from './store';
 
 export class MyPrivateApi extends BaseAPI {
@@ -49,38 +48,7 @@ export class MyPrivateApi extends BaseAPI {
     return decodedPayload;
   };
 
-  async refreshTokenIfExpired() {
-    const userStore = useUserStore()
-
-    const user = userStore.firebaseUser;
-    if (user) {
-      try {
-        const idToken = userStore.firebaseIdToken;
-        // Decode the token to extract the expiration time
-        const decoded = this.decodeJWT(idToken);
-
-        if (decoded && decoded.exp) {
-          const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-
-          if (decoded.exp < currentTime) {
-            const newIdToken = await user.getIdToken(true); // Force refresh
-            userStore.firebaseIdToken = newIdToken
-          }
-        } else {
-          console.log("Unable to decode token.");
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-      }
-    } else {
-      userStore.firebaseIdToken = ""
-      userStore.firebaseUser = null
-    }
-  };
-
   async getPrivateConf() {
-    await this.refreshTokenIfExpired()
-
     const userStore = useUserStore()
 
     return new PrivateConf({
@@ -95,14 +63,14 @@ export class MyPrivateApi extends BaseAPI {
   ): Promise<ApiResponse<any> | void> {
     try {
       return await requestFunction();
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ResponseError && error.response.status === 401) {
         try {
-          const user = auth.currentUser; // Replace with your Firebase auth instance
+          const userStore = useUserStore()
+          const user = userStore.firebaseUser; // Replace with your Firebase auth instance
           if (user) {
             const newToken = await user.getIdToken(true); // Force refresh
 
-            const userStore = useUserStore()
             userStore.firebaseIdToken = newToken
 
             // Retry the original request
