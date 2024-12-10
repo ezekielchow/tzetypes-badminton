@@ -2,7 +2,9 @@ import { initializeApp } from "firebase/app";
 import {
   browserLocalPersistence,
   getAuth,
-  setPersistence
+  onAuthStateChanged,
+  setPersistence,
+  type User
 } from "firebase/auth";
 import { type App } from "vue";
 
@@ -39,3 +41,11 @@ export default {
 
 // Export Firebase instances for direct use if needed
 export { auth, firebaseApp };
+
+export const getCurrentUser = (): Promise<User | null> => {
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, (user) => {
+      resolve(user); // Resolves with the user object or null if no user is signed in
+    });
+  });
+};

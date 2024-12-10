@@ -6,6 +6,7 @@ import ShareButton from '@/components/ShareButton.vue';
 import type { CreateOrUpdateGameHistoryRequestSchemaPlayerPositionEnum } from '@/repositories/clients/private';
 import type { GetGameStatistics200Response } from '@/repositories/clients/public';
 import router from '@/router';
+import { getCurrentUser } from '@/services/firebase';
 import { useGameStore } from '@/stores/game-store';
 import { useSessionStore } from '@/stores/session-store';
 import { useUserStore } from '@/stores/user-store';
@@ -47,7 +48,7 @@ onBeforeMount(async () => {
 })
 
 let isLoggedIn = false
-const user = userStore.firebaseUser
+const user = await getCurrentUser()
 if (user) {
     isLoggedIn = true
 }
@@ -102,7 +103,7 @@ const getStatistics = async () => {
     updateDisplay()
     updateMetaTags()
 
-    const user = userStore.firebaseUser
+    const user = await getCurrentUser()
     if (user) {
         await getGameHistory(gameData.game.id)
     }
@@ -178,7 +179,7 @@ const updateMetaTags = () => {
 
 const handlePlayerIdentify = async (value: string) => {
 
-    const user = userStore.firebaseUser
+    const user = await getCurrentUser()
     if (!user) {
         document.getElementsByName("player_identify").forEach((radio) => {
             (radio as HTMLInputElement).checked = false

@@ -30,6 +30,7 @@ import {
 } from '@/repositories/clients/private';
 
 import { useUserStore } from '@/stores/user-store';
+import { auth } from './firebase';
 import { resetStores } from './store';
 
 export class MyPrivateApi extends BaseAPI {
@@ -48,39 +49,11 @@ export class MyPrivateApi extends BaseAPI {
     return decodedPayload;
   };
 
-  async refreshTokenIfExpired() {
-    const userStore = useUserStore()
-
-    const user = userStore.firebaseUser;
-    if (user) {
-      try {
-        const idToken = userStore.firebaseIdToken;
-        // Decode the token to extract the expiration time
-        const decoded = this.decodeJWT(idToken);
-
-        if (decoded && decoded.exp) {
-          const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-
-          if (decoded.exp < currentTime) {
-            const newIdToken = await user.getIdToken(true); // Force refresh
-            userStore.firebaseIdToken = newIdToken
-          }
-        } else {
-          console.log("Unable to decode token.");
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-      }
-    } else {
-      userStore.firebaseIdToken = ""
-      userStore.firebaseUser = null
-    }
-  };
-
   async getPrivateConf() {
-    await this.refreshTokenIfExpired()
-
     const userStore = useUserStore()
+
+    console.log("requesting using:", userStore.firebaseIdToken);
+
 
     return new PrivateConf({
       basePath: `${this.backendUrl}/api`,
@@ -89,17 +62,35 @@ export class MyPrivateApi extends BaseAPI {
     });
   }
 
-  private async authenticatedRequest(requestFunction: () => Promise<ApiResponse<any>>): Promise<ApiResponse<any> | void> {
+  private async authenticatedRequest(
+    requestFunction: () => Promise<ApiResponse<any>>
+  ): Promise<ApiResponse<any> | void> {
+    const userStore = useUserStore()
+
     try {
       return await requestFunction();
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ResponseError && error.response.status === 401) {
-        this.deleteSession();
-        return
-      } else {
-        // Rethrow the error if it's not a 401 or a refresh failure
-        throw error;
+
+        try {
+
+          const user = auth.currentUser
+          if (user) {
+            const newToken = await user.getIdToken(true); // Force refresh
+            userStore.firebaseIdToken = newToken
+
+            // Retry the original request
+            return await requestFunction();
+          }
+        } catch (refreshError) {
+          console.error("Failed to refresh token:", refreshError);
+          // this.deleteSession(); // Clear session if refreshing fails
+          return;
+        }
       }
+
+      // Rethrow the error if it's not a 401 or a refresh failure
+      throw error;
     }
   }
 
