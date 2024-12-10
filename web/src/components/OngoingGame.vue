@@ -17,7 +17,7 @@ const errorMessage = ref("")
 const isLoading = ref(false)
 const isLandscape = ref(false)
 const isGamePaused = ref(false)
-const pointsOrientation = ref("equal")
+const pointsOrientation = ref("right")
 const currentCourtState = reactive({
     leftEvenPlayer: "",
     leftOddPlayer: "",
@@ -75,6 +75,10 @@ onBeforeUnmount(() => {
 
 const handleOrientationChange = () => {
     isLandscape.value = window.matchMedia("(orientation: landscape)").matches;
+
+    if (!isLandscape.value && pointsOrientation.value == "equal") {
+        pointsOrientation.value = 'right'
+    }
 };
 
 const updateCourtState = () => {
@@ -368,8 +372,110 @@ const handlePauseGame = () => {
 
 <template>
     <div>
-        <div v-if="!isLandscape" class="portrait-warning">
-            Please rotate your device to landscape orientation.
+        <div v-if="!isLandscape" class="main-content">
+            <div class="header-actions">
+                <div class="points">
+                    {{ `${currentCourtState.teamLeftScore} : ${currentCourtState.teamRightScore}` }}
+                </div>
+            </div>
+            <div class="content-section">
+                <div class="court">
+                    <div class="top-court squares">
+                        <div class="net">
+                            <div class="v-line"></div>
+                        </div>
+                    </div>
+                    <div class="bottom-court squares">
+                        <div class="net">
+                            <div class="v-line"></div>
+                        </div>
+                    </div>
+                    <div class="left-top-player ">
+                        <div class="player-names">{{ currentCourtState.leftOddPlayer }}</div>
+                    </div>
+                    <div class="left-bottom-player ">
+                        <div class="player-names">{{ currentCourtState.leftEvenPlayer }}</div>
+                    </div>
+                    <div class="right-top-player ">
+                        <div class="player-names">{{ currentCourtState.rightEvenPlayer }}</div>
+                    </div>
+                    <div class="right-bottom-player ">
+                        <div class="player-names">{{ currentCourtState.rightOddPlayer }}</div>
+                    </div>
+                    <div class="pause-court" v-if="isGamePaused">
+                        <p>Game Paused</p>
+                    </div>
+                    <div class="shuttle-left-top">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_LEFT_ODD"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="shuttle-left-bottom">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_LEFT_EVEN"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="shuttle-right-top">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_RIGHT_EVEN"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="shuttle-right-bottom">
+                        <div v-if="currentCourtState.currentServer === CurrentServer.SERVER_RIGHT_ODD"
+                            class="shuttle-wrapper">
+                            <img :src="shuttlecock" width="30px" height="30px">
+                        </div>
+                    </div>
+                    <div class="left-top-section"></div>
+                    <div class="left-bottom-section"></div>
+                    <div class="right-top-section"></div>
+                    <div class="right-bottom-section"></div>
+                </div>
+            </div>
+            <div class="points-section" :style="{ display: 'flex', marginTop: '20px', flexDirection: 'column' }">
+                <div class="points-orientation"
+                    :style="{ display: 'flex', justifyContent: pointsOrientation == 'left' ? 'start' : 'end' }">
+                    <button class="button-secondary points-control-button" @click="handlePointsOrientation('left')">
+                        {{ "O : []" }}
+                    </button>
+                    <button class="button-secondary points-control-button" @click="handlePointsOrientation('right')">
+                        {{ "[] : O" }}
+                    </button>
+                </div>
+                <div
+                    :style="{ display: 'flex', justifyContent: pointsOrientation == 'left' ? 'start' : 'end', marginTop: '20px' }">
+                    <button class="add-button sides" @click="handleScorePoint('left')">
+                        + 1
+                    </button>
+                    <button class="add-button sides red" @click="handleScorePoint('right')">
+                        + 1
+                    </button>
+                </div>
+            </div>
+            <div class="seperator"></div>
+            <div class="footer-actions">
+                <div :style="{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }">
+                    <ButtonComponent type="secondary" class="footer-buttons" @click.prevent="handlePauseGame">
+                        {{ isGamePaused ? "Continue Game" : "Pause Game" }}
+                    </ButtonComponent>
+                    <div :style="{ marginTop: '10px' }">
+                        <ButtonComponent type="secondary" class="footer-buttons" @click.prevent="handleUndo"
+                            :isLoading="isLoading">
+                            Undo
+                        </ButtonComponent>
+                    </div>
+                </div>
+                <div :style="{ display: 'flex', justifyContent: 'end' }">
+                    <p class="error-message" id="error-message" v-if='errorMessage !== ""'>{{ errorMessage }}</p>
+                    <ButtonComponent type="secondary" class="footer-buttons" @click.prevent="handleEndGame"
+                        :isLoading="isLoading">
+                        End Game
+                    </ButtonComponent>
+                </div>
+            </div>
         </div>
         <div v-else class="main-content">
             <div class="header-actions">
@@ -492,13 +598,6 @@ const handlePauseGame = () => {
 </template>
 
 <style scoped>
-.portrait-warning {
-    display: block;
-    text-align: center;
-    font-size: 20px;
-    color: #333;
-}
-
 @media only screen and (orientation: landscape) {
     .mt-1 {
         margin-top: 1rem;
@@ -773,6 +872,335 @@ const handlePauseGame = () => {
         display: flex;
         justify-content: center;
         font-size: 2rem;
+    }
+}
+
+@media only screen and (orientation: portrait) {
+    .mt-1 {
+        margin-top: 1rem;
+    }
+
+    .mb-1 {
+        margin-bottom: 1rem;
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        min-width: 100vw;
+    }
+
+    .court {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+        width: 98vw;
+        height: 40vh;
+        background-color: green;
+        position: relative;
+        border: 4px solid white;
+    }
+
+    .pause-court {
+        grid-row: 1 / span 10;
+        grid-column: 1 / span 2;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent black */
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .squares {
+        border: 1px solid white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 0.8rem;
+    }
+
+    .net {
+        height: 100%;
+        align-items: center;
+    }
+
+    .v-line {
+        height: 100%;
+        border-left: 1px solid white;
+    }
+
+    .service-top {
+        grid-row: 1 / span 2;
+    }
+
+    .service-bottom {
+        grid-row: 3 / span 2;
+    }
+
+    .top-court,
+    .bottom-court {
+        grid-column: 1 / span 10;
+    }
+
+    .top-court {
+        grid-row: 1 / span 5;
+    }
+
+    .bottom-court {
+        grid-row: 6 / span 5;
+    }
+
+    .sideline {
+        grid-row: 1 / span 4;
+    }
+
+    .sideline-left {
+        grid-column: 1 / span 1;
+    }
+
+    .sideline-right {
+        grid-column: 8 / span 1;
+    }
+
+    .left-top-player,
+    .left-bottom-player,
+    .right-top-player,
+    .right-bottom-player {
+        display: flex;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+    }
+
+    .left-top-player {
+        background-color: #4A90E2;
+        grid-column: 1 / span 1;
+        grid-row: 3 / span 3;
+    }
+
+    .left-bottom-player {
+        background-color: #4A90E2;
+        grid-column: 1 / span 1;
+        grid-row: 8 / span 3;
+    }
+
+    .right-top-player {
+        background-color: #27AE60;
+        grid-column: 2 / span 1;
+        grid-row: 3 / span 3;
+    }
+
+    .right-bottom-player {
+        background-color: #27AE60;
+        grid-column: 2 / span 1;
+        grid-row: 8 / span 3;
+    }
+
+    .shuttle-right-top,
+    .shuttle-right-bottom,
+    .shuttle-left-top,
+    .shuttle-left-bottom {
+        display: flex;
+        align-items: end;
+        justify-content: center;
+    }
+
+    .shuttle-left-top {
+        background-color: #4A90E2;
+        grid-column: 1 / span 1;
+        grid-row: 1 / span 2;
+    }
+
+    .shuttle-left-bottom {
+        background-color: #4A90E2;
+        grid-column: 1 / span 1;
+        grid-row: 6 / span 2;
+    }
+
+    .shuttle-right-top {
+        background-color: #27AE60;
+        grid-column: 2 / span 1;
+        grid-row: 1 / span 2;
+    }
+
+    .shuttle-right-bottom {
+        background-color: #27AE60;
+        grid-column: 2 / span 1;
+        grid-row: 6 / span 2;
+    }
+
+    .left-top-section,
+    .left-bottom-section,
+    .right-top-section,
+    .right-bottom-section {
+        border: 1px solid white;
+    }
+
+    .left-top-section {
+        grid-column: 1 / span 1;
+        grid-row: 1 / span 5;
+    }
+
+    .left-bottom-section {
+        grid-column: 1 / span 1;
+        grid-row: 6 / span 5;
+    }
+
+    .right-top-section {
+        grid-column: 2 / span 1;
+        grid-row: 1 / span 5;
+    }
+
+    .right-bottom-section {
+        grid-column: 2 / span 1;
+        grid-row: 6 / span 5;
+    }
+
+    .setup-form-container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 1rem;
+    }
+
+    form {
+        padding: 0.5rem;
+        flex-grow: 1;
+    }
+
+    .form-group {
+        display: flex;
+        padding: 0 1rem;
+    }
+
+    fieldset {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    legend {
+        font-weight: bold;
+    }
+
+    .loading-wrapper {
+        display: none;
+        padding: 0.5rem;
+    }
+
+    .shuttle-wrapper {
+        padding: 0.5rem;
+    }
+
+    .content-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .add-button {
+        background-color: #4A90E2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .add-button.equal {
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        height: 200px;
+    }
+
+    .add-button.sides {
+        margin-bottom: 1rem;
+        width: 35%;
+        height: 120px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .add-button.red {
+        background-color: #27AE60;
+    }
+
+    .player-names {
+        font-weight: bold;
+        font-size: 1.5rem;
+        padding: 0.5rem;
+    }
+
+    .header-actions {
+        display: flex;
+        margin-top: 0.5rem;
+        font-weight: bold;
+        font-size: 1.5rem;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .footer-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .footer-buttons {
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+
+    .push-end {
+        display: flex;
+        margin-right: 2rem;
+    }
+
+    .push-start {
+        display: flex;
+        margin-left: 2rem;
+    }
+
+    .points-control {
+        display: flex;
+    }
+
+    .points-control-button {
+        margin-right: 0.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    .sides-add-button-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100px;
+    }
+
+    .points {
+        display: flex;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    .seperator {
+        width: 100%;
+        height: 0.2rem;
+        background-color: black;
     }
 }
 </style>

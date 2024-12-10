@@ -617,7 +617,6 @@ const handleStartGame = async () => {
     }
 }
 
-
 .back-link {
     margin: 5px;
 }
