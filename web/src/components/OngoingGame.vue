@@ -615,10 +615,8 @@ const handlePauseGame = () => {
 
     .court {
         display: grid;
-        grid-template-columns: repeat(8, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-        width: 75vw;
-        height: 66vh;
+        grid-template-columns: repeat(8, 9.3vw);
+        grid-template-rows: repeat(4, 16.5vh);
         background-color: green;
         position: relative;
         border: 4px solid white;
@@ -807,8 +805,10 @@ const handlePauseGame = () => {
 
     .player-names {
         font-weight: bold;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         padding: 0.5rem;
+        word-wrap: break-word;
+        white-space: normal;
     }
 
     .header-actions {
@@ -892,10 +892,8 @@ const handlePauseGame = () => {
 
     .court {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(10, 1fr);
-        width: 98vw;
-        height: 40vh;
+        grid-template-columns: repeat(2, 48vw);
+        grid-template-rows: repeat(10, 4vh);
         background-color: green;
         position: relative;
         border: 4px solid white;
@@ -1132,8 +1130,10 @@ const handlePauseGame = () => {
 
     .player-names {
         font-weight: bold;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         padding: 0.5rem;
+        word-wrap: break-word;
+        white-space: normal;
     }
 
     .header-actions {
