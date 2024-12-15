@@ -52,9 +52,6 @@ export class MyPrivateApi extends BaseAPI {
   async getPrivateConf() {
     const userStore = useUserStore()
 
-    console.log("requesting using:", userStore.firebaseIdToken);
-
-
     return new PrivateConf({
       basePath: `${this.backendUrl}/api`,
       credentials: "include",
