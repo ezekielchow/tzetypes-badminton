@@ -1,11 +1,13 @@
 import {
   BaseAPI,
   GameApi,
+  InstagramApi,
   Configuration as PublicConf,
   ResponseError,
   type ApiResponse,
   type GetGameStatistics200Response,
   type GetGameStatisticsRequest,
+  type GetInstagramFeed200Response,
   type InitOverrideFunction
 } from '@/repositories/clients/public';
 
@@ -72,5 +74,18 @@ export class MyPublicApi extends BaseAPI {
   async getGameStatistics(requestParameters: GetGameStatisticsRequest, initOverrides?: RequestInit | InitOverrideFunction): Promise<GetGameStatistics200Response> {
     const apiResponse = await this.authenticatedRequest(() => this.getGameStatisticsRequest(requestParameters, initOverrides));
     return await apiResponse.value();
+  }
+
+  public async getInstagramFeed(initOverrides?: RequestInit | InitOverrideFunction): Promise<ApiResponse<GetInstagramFeed200Response>> {
+    const api = new InstagramApi(this.getPublicConf())
+
+    try {
+      return await api.getInstagramFeedRaw(initOverrides)
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        throw new ResponseError(error.response, error.message)
+      }
+      throw new Error('Failed to get instagram feed');
+    }
   }
 }

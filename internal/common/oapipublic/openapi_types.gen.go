@@ -60,5 +60,17 @@ type GameStep struct {
 	UpdatedAt           string  `json:"updated_at"`
 }
 
+// InstagramMedia defines model for InstagramMedia.
+type InstagramMedia struct {
+	CreatedAt string `json:"created_at"`
+	Id        string `json:"id"`
+	MediaId   string `json:"media_id"`
+	MediaType string `json:"media_type"`
+	MediaUrl  string `json:"media_url"`
+	Permalink string `json:"permalink"`
+	PostedAt  string `json:"posted_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
 // ErrorResponseSchema defines model for ErrorResponseSchema.
 type ErrorResponseSchema = Error

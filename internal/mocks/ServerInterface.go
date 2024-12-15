@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	oapiprivate "common/oapiprivate"
 	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,19 +14,74 @@ type ServerInterface struct {
 	mock.Mock
 }
 
-// EndAbandonedGames provides a mock function with given fields: w, r
-func (_m *ServerInterface) EndAbandonedGames(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
-}
-
-// GenerateRecentStatistics provides a mock function with given fields: w, r
-func (_m *ServerInterface) GenerateRecentStatistics(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
-}
-
-// GetGameStatistics provides a mock function with given fields: w, r, gameId
-func (_m *ServerInterface) GetGameStatistics(w http.ResponseWriter, r *http.Request, gameId string) {
+// AddGameSteps provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) AddGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
 	_m.Called(w, r, gameId)
+}
+
+// AddPlayer provides a mock function with given fields: w, r
+func (_m *ServerInterface) AddPlayer(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// CreateOrUpdateGameHistory provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) CreateOrUpdateGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
+}
+
+// DeleteGameSteps provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) DeleteGameSteps(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
+}
+
+// EndGame provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) EndGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
+}
+
+// GetGame provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) GetGame(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
+}
+
+// GetGameHistory provides a mock function with given fields: w, r, gameId
+func (_m *ServerInterface) GetGameHistory(w http.ResponseWriter, r *http.Request, gameId string) {
+	_m.Called(w, r, gameId)
+}
+
+// GetLoggedInUser provides a mock function with given fields: w, r
+func (_m *ServerInterface) GetLoggedInUser(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// GetPlayerWithId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) GetPlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
+	_m.Called(w, r, id)
+}
+
+// GetRecentStatistics provides a mock function with given fields: w, r
+func (_m *ServerInterface) GetRecentStatistics(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// ListActiveGames provides a mock function with given fields: w, r
+func (_m *ServerInterface) ListActiveGames(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// ListPlayers provides a mock function with given fields: w, r, params
+func (_m *ServerInterface) ListPlayers(w http.ResponseWriter, r *http.Request, params oapiprivate.ListPlayersParams) {
+	_m.Called(w, r, params)
+}
+
+// StartGame provides a mock function with given fields: w, r
+func (_m *ServerInterface) StartGame(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
+
+// UpdatePlayerWithId provides a mock function with given fields: w, r, id
+func (_m *ServerInterface) UpdatePlayerWithId(w http.ResponseWriter, r *http.Request, id string) {
+	_m.Called(w, r, id)
 }
 
 // NewServerInterface creates a new instance of ServerInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

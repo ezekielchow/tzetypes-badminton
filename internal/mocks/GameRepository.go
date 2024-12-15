@@ -476,6 +476,64 @@ func (_m *GameRepository) GetGameStepsGivenGameIds(ctx context.Context, tx *pgx.
 	return r0, r1
 }
 
+// GetInstagramFeedCount provides a mock function with given fields: ctx, tx
+func (_m *GameRepository) GetInstagramFeedCount(ctx context.Context, tx *pgx.Tx) (int64, error) {
+	ret := _m.Called(ctx, tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInstagramFeedCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) (int64, error)); ok {
+		return rf(ctx, tx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) int64); ok {
+		r0 = rf(ctx, tx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx) error); ok {
+		r1 = rf(ctx, tx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetLatestInstagramFeed provides a mock function with given fields: ctx, tx
+func (_m *GameRepository) GetLatestInstagramFeed(ctx context.Context, tx *pgx.Tx) ([]models.InstagramMedia, error) {
+	ret := _m.Called(ctx, tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLatestInstagramFeed")
+	}
+
+	var r0 []models.InstagramMedia
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) ([]models.InstagramMedia, error)); ok {
+		return rf(ctx, tx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx) []models.InstagramMedia); ok {
+		r0 = rf(ctx, tx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.InstagramMedia)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *pgx.Tx) error); ok {
+		r1 = rf(ctx, tx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetMostRecentGameHistories provides a mock function with given fields: ctx, tx, userID
 func (_m *GameRepository) GetMostRecentGameHistories(ctx context.Context, tx *pgx.Tx, userID string) ([]models.GameHistory, error) {
 	ret := _m.Called(ctx, tx, userID)
@@ -562,6 +620,24 @@ func (_m *GameRepository) GetStatisticsWithGameId(ctx context.Context, tx *pgx.T
 	}
 
 	return r0, r1
+}
+
+// UpdateInstagramFeed provides a mock function with given fields: ctx, tx, media
+func (_m *GameRepository) UpdateInstagramFeed(ctx context.Context, tx *pgx.Tx, media models.InstagramMedia) error {
+	ret := _m.Called(ctx, tx, media)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateInstagramFeed")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *pgx.Tx, models.InstagramMedia) error); ok {
+		r0 = rf(ctx, tx, media)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // NewGameRepository creates a new instance of GameRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

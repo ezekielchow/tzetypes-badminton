@@ -289,6 +289,36 @@ func (_m *GameServiceInterface) GetGameStatistics(ctx context.Context, input oap
 	return r0, r1
 }
 
+// GetInstagramFeed provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) GetInstagramFeed(ctx context.Context, input oapipublic.GetInstagramFeedRequestObject) (oapipublic.GetInstagramFeedResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInstagramFeed")
+	}
+
+	var r0 oapipublic.GetInstagramFeedResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetInstagramFeedRequestObject) (oapipublic.GetInstagramFeedResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.GetInstagramFeedRequestObject) oapipublic.GetInstagramFeedResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.GetInstagramFeedResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.GetInstagramFeedRequestObject) error); ok {
+		r1 = rf(ctx, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetRecentStatistics provides a mock function with given fields: ctx, input, user
 func (_m *GameServiceInterface) GetRecentStatistics(ctx context.Context, input oapiprivate.GetRecentStatisticsRequestObject, user models.User) (oapiprivate.GetRecentStatisticsResponseObject, error) {
 	ret := _m.Called(ctx, input, user)
@@ -372,6 +402,36 @@ func (_m *GameServiceInterface) StartGame(ctx context.Context, input oapiprivate
 
 	if rf, ok := ret.Get(1).(func(context.Context, oapiprivate.StartGameRequestObject, models.User) error); ok {
 		r1 = rf(ctx, input, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateInstagramFeed provides a mock function with given fields: ctx, input
+func (_m *GameServiceInterface) UpdateInstagramFeed(ctx context.Context, input oapipublic.UpdateInstagramFeedRequestObject) (oapipublic.UpdateInstagramFeedResponseObject, error) {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateInstagramFeed")
+	}
+
+	var r0 oapipublic.UpdateInstagramFeedResponseObject
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.UpdateInstagramFeedRequestObject) (oapipublic.UpdateInstagramFeedResponseObject, error)); ok {
+		return rf(ctx, input)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, oapipublic.UpdateInstagramFeedRequestObject) oapipublic.UpdateInstagramFeedResponseObject); ok {
+		r0 = rf(ctx, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(oapipublic.UpdateInstagramFeedResponseObject)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, oapipublic.UpdateInstagramFeedRequestObject) error); ok {
+		r1 = rf(ctx, input)
 	} else {
 		r1 = ret.Error(1)
 	}

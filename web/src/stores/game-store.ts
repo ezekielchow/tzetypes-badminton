@@ -1,7 +1,7 @@
 import { type AddGameSteps201Response, type AddGameStepsRequest, type CreateOrUpdateGameHistoryRequest, type DeleteGameStepsRequest, type EndGameOperationRequest, type Game, type GetGameHistory200Response, type GetGameHistoryRequest, type GetGameRequest, type GetRecentStatistics200Response, type ListActiveGames200Response, type StartGameRequest } from "@/repositories/clients/private";
 import type { GetGame200Response } from "@/repositories/clients/private/models/GetGame200Response";
 import type { StartGame201Response } from "@/repositories/clients/private/models/StartGame201Response";
-import type { GetGameStatistics200Response, GetGameStatisticsRequest } from "@/repositories/clients/public";
+import type { GetGameStatistics200Response, GetGameStatisticsRequest, GetInstagramFeed200Response } from "@/repositories/clients/public";
 import { MyPrivateApi } from "@/services/requests-private";
 import { MyPublicApi } from "@/services/requests-public";
 import type { LocalGameStep } from "@/types/game";
@@ -249,6 +249,23 @@ export const useGameStore = defineStore('game', {
         const res = await privateApi.listActiveGames()
         if (res) {
           return res
+        }
+        throw new Error("request failed")
+
+      } catch (error: any) {
+        if (error.response) {
+          const errorBody = await error.response.json() // Parse the error response body as JSON
+          return new Error(`Error: ${errorBody.message || 'Something went wrong'}`)
+        }
+        return new Error("Network error or unexpected error occurred")
+      }
+    },
+    async getInstagramFeed(): Promise<GetInstagramFeed200Response | Error> {
+      const publicApi = new MyPublicApi(this.backendUrl)
+      try {
+        const res = await publicApi.getInstagramFeed()
+        if (res) {
+          return await res.value()
         }
         throw new Error("request failed")
 

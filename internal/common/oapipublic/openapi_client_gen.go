@@ -96,6 +96,12 @@ type ClientInterface interface {
 
 	// GenerateRecentStatistics request
 	GenerateRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetInstagramFeed request
+	GetInstagramFeed(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateInstagramFeed request
+	UpdateInstagramFeed(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) EndAbandonedGames(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -124,6 +130,30 @@ func (c *Client) GetGameStatistics(ctx context.Context, gameId string, reqEditor
 
 func (c *Client) GenerateRecentStatistics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGenerateRecentStatisticsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetInstagramFeed(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetInstagramFeedRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateInstagramFeed(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateInstagramFeedRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +252,60 @@ func NewGenerateRecentStatisticsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetInstagramFeedRequest generates requests for GetInstagramFeed
+func NewGetInstagramFeedRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/get-instagram-feed")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateInstagramFeedRequest generates requests for UpdateInstagramFeed
+func NewUpdateInstagramFeedRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/update-instagram-feed")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -273,6 +357,12 @@ type ClientWithResponsesInterface interface {
 
 	// GenerateRecentStatisticsWithResponse request
 	GenerateRecentStatisticsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GenerateRecentStatisticsResponse, error)
+
+	// GetInstagramFeedWithResponse request
+	GetInstagramFeedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInstagramFeedResponse, error)
+
+	// UpdateInstagramFeedWithResponse request
+	UpdateInstagramFeedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*UpdateInstagramFeedResponse, error)
 }
 
 type EndAbandonedGamesResponse struct {
@@ -346,6 +436,53 @@ func (r GenerateRecentStatisticsResponse) StatusCode() int {
 	return 0
 }
 
+type GetInstagramFeedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Feed []InstagramMedia `json:"feed"`
+	}
+	JSONDefault *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r GetInstagramFeedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetInstagramFeedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateInstagramFeedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *ErrorResponseSchema
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateInstagramFeedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateInstagramFeedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // EndAbandonedGamesWithResponse request returning *EndAbandonedGamesResponse
 func (c *ClientWithResponses) EndAbandonedGamesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*EndAbandonedGamesResponse, error) {
 	rsp, err := c.EndAbandonedGames(ctx, reqEditors...)
@@ -371,6 +508,24 @@ func (c *ClientWithResponses) GenerateRecentStatisticsWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseGenerateRecentStatisticsResponse(rsp)
+}
+
+// GetInstagramFeedWithResponse request returning *GetInstagramFeedResponse
+func (c *ClientWithResponses) GetInstagramFeedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInstagramFeedResponse, error) {
+	rsp, err := c.GetInstagramFeed(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetInstagramFeedResponse(rsp)
+}
+
+// UpdateInstagramFeedWithResponse request returning *UpdateInstagramFeedResponse
+func (c *ClientWithResponses) UpdateInstagramFeedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*UpdateInstagramFeedResponse, error) {
+	rsp, err := c.UpdateInstagramFeed(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateInstagramFeedResponse(rsp)
 }
 
 // ParseEndAbandonedGamesResponse parses an HTTP response from a EndAbandonedGamesWithResponse call
@@ -445,6 +600,67 @@ func ParseGenerateRecentStatisticsResponse(rsp *http.Response) (*GenerateRecentS
 	}
 
 	response := &GenerateRecentStatisticsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetInstagramFeedResponse parses an HTTP response from a GetInstagramFeedWithResponse call
+func ParseGetInstagramFeedResponse(rsp *http.Response) (*GetInstagramFeedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetInstagramFeedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Feed []InstagramMedia `json:"feed"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorResponseSchema
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateInstagramFeedResponse parses an HTTP response from a UpdateInstagramFeedWithResponse call
+func ParseUpdateInstagramFeedResponse(rsp *http.Response) (*UpdateInstagramFeedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateInstagramFeedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

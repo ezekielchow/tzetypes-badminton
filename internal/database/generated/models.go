@@ -109,6 +109,17 @@ type GameStep struct {
 	UpdatedAt           pgtype.Timestamp
 }
 
+type InstagramFeed struct {
+	ID        pgtype.UUID
+	MediaID   string
+	MediaType string
+	MediaUrl  string
+	Permalink string
+	PostedAt  pgtype.Timestamp
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
 type Player struct {
 	ID        pgtype.UUID
 	UserID    pgtype.UUID

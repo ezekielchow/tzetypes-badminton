@@ -259,3 +259,24 @@ ORDER BY
   CASE WHEN @sort_game_created_at::text = 'created_at_desc' THEN g.created_at END DESC
 LIMIT @limit_count::int
 OFFSET @offset_count::int;
+
+-- name: UpdateInstagramFeed :exec
+INSERT INTO instagram_feeds(
+    media_id,
+    media_type,
+    media_url,
+    permalink,
+    posted_at
+) VALUES (
+    @media_id::text,
+    @media_type::text,
+    @media_url::text,
+    @permalink::text,
+    @posted_at
+) ON CONFLICT (media_id) DO NOTHING;
+
+-- name: GetInstagramFeedCount :one
+SELECT count(*) AS total from instagram_feeds;
+
+-- name: GetLatestInstagramFeed :many
+SELECT * from instagram_feeds WHERE media_type = 'CAROUSEL_ALBUM' ORDER BY posted_at DESC LIMIT 5;

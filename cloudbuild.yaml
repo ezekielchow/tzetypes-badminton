@@ -77,6 +77,10 @@ steps:
       - "APP_PORT=projects/754749631741/secrets/app-port:latest"
       - "--set-secrets"
       - "FIREBASE_SERVICE_ACCOUNT=projects/754749631741/secrets/firebase-service-account:latest"
+      - "--set-secrets"
+      - "INSTAGRAM_ACCESS_TOKEN=projects/754749631741/secrets/instagram-access-token:latest"
+      - "--set-secrets"
+      - "INSTAGRAM_ACCOUNT_ID=projects/754749631741/secrets/instagram-account-id:latest"
 
   - name: "gcr.io/cloud-builders/docker"
     args:

@@ -25,6 +25,12 @@ type ServerInterface interface {
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(w http.ResponseWriter, r *http.Request)
+	// Get latest media which is posted
+	// (GET /get-instagram-feed)
+	GetInstagramFeed(w http.ResponseWriter, r *http.Request)
+	// Update db with latest media
+	// (GET /update-instagram-feed)
+	UpdateInstagramFeed(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -46,6 +52,18 @@ func (_ Unimplemented) GetGameStatistics(w http.ResponseWriter, r *http.Request,
 // Generate statistics for players that has latest game in timespan
 // (GET /generate-recent-statistics)
 func (_ Unimplemented) GenerateRecentStatistics(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get latest media which is posted
+// (GET /get-instagram-feed)
+func (_ Unimplemented) GetInstagramFeed(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update db with latest media
+// (GET /update-instagram-feed)
+func (_ Unimplemented) UpdateInstagramFeed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -102,6 +120,34 @@ func (siw *ServerInterfaceWrapper) GenerateRecentStatistics(w http.ResponseWrite
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GenerateRecentStatistics(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetInstagramFeed operation middleware
+func (siw *ServerInterfaceWrapper) GetInstagramFeed(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetInstagramFeed(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateInstagramFeed operation middleware
+func (siw *ServerInterfaceWrapper) UpdateInstagramFeed(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateInstagramFeed(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -233,6 +279,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/generate-recent-statistics", wrapper.GenerateRecentStatistics)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/get-instagram-feed", wrapper.GetInstagramFeed)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/update-instagram-feed", wrapper.UpdateInstagramFeed)
+	})
 
 	return r
 }
@@ -326,6 +378,63 @@ func (response GenerateRecentStatisticsdefaultJSONResponse) VisitGenerateRecentS
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type GetInstagramFeedRequestObject struct {
+}
+
+type GetInstagramFeedResponseObject interface {
+	VisitGetInstagramFeedResponse(w http.ResponseWriter) error
+}
+
+type GetInstagramFeed200JSONResponse struct {
+	Feed []InstagramMedia `json:"feed"`
+}
+
+func (response GetInstagramFeed200JSONResponse) VisitGetInstagramFeedResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetInstagramFeeddefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetInstagramFeeddefaultJSONResponse) VisitGetInstagramFeedResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type UpdateInstagramFeedRequestObject struct {
+}
+
+type UpdateInstagramFeedResponseObject interface {
+	VisitUpdateInstagramFeedResponse(w http.ResponseWriter) error
+}
+
+type UpdateInstagramFeed200Response struct {
+}
+
+func (response UpdateInstagramFeed200Response) VisitUpdateInstagramFeedResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type UpdateInstagramFeeddefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response UpdateInstagramFeeddefaultJSONResponse) VisitUpdateInstagramFeedResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// End games which are abandoned after a time
@@ -337,6 +446,12 @@ type StrictServerInterface interface {
 	// Generate statistics for players that has latest game in timespan
 	// (GET /generate-recent-statistics)
 	GenerateRecentStatistics(ctx context.Context, request GenerateRecentStatisticsRequestObject) (GenerateRecentStatisticsResponseObject, error)
+	// Get latest media which is posted
+	// (GET /get-instagram-feed)
+	GetInstagramFeed(ctx context.Context, request GetInstagramFeedRequestObject) (GetInstagramFeedResponseObject, error)
+	// Update db with latest media
+	// (GET /update-instagram-feed)
+	UpdateInstagramFeed(ctx context.Context, request UpdateInstagramFeedRequestObject) (UpdateInstagramFeedResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -435,6 +550,54 @@ func (sh *strictHandler) GenerateRecentStatistics(w http.ResponseWriter, r *http
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GenerateRecentStatisticsResponseObject); ok {
 		if err := validResponse.VisitGenerateRecentStatisticsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetInstagramFeed operation middleware
+func (sh *strictHandler) GetInstagramFeed(w http.ResponseWriter, r *http.Request) {
+	var request GetInstagramFeedRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetInstagramFeed(ctx, request.(GetInstagramFeedRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetInstagramFeed")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetInstagramFeedResponseObject); ok {
+		if err := validResponse.VisitGetInstagramFeedResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateInstagramFeed operation middleware
+func (sh *strictHandler) UpdateInstagramFeed(w http.ResponseWriter, r *http.Request) {
+	var request UpdateInstagramFeedRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateInstagramFeed(ctx, request.(UpdateInstagramFeedRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateInstagramFeed")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateInstagramFeedResponseObject); ok {
+		if err := validResponse.VisitUpdateInstagramFeedResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

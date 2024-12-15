@@ -876,6 +876,50 @@ func (q *Queries) GetGameWithID(ctx context.Context, id pgtype.UUID) (Game, erro
 	return i, err
 }
 
+const getInstagramFeedCount = `-- name: GetInstagramFeedCount :one
+SELECT count(*) AS total from instagram_feeds
+`
+
+func (q *Queries) GetInstagramFeedCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getInstagramFeedCount)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const getLatestInstagramFeed = `-- name: GetLatestInstagramFeed :many
+SELECT id, media_id, media_type, media_url, permalink, posted_at, created_at, updated_at from instagram_feeds WHERE media_type = 'CAROUSEL_ALBUM' ORDER BY posted_at DESC LIMIT 5
+`
+
+func (q *Queries) GetLatestInstagramFeed(ctx context.Context) ([]InstagramFeed, error) {
+	rows, err := q.db.Query(ctx, getLatestInstagramFeed)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []InstagramFeed
+	for rows.Next() {
+		var i InstagramFeed
+		if err := rows.Scan(
+			&i.ID,
+			&i.MediaID,
+			&i.MediaType,
+			&i.MediaUrl,
+			&i.Permalink,
+			&i.PostedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMostRecentGameHistories = `-- name: GetMostRecentGameHistories :many
 SELECT id, user_id, game_id, player_position, is_game_won, game_started_at, game_won_by, total_points, points_won, points_lost, average_time_per_point_seconds, average_time_per_point_won_seconds, average_time_per_point_lost_seconds, longest_rally_seconds, longest_rally_is_won, shortest_rally_seconds, shortest_rally_is_won, total_game_time_seconds, created_at, updated_at from game_histories WHERE user_id = $1::uuid ORDER BY game_started_at DESC limit 12
 `
@@ -1043,4 +1087,39 @@ func (q *Queries) GetPlayedGames(ctx context.Context, arg GetPlayedGamesParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateInstagramFeed = `-- name: UpdateInstagramFeed :exec
+INSERT INTO instagram_feeds(
+    media_id,
+    media_type,
+    media_url,
+    permalink,
+    posted_at
+) VALUES (
+    $1::text,
+    $2::text,
+    $3::text,
+    $4::text,
+    $5
+) ON CONFLICT (media_id) DO NOTHING
+`
+
+type UpdateInstagramFeedParams struct {
+	MediaID   string
+	MediaType string
+	MediaUrl  string
+	Permalink string
+	PostedAt  pgtype.Timestamp
+}
+
+func (q *Queries) UpdateInstagramFeed(ctx context.Context, arg UpdateInstagramFeedParams) error {
+	_, err := q.db.Exec(ctx, updateInstagramFeed,
+		arg.MediaID,
+		arg.MediaType,
+		arg.MediaUrl,
+		arg.Permalink,
+		arg.PostedAt,
+	)
+	return err
 }
