@@ -638,7 +638,7 @@ func (gp GamePostgres) UpdateInstagramFeed(ctx context.Context, tx *pgx.Tx, medi
 		MediaID:   media.MediaID,
 		MediaType: media.MediaType,
 		MediaUrl:  media.MediaUrl,
-		Permalink: media.MediaUrl,
+		Permalink: media.Permalink,
 		PostedAt:  pgPostedAt,
 	})
 	if err != nil {
