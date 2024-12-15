@@ -73,13 +73,36 @@ paths:
 
   /update-instagram-feed:
     get:
-      summary: Get latest media which is posted
+      summary: Update db with latest media
       operationId: updateInstagramFeed
       tags:
         - instagram
       responses:
         "200":
           description: Successfully update database with latest media
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
+  /get-instagram-feed:
+    get:
+      summary: Get latest media which is posted
+      operationId: getInstagramFeed
+      tags:
+        - instagram
+      responses:
+        "200":
+          description: Successfully get latest media
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - feed
+                properties:
+                  feed:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/InstagramMedia"
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
@@ -222,6 +245,35 @@ components:
           type: string
         is_ended:
           type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    InstagramMedia:
+      type: object
+      required:
+        - id
+        - media_id
+        - media_type
+        - media_url
+        - permalink
+        - posted_at
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        media_id:
+          type: string
+        media_type:
+          type: string
+        media_url:
+          type: string
+        permalink:
+          type: string
+        posted_at:
+          type: string
         created_at:
           type: string
         updated_at:

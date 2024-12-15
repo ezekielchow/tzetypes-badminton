@@ -14,6 +14,13 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  GetInstagramFeed200Response,
+} from '../models/index';
+import {
+    GetInstagramFeed200ResponseFromJSON,
+    GetInstagramFeed200ResponseToJSON,
+} from '../models/index';
 
 /**
  * 
@@ -22,6 +29,32 @@ export class InstagramApi extends runtime.BaseAPI {
 
     /**
      * Get latest media which is posted
+     */
+    async getInstagramFeedRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetInstagramFeed200Response>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/get-instagram-feed`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetInstagramFeed200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get latest media which is posted
+     */
+    async getInstagramFeed(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetInstagramFeed200Response> {
+        const response = await this.getInstagramFeedRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Update db with latest media
      */
     async updateInstagramFeedRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
@@ -39,7 +72,7 @@ export class InstagramApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get latest media which is posted
+     * Update db with latest media
      */
     async updateInstagramFeed(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.updateInstagramFeedRaw(initOverrides);

@@ -131,3 +131,7 @@ func (c Controller) GetGameStatistics(ctx context.Context, input oapipublic.GetG
 func (c Controller) UpdateInstagramFeed(ctx context.Context, input oapipublic.UpdateInstagramFeedRequestObject) (oapipublic.UpdateInstagramFeedResponseObject, error) {
 	return c.Services.GameService.UpdateInstagramFeed(ctx, input)
 }
+
+func (c Controller) GetInstagramFeed(ctx context.Context, input oapipublic.GetInstagramFeedRequestObject) (oapipublic.GetInstagramFeedResponseObject, error) {
+	return c.Services.GameService.GetInstagramFeed(ctx, input)
+}

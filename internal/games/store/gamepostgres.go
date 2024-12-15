@@ -656,3 +656,29 @@ func (gp GamePostgres) GetInstagramFeedCount(ctx context.Context, tx *pgx.Tx) (i
 
 	return queries.GetInstagramFeedCount(ctx)
 }
+
+func (gp GamePostgres) GetLatestInstagramFeed(ctx context.Context, tx *pgx.Tx) ([]models.InstagramMedia, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	dbRes, err := queries.GetLatestInstagramFeed(ctx)
+	if err != nil {
+		return []models.InstagramMedia{}, err
+	}
+
+	feed := []models.InstagramMedia{}
+	for _, row := range dbRes {
+
+		model := models.InstagramMedia{}
+		err = model.PostgresToModel(row)
+		if err != nil {
+			return []models.InstagramMedia{}, err
+		}
+
+		feed = append(feed, model)
+	}
+
+	return feed, nil
+}

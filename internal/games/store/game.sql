@@ -277,3 +277,6 @@ INSERT INTO instagram_feeds(
 
 -- name: GetInstagramFeedCount :one
 SELECT count(*) AS total from instagram_feeds;
+
+-- name: GetLatestInstagramFeed :many
+SELECT * from instagram_feeds WHERE media_type = 'CAROUSEL_ALBUM' ORDER BY posted_at DESC LIMIT 5;
