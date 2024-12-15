@@ -24,6 +24,7 @@ type GameServiceInterface interface {
 	EndAbandonedGames(ctx context.Context, input oapipublic.EndAbandonedGamesRequestObject) (oapipublic.EndAbandonedGamesResponseObject, error)
 	ListActiveGames(ctx context.Context, input oapiprivate.ListActiveGamesRequestObject, user models.User) (oapiprivate.ListActiveGamesResponseObject, error)
 	GetGameStatistics(ctx context.Context, input oapipublic.GetGameStatisticsRequestObject) (oapipublic.GetGameStatisticsResponseObject, error)
+	UpdateInstagramFeed(ctx context.Context, input oapipublic.UpdateInstagramFeedRequestObject) (oapipublic.UpdateInstagramFeedResponseObject, error)
 }
 
 type GameService struct {

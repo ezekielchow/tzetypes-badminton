@@ -71,6 +71,18 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponseSchema"
 
+  /update-instagram-feed:
+    get:
+      summary: Get latest media which is posted
+      operationId: updateInstagramFeed
+      tags:
+        - instagram
+      responses:
+        "200":
+          description: Successfully update database with latest media
+        default:
+          $ref: "#/components/responses/ErrorResponseSchema"
+
 components:
   schemas:
     LoginRequestSchema:

@@ -127,3 +127,7 @@ func (c Controller) ListActiveGames(ctx context.Context, input oapiprivate.ListA
 func (c Controller) GetGameStatistics(ctx context.Context, input oapipublic.GetGameStatisticsRequestObject) (oapipublic.GetGameStatisticsResponseObject, error) {
 	return c.Services.GameService.GetGameStatistics(ctx, input)
 }
+
+func (c Controller) UpdateInstagramFeed(ctx context.Context, input oapipublic.UpdateInstagramFeedRequestObject) (oapipublic.UpdateInstagramFeedResponseObject, error) {
+	return c.Services.GameService.UpdateInstagramFeed(ctx, input)
+}

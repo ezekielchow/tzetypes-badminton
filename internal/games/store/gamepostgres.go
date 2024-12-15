@@ -622,3 +622,37 @@ func (gp GamePostgres) GetClubGames(ctx context.Context, tx *pgx.Tx, clubID stri
 
 	return dbRes, nil
 }
+
+func (gp GamePostgres) UpdateInstagramFeed(ctx context.Context, tx *pgx.Tx, media models.InstagramMedia) error {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	pgPostedAt, err := utils.TimeToPgTimestamp(media.PostedAt)
+	if err != nil {
+		return err
+	}
+
+	err = queries.UpdateInstagramFeed(ctx, database.UpdateInstagramFeedParams{
+		MediaID:   media.MediaID,
+		MediaType: media.MediaType,
+		MediaUrl:  media.MediaUrl,
+		Permalink: media.MediaUrl,
+		PostedAt:  pgPostedAt,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (gp GamePostgres) GetInstagramFeedCount(ctx context.Context, tx *pgx.Tx) (int64, error) {
+	queries := gp.Queries
+	if tx != nil {
+		queries = queries.WithTx(*tx)
+	}
+
+	return queries.GetInstagramFeedCount(ctx)
+}

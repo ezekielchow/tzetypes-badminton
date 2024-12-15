@@ -1,4 +1,5 @@
 apis/GameApi.ts
+apis/InstagramApi.ts
 apis/index.ts
 index.ts
 models/Game.ts

@@ -29,4 +29,6 @@ type GameRepository interface {
 	GetActiveGames(ctx context.Context, tx *pgx.Tx, clubID string) ([]models.Game, error)
 	GetPlayedGames(ctx context.Context, tx *pgx.Tx, userID string, sortIsGameWon string, sortGameCreatedAt string, offset int, limit int) ([]database.GetPlayedGamesRow, error)
 	GetClubGames(ctx context.Context, tx *pgx.Tx, clubID string, sortGameCreatedAt string, offset int, limit int) ([]database.GetClubGamesRow, error)
+	UpdateInstagramFeed(ctx context.Context, tx *pgx.Tx, media models.InstagramMedia) error
+	GetInstagramFeedCount(ctx context.Context, tx *pgx.Tx) (int64, error)
 }
