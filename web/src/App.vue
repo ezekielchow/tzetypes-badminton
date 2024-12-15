@@ -9,22 +9,24 @@ const gameStore = useGameStore()
 gameStore.setBackendUrl(import.meta.env.VITE_PROXY_URL)
 const userStore = useUserStore()
 
-let gameProgressInterval: number
+let gameProgressInterval: number = -1
 let isSyncing = false
 
 gameStore.$subscribe((mutation, state) => {
-  if (!gameProgressInterval && state.currentGameSettings.isEnded == false) {
+  if (gameProgressInterval < 0 && state.currentGameSettings.isEnded == false) {
     gameProgressInterval = window.setInterval(syncGameProgress, 500)
   }
 
-  if (gameProgressInterval && state.currentGameSettings.isEnded) {
+  if (gameProgressInterval > 0 && state.currentGameSettings.isEnded) {
     window.clearInterval(gameProgressInterval)
+    gameProgressInterval = -1
   }
 })
 
 onBeforeUnmount(() => {
   if (gameProgressInterval > 0) {
     window.clearInterval(gameProgressInterval)
+    gameProgressInterval = -1
   }
 })
 
