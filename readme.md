@@ -31,3 +31,7 @@ sudo apt install build-essential
 1. Write & run test for any services for APIs
 2. Run `make pre-commit` without any errors
 3. Make PR!
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
