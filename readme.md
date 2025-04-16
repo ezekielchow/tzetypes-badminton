@@ -1,3 +1,12 @@
+# About
+A badminton score tracking & post analysis app
+
+# Demo
+![Screenshot from 2025-04-16 10-29-10](https://github.com/user-attachments/assets/3bce7582-3fa0-4ed5-95f6-cc83bf234194)
+![Screenshot from 2025-04-16 10-29-48](https://github.com/user-attachments/assets/ffab294e-5753-4906-b9d8-d1a473da7202)
+![Screenshot from 2025-04-16 10-30-07](https://github.com/user-attachments/assets/325d46ed-c769-4d85-af32-5dfa1a9fda90)
+
+
 # Developer Setup
 1. Install make
 - On Ubuntu, you can install build essential tools which will also take care of installing the make:
